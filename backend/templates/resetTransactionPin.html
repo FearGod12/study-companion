@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transaction Pin Reset</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #84dfc1;
+      }
+      p {
+        color: #2c2a2a;
+      }
+      h1,
+      h2 {
+        color: #09325e;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .content {
+        margin-bottom: 20px;
+        line-height: 1.6;
+        padding: 20px;
+        background-color: white;
+        border-radius: 0 0 10px 10px;
+      }
+      .token-container {
+        text-align: center;
+        padding: 10px;
+        background-color: #84dfc1;
+      }
+      .token {
+        font-size: 30px;
+        font-weight: 700;
+        color: #09325e;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="content">
+        <h2>Transaction Pin Reset Request</h2>
+        <h4>Dear <%= wallet.accountName || 'Valued Customer' %>,</h4>
+        <p>
+          We have received a request to reset the Transaction Pin for your wallet account.
+        </p>
+        <p>
+          To complete the Transaction Pin reset process, please use the following code:
+        </p>
+        <div class="token-container">
+          <h2 class="token"><%= token %></h2>
+        </div>
+        <p>
+          <strong>Important:</strong> This verification code is valid for only 10 minutes. If you do not use the code to reset your Transaction Pin within this period, it will expire and you will need to restart the Transaction Pin reset process from the beginning.
+        </p>
+        <p style="color: red;">
+          If you did not initiate this Transaction Pin
+          reset request, we
+          recommend changing your login password and Transaction Pin as a precautionary measure.
+        </p>
+        <p>
+          If you have any questions or concerns, please don't hesitate to
+          contact our support team at
+          <a href="mailto:support@yourcompany.com"
+            ><%= process.env.SMTP_USERNAME %></a
+          >.
+        </p>
+        <p>Thank you for your attention to your account security.</p>
+        <p>
+          Best regards,<br />
+          Rokwood Group
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,53 @@
+import User, { IUser } from '../models/users.js';
+import { CustomError } from '../utils/customError.js';
+import { generateToken } from '../utils/jwt.js';
+import { EmailSubject, sendMail } from '../utils/sendMail.js';
+import { redisService } from './redis.js';
+
+export class userService {
+  static async createUser(data: any): Promise<IUser | null> {
+    if (data.password !== data.confirmPassword) {
+      throw new CustomError(400, 'Passwords do not match');
+    }
+    const user = await User.findOne({ email: data.email });
+    if (user) {
+      throw new Error('Email already exists');
+    }
+
+    // 6 digit reset token
+    const token = Math.floor(100000 + Math.random() * 900000).toString();
+    const key = data.email + token;
+    await redisService.saveData(key, token);
+    const newUser = await new User(data).save();
+
+    // send email to user with token
+    sendMail(EmailSubject.VerifyEmail, 'Verify Email', { user: newUser, token });
+    return newUser;
+  }
+
+  static async verifyEmail(email: string, token: string) {
+    const key = email + token;
+    const data = redisService.getData(key);
+    if (!data) {
+      throw new CustomError(400, 'Invalid token');
+    }
+    const user = await User.findOneAndUpdate({ email }, { emailVerified: true });
+    redisService.deleteData(key);
+    return user;
+  }
+
+  static async login(email: string, password: string) {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new CustomError(400, 'Invalid email or password');
+    }
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      throw new CustomError(400, 'Invalid email or password');
+    }
+    // jwt token
+    const jwtToken = generateToken({ _id: user._id as string, email: user.email });
+
+    return jwtToken;
+  }
+}
