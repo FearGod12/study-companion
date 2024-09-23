@@ -43,18 +43,10 @@ const UserSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
-    resetToken: {
-      type: String,
-      default: null,
-    },
+
     phoneNumber: {
       type: String,
-      unique: true,
       trim: true,
-      validate: {
-        validator: (value: string) => /^\+?[1-9]\d{1,14}$/.test(value),
-        message: 'Please enter a valid phone number',
-      },
     },
     address: {
       type: String,

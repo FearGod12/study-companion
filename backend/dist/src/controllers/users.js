@@ -26,7 +26,9 @@ export class UserController {
                 confirmPassword,
                 address,
             });
-            res.status(201).json(makeResponse(true, 'Account created successfully', user));
+            res
+                .status(201)
+                .json(makeResponse(true, 'Account created successfully. Please use the code sent to your email to verify your account', user));
         }
         catch (error) {
             next(error);
@@ -41,6 +43,20 @@ export class UserController {
             }
             const user = await userService.verifyEmail(email, token);
             res.status(200).json(makeResponse(true, 'Email verified successfully', user));
+        }
+        catch (error) {
+            next(error);
+        }
+    };
+    static login = async (req, res, next) => {
+        try {
+            const { email, password } = req.body;
+            const { error } = LoginValidator.validate({ email, password });
+            if (error) {
+                return res.status(400).json(makeResponse(false, error.details[0].message, null));
+            }
+            const access_Token = await userService.login(email, password);
+            res.json(makeResponse(true, 'User logged in successfully', { access_Token }));
         }
         catch (error) {
             next(error);
@@ -85,20 +101,6 @@ export class UserController {
             }
             const updatedUser = await user.updateOne(req.body);
             res.json(makeResponse(true, 'User Account updated successfully', updatedUser));
-        }
-        catch (error) {
-            next(error);
-        }
-    };
-    static login = async (req, res, next) => {
-        try {
-            const { email, password } = req.body;
-            const { error } = LoginValidator.validate({ email, password });
-            if (error) {
-                return res.status(400).json(makeResponse(false, error.details[0].message, null));
-            }
-            const access_Token = await userService.login(email, password);
-            res.json(makeResponse(true, 'User logged in successfully', { access_Token }));
         }
         catch (error) {
             next(error);

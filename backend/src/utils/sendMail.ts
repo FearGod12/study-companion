@@ -1,6 +1,6 @@
 import ejs from 'ejs';
 import fs from 'fs/promises';
-import nodemailer from 'nodemailer';
+import nodemailer, { Transporter } from 'nodemailer';
 import { IUser } from '../models/users.js';
 
 export enum EmailSubject {
@@ -14,7 +14,7 @@ export enum EmailSubject {
 interface EmailData {
   user: IUser;
   token?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface ErrorData {
@@ -25,25 +25,41 @@ interface ErrorData {
   stack: string;
   method: string;
   url: string;
-  additionalInfo: any;
+  additionalInfo: {
+    headers: unknown;
+    body: unknown;
+    params: unknown;
+    query: unknown;
+  };
 }
 
-export const sendMail = async (subject: EmailSubject, templateName: string, data: EmailData) => {
-  const transporter = nodemailer.createTransport({
+function createTransporter(): Transporter {
+  return nodemailer.createTransport({
+    // host: 'smpt.gmail.com',
+    // port: 465,
     service: 'gmail',
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_PASSWORD,
     },
   });
+}
+
+async function renderTemplate(templateName: string, data: any): Promise<string> {
+  const templatePath = `./templates/${templateName}.html`;
+  const template = await fs.readFile(templatePath, 'utf-8');
+  return ejs.render(template, data);
+}
+
+export async function sendMail(
+  subject: EmailSubject,
+  templateName: string,
+  data: EmailData,
+): Promise<void> {
+  const transporter = createTransporter();
 
   try {
-    // Read the HTML template
-    const templatePath = `./templates/${templateName}.html`;
-    const template = await fs.readFile(templatePath, 'utf-8');
-
-    // Render the template with EJS
-    const html = ejs.render(template, data);
+    const html = await renderTemplate(templateName, data);
 
     const mailOptions = {
       from: `"Study Companion" <${process.env.GMAIL_USER}>`,
@@ -53,61 +69,62 @@ export const sendMail = async (subject: EmailSubject, templateName: string, data
     };
 
     await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully');
   } catch (err) {
+    console.error('Error sending email:', err);
     throw err;
   }
-};
+}
 
-export const sendErrorMail = async (
+export async function sendErrorMail(
   subject: EmailSubject,
   templateName: string,
   error: Error,
   req: any,
-): Promise<void> => {
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_SERVER,
-    port: process.env.SMTP_SERVER_PORT ? parseInt(process.env.SMTP_SERVER_PORT, 10) : 465,
-    secure: true, // Changed to true for port 465
-    auth: {
-      user: process.env.SMTP_USERNAME,
-      pass: process.env.SMTP_PASSWORD,
-    },
-  });
+): Promise<void> {
+  const transporter = createTransporter();
 
   try {
-    const templatePath = `./templates/${templateName}.html`;
-    const template = await fs.readFile(templatePath, 'utf-8');
-    const errorStack = error.stack?.split('\n') || [];
-    const errorLocation = errorStack[1] ? errorStack[1].trim() : 'Unknown location';
-    const match = errorLocation.match(/\((.+):(\d+):\d+\)$/);
+    const errorData: ErrorData = parseErrorData(error, req);
+    const html = await renderTemplate(templateName, { error: errorData });
 
-    const errorData: ErrorData = {
-      timestamp: new Date().toISOString(),
-      fileName: match ? match[1] : 'Unknown file',
-      lineNumber: match ? parseInt(match[2], 10) : 0,
-      message: error.message,
-      stack: error.stack || 'No stack trace available',
-      method: req.method,
-      url: req.url,
-      additionalInfo: {
-        headers: req.headers,
-        body: req.body,
-        params: req.params,
-        query: req.query,
-      },
-    };
-
-    const html = ejs.render(template, { error: errorData });
+    const rootEmail = process.env.ROOT_EMAIL;
+    if (!rootEmail) {
+      throw new Error('ROOT_EMAIL environment variable is not defined');
+    }
 
     const mailOptions = {
-      from: `"Payment Engine API" <${process.env.SMTP_USERNAME}>`,
-      to: process.env.ROOT_EMAIL?.split(','),
+      from: `"Payment Engine API" <${process.env.GMAIL_USER}>`,
+      to: rootEmail.split(','),
       subject: subject,
       html: html,
     };
 
     await transporter.sendMail(mailOptions);
   } catch (err) {
-    console.error('Error sending email:', err);
+    console.error('Error sending error email:', err);
+    // Consider implementing a fallback notification method here
   }
-};
+}
+
+function parseErrorData(error: Error, req: any): ErrorData {
+  const errorStack = error.stack?.split('\n') || [];
+  const errorLocation = errorStack[1] ? errorStack[1].trim() : 'Unknown location';
+  const match = errorLocation.match(/\((.+):(\d+):\d+\)$/);
+
+  return {
+    timestamp: new Date().toISOString(),
+    fileName: match ? match[1] : 'Unknown file',
+    lineNumber: match ? parseInt(match[2], 10) : 0,
+    message: error.message,
+    stack: error.stack || 'No stack trace available',
+    method: req.method,
+    url: req.url,
+    additionalInfo: {
+      headers: req.headers,
+      body: req.body,
+      params: req.params,
+      query: req.query,
+    },
+  };
+}

@@ -21,13 +21,13 @@ export class userService {
     const newUser = await new User(data).save();
 
     // send email to user with token
-    sendMail(EmailSubject.VerifyEmail, 'Verify Email', { user: newUser, token });
+    sendMail(EmailSubject.VerifyEmail, 'emailVerification', { user: newUser, token });
     return newUser;
   }
 
   static async verifyEmail(email: string, token: string) {
     const key = email + token;
-    const data = redisService.getData(key);
+    const data = await redisService.getData(key);
     if (!data) {
       throw new CustomError(400, 'Invalid token');
     }
