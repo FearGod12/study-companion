@@ -94,7 +94,8 @@ export class UserController {
       if (error) {
         return res.status(400).json({ message: error.details[0].message });
       }
-      const updatedUser = await user.updateOne({ avatar });
+
+      const updatedUser = await userService.updateAvatar(avatar, user);
       res.json(makeResponse(true, 'User Account updated successfully', updatedUser));
     } catch (error) {
       next(error);

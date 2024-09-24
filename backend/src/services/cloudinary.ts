@@ -12,15 +12,17 @@ interface CloudinaryUploadResult {
   url: string;
 }
 
-export async function uploadBase64Image(
-  base64String: string,
-  folder: string = 'Study Companion',
-): Promise<CloudinaryUploadResult> {
-  try {
-    const result = await cloudinary.uploader.upload(base64String, {
-      folder: folder,
-      resource_type: 'auto',
-    });
+export class cloudinayService {
+
+  static async uploadBase64Image(
+    base64String: string,
+    folder: string = 'Study Companion',
+  ): Promise<CloudinaryUploadResult> {
+    try {
+      const result = await cloudinary.uploader.upload(base64String, {
+        folder: folder,
+        resource_type: 'auto',
+      });
     return result;
   } catch (error) {
     console.error('Error uploading base64 image:', error);
@@ -28,7 +30,7 @@ export async function uploadBase64Image(
   }
 }
 
-export async function deleteImage(publicId: string): Promise<void> {
+static async deleteImage(publicId: string): Promise<void> {
   try {
     await cloudinary.uploader.destroy(publicId);
   } catch (error) {
@@ -37,7 +39,7 @@ export async function deleteImage(publicId: string): Promise<void> {
   }
 }
 
-export function getOptimizedUrl(
+static getOptimizedUrl(
   publicId: string,
   options: object = {},
 ): string {
@@ -48,11 +50,12 @@ export function getOptimizedUrl(
   });
 }
 
-export function getTransformedUrl(
+static getTransformedUrl(
   publicId: string,
   options: object = {},
 ): string {
   return cloudinary.url(publicId, options);
+}
 }
 
 // Example usage (can be removed in production)
@@ -60,18 +63,18 @@ async function exampleUsage() {
   try {
     // Example base64 string (this is a very small red dot, for demonstration purposes)
     const base64Image =
-      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==';
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==';
 
     // Upload a base64 image
-    const uploadResult = await uploadBase64Image(base64Image);
+    const uploadResult = await cloudinayService.uploadBase64Image(base64Image);
     console.log('Upload result:', uploadResult);
 
     // Get optimized URL
-    const optimizedUrl = getOptimizedUrl(uploadResult.public_id);
+    const optimizedUrl = cloudinayService.getOptimizedUrl(uploadResult.public_id);
     console.log('Optimized URL:', optimizedUrl);
 
     // Get transformed URL (auto-crop to square)
-    const autoCropUrl = getTransformedUrl(uploadResult.public_id, {
+    const autoCropUrl = cloudinayService.getTransformedUrl(uploadResult.public_id, {
       crop: 'auto',
       gravity: 'auto',
       width: 500,
@@ -80,7 +83,7 @@ async function exampleUsage() {
     console.log('Auto-cropped URL:', autoCropUrl);
 
     // Delete the uploaded image
-    await deleteImage(uploadResult.public_id);
+    await cloudinayService.deleteImage(uploadResult.public_id);
     console.log('Image deleted successfully');
   } catch (error) {
     console.error('Error in example usage:', error);

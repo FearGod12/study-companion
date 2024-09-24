@@ -2,6 +2,7 @@ import User, { IUser } from '../models/users.js';
 import { CustomError } from '../utils/customError.js';
 import { generateToken } from '../utils/jwt.js';
 import { EmailSubject, sendMail } from '../utils/sendMail.js';
+import { cloudinayService } from './cloudinary.js';
 import { redisService } from './redis.js';
 
 export class userService {
@@ -49,5 +50,18 @@ export class userService {
     const jwtToken = generateToken({ _id: user._id as string, email: user.email });
 
     return jwtToken;
+  }
+
+  static async updateAvatar(base64String: string, user: IUser){
+    try {
+
+      // upload to cloudinary storage
+      const result = await cloudinayService.uploadBase64Image(base64String)
+      user.avatar = result.url;
+      await user.save()
+      return user
+    } catch (error: any) {
+      throw new Error(error.message)
+    }
   }
 }

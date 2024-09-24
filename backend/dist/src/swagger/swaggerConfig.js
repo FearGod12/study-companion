@@ -16,20 +16,20 @@ const options = {
                 url: 'https://www.apache.org/licenses/LICENSE-2.0.html',
             },
         },
-        servers: [
-            {
-                url: 'https://api.studycompanion.com/v1',
-                description: 'Production server',
-            },
-            {
-                url: 'https://staging-api.studycompanion.com/v1',
-                description: 'Staging server',
-            },
-            {
-                url: 'http://localhost:3000/v1',
-                description: 'Local development server',
-            },
-        ],
+        // servers: [
+        //   {
+        //     url: 'https://api.studycompanion.com/v1',
+        //     description: 'Production server',
+        //   },
+        //   {
+        //     url: 'https://staging-api.studycompanion.com/v1',
+        //     description: 'Staging server',
+        //   },
+        //   {
+        //     url: 'http://localhost:3000/v1',
+        //     description: 'Local development server',
+        //   },
+        // ],
         tags: [
             {
                 name: 'Users',

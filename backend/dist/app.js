@@ -29,7 +29,7 @@ app.use((err, _req, res, next) => {
     next(err);
 });
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/v1', router);
+app.use('/', router);
 app.get('/api', async (_req, res, next) => {
     try {
         res.send(`Study Companion API is up and running`);

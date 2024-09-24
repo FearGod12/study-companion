@@ -5,37 +5,39 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_SECRET_KEY,
 });
-export async function uploadBase64Image(base64String, folder = 'Study Companion') {
-    try {
-        const result = await cloudinary.uploader.upload(base64String, {
-            folder: folder,
-            resource_type: 'auto',
+export class cloudinayService {
+    static async uploadBase64Image(base64String, folder = 'Study Companion') {
+        try {
+            const result = await cloudinary.uploader.upload(base64String, {
+                folder: folder,
+                resource_type: 'auto',
+            });
+            return result;
+        }
+        catch (error) {
+            console.error('Error uploading base64 image:', error);
+            throw error;
+        }
+    }
+    static async deleteImage(publicId) {
+        try {
+            await cloudinary.uploader.destroy(publicId);
+        }
+        catch (error) {
+            console.error('Error deleting image:', error);
+            throw error;
+        }
+    }
+    static getOptimizedUrl(publicId, options = {}) {
+        return cloudinary.url(publicId, {
+            fetch_format: 'auto',
+            quality: 'auto',
+            ...options,
         });
-        return result;
     }
-    catch (error) {
-        console.error('Error uploading base64 image:', error);
-        throw error;
+    static getTransformedUrl(publicId, options = {}) {
+        return cloudinary.url(publicId, options);
     }
-}
-export async function deleteImage(publicId) {
-    try {
-        await cloudinary.uploader.destroy(publicId);
-    }
-    catch (error) {
-        console.error('Error deleting image:', error);
-        throw error;
-    }
-}
-export function getOptimizedUrl(publicId, options = {}) {
-    return cloudinary.url(publicId, {
-        fetch_format: 'auto',
-        quality: 'auto',
-        ...options,
-    });
-}
-export function getTransformedUrl(publicId, options = {}) {
-    return cloudinary.url(publicId, options);
 }
 // Example usage (can be removed in production)
 async function exampleUsage() {
@@ -43,13 +45,13 @@ async function exampleUsage() {
         // Example base64 string (this is a very small red dot, for demonstration purposes)
         const base64Image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==';
         // Upload a base64 image
-        const uploadResult = await uploadBase64Image(base64Image);
+        const uploadResult = await cloudinayService.uploadBase64Image(base64Image);
         console.log('Upload result:', uploadResult);
         // Get optimized URL
-        const optimizedUrl = getOptimizedUrl(uploadResult.public_id);
+        const optimizedUrl = cloudinayService.getOptimizedUrl(uploadResult.public_id);
         console.log('Optimized URL:', optimizedUrl);
         // Get transformed URL (auto-crop to square)
-        const autoCropUrl = getTransformedUrl(uploadResult.public_id, {
+        const autoCropUrl = cloudinayService.getTransformedUrl(uploadResult.public_id, {
             crop: 'auto',
             gravity: 'auto',
             width: 500,
@@ -57,7 +59,7 @@ async function exampleUsage() {
         });
         console.log('Auto-cropped URL:', autoCropUrl);
         // Delete the uploaded image
-        await deleteImage(uploadResult.public_id);
+        await cloudinayService.deleteImage(uploadResult.public_id);
         console.log('Image deleted successfully');
     }
     catch (error) {

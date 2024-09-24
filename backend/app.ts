@@ -35,7 +35,7 @@ app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use('/v1', router);
+app.use('/', router);
 
 app.get('/api', async (_req, res, next) => {
   try {

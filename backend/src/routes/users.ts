@@ -171,6 +171,8 @@ export default router;
  *   /users/me/avatar:
  *     patch:
  *       summary: Update user avatar
+ *       description: Base64 encoded string of the user avatar
+ *
  *       tags:
  *         - Users
  *       security:
@@ -186,6 +188,7 @@ export default router;
  *               properties:
  *                 avatar:
  *                   type: string
+ *                   example: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==
  *       responses:
  *         '200':
  *           description: User avatar updated successfully
