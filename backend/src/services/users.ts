@@ -52,16 +52,17 @@ export class userService {
     return jwtToken;
   }
 
-  static async updateAvatar(base64String: string, user: IUser){
+  static async updateAvatar(file: Express.Multer.File, user: IUser) {
     try {
+      // Upload to cloudinary directly from buffer
+      const result = await cloudinayService.uploadBuffer(file.buffer, file.mimetype);
 
-      // upload to cloudinary storage
-      const result = await cloudinayService.uploadBase64Image(base64String)
+      // Update user avatar
       user.avatar = result.url;
-      await user.save()
-      return user
+      await user.save();
+      return user;
     } catch (error: any) {
-      throw new Error(error.message)
+      throw new Error(error.message);
     }
   }
 }

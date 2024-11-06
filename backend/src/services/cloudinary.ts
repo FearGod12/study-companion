@@ -13,6 +13,25 @@ interface CloudinaryUploadResult {
 }
 
 export class cloudinayService {
+  static async uploadBuffer(
+    buffer: Buffer,
+    mimetype: string,
+    folder: string = 'Study Companion',
+  ): Promise<CloudinaryUploadResult> {
+    try {
+      // Convert buffer to base64 string for Cloudinary
+      const base64String = `data:${mimetype};base64,${buffer.toString('base64')}`;
+
+      const result = await cloudinary.uploader.upload(base64String, {
+        folder: folder,
+        resource_type: 'auto',
+      });
+      return result;
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw error;
+    }
+  }
 
   static async uploadBase64Image(
     base64String: string,
@@ -23,39 +42,33 @@ export class cloudinayService {
         folder: folder,
         resource_type: 'auto',
       });
-    return result;
-  } catch (error) {
-    console.error('Error uploading base64 image:', error);
-    throw error;
+      return result;
+    } catch (error) {
+      console.error('Error uploading base64 image:', error);
+      throw error;
+    }
   }
-}
 
-static async deleteImage(publicId: string): Promise<void> {
-  try {
-    await cloudinary.uploader.destroy(publicId);
-  } catch (error) {
-    console.error('Error deleting image:', error);
-    throw error;
+  static async deleteImage(publicId: string): Promise<void> {
+    try {
+      await cloudinary.uploader.destroy(publicId);
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      throw error;
+    }
   }
-}
 
-static getOptimizedUrl(
-  publicId: string,
-  options: object = {},
-): string {
-  return cloudinary.url(publicId, {
-    fetch_format: 'auto',
-    quality: 'auto',
-    ...options,
-  });
-}
+  static getOptimizedUrl(publicId: string, options: object = {}): string {
+    return cloudinary.url(publicId, {
+      fetch_format: 'auto',
+      quality: 'auto',
+      ...options,
+    });
+  }
 
-static getTransformedUrl(
-  publicId: string,
-  options: object = {},
-): string {
-  return cloudinary.url(publicId, options);
-}
+  static getTransformedUrl(publicId: string, options: object = {}): string {
+    return cloudinary.url(publicId, options);
+  }
 }
 
 // Example usage (can be removed in production)
@@ -63,7 +76,7 @@ async function exampleUsage() {
   try {
     // Example base64 string (this is a very small red dot, for demonstration purposes)
     const base64Image =
-    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==';
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==';
 
     // Upload a base64 image
     const uploadResult = await cloudinayService.uploadBase64Image(base64Image);

@@ -3,11 +3,11 @@ import chalk from 'chalk';
 import cors from 'cors';
 import express, { NextFunction, Request, Response } from 'express';
 import swaggerUi from 'swagger-ui-express';
-import { errorHandler } from './src/middlewares/errorHandler.js';
-import rateLimiter from './src/middlewares/rateLimiter.js';
-import { makeResponse } from './src/utils/makeResponse.js';
-import swaggerSpec from './src/swagger/swaggerConfig.js';
-import router from './src/routes/users.js';
+import { errorHandler } from './middlewares/errorHandler.js';
+import rateLimiter from './middlewares/rateLimiter.js';
+import router from './routes/users.js';
+import swaggerSpec from './swagger/swaggerConfig.js';
+import { makeResponse } from './utils/makeResponse.js';
 
 const app = express();
 

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { UserController } from '../controllers/users.js';
 import isAuthenticated from '../middlewares/loginRequired.js';
+import { upload } from '../middlewares/file-upload.js';
 
 const router = Router();
 
@@ -8,7 +9,12 @@ router.post('/users', UserController.createUser);
 router.post('/users/verify-email', UserController.verifyEmail);
 router.post('/users/login', UserController.login);
 router.get('/users/me', isAuthenticated, UserController.getMe);
-router.patch('/users/me/avatar', isAuthenticated, UserController.updateAvatar);
+router.patch(
+  '/users/me/avatar',
+  isAuthenticated,
+  upload.single('avatar'), // Add multer middleware
+  UserController.updateAvatar,
+);
 
 export default router;
 
@@ -168,47 +174,6 @@ export default router;
  *               schema:
  *                 $ref: '#/components/schemas/ErrorResponse'
  *
- *   /users/me/avatar:
- *     patch:
- *       summary: Update user avatar
- *       description: Base64 encoded string of the user avatar
- *
- *       tags:
- *         - Users
- *       security:
- *         - BearerAuth: []
- *       requestBody:
- *         required: true
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               required:
- *                 - avatar
- *               properties:
- *                 avatar:
- *                   type: string
- *                   example: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==
- *       responses:
- *         '200':
- *           description: User avatar updated successfully
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: '#/components/schemas/UserResponse'
- *         '400':
- *           description: Bad request
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: '#/components/schemas/ErrorResponse'
- *         '401':
- *           description: Unauthorized
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: '#/components/schemas/ErrorResponse'
- *
  * components:
  *   schemas:
  *     UserResponse:
@@ -262,4 +227,50 @@ export default router;
  *       type: http
  *       scheme: bearer
  *       bearerFormat: JWT
+ */
+
+/**
+ * @swagger
+ * /users/me/avatar:
+ *   patch:
+ *     summary: Update user avatar
+ *     description: Upload a new avatar image for the user
+ *     tags:
+ *       - Users
+ *     security:
+ *       - BearerAuth: []
+ *     consumes:
+ *       - multipart/form-data
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - avatar
+ *             properties:
+ *               avatar:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image file (jpg, jpeg, png, gif)
+ *     responses:
+ *       '200':
+ *         description: User avatar updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserResponse'
+ *       '400':
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       '401':
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */

@@ -89,14 +89,14 @@ export class UserController {
   static updateAvatar = async (req: any, res: Response, next: NextFunction) => {
     try {
       const user = req.user;
-      const { avatar } = req.body;
-      const { error } = UpdateAvatarValidator.validate({ avatar });
-      if (error) {
-        return res.status(400).json({ message: error.details[0].message });
+      const file = req.file;
+
+      if (!file) {
+        return res.status(400).json(makeResponse(false, 'No file uploaded', null));
       }
 
-      const updatedUser = await userService.updateAvatar(avatar, user);
-      res.json(makeResponse(true, 'User Account updated successfully', updatedUser));
+      const updatedUser = await userService.updateAvatar(file, user);
+      res.json(makeResponse(true, 'avatar updated successfully', updatedUser));
     } catch (error) {
       next(error);
     }
