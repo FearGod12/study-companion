@@ -131,6 +131,9 @@ export class NotificationService {
             }
         }
     }
+    static updateNotifications(scheduleId) {
+        throw new Error('not yet implemented');
+    }
     static calculateNextOccurrence(startTime, dayOfWeek) {
         if (dayOfWeek < 0 || dayOfWeek > 6) {
             console.error(`Invalid day of week: ${dayOfWeek}`);

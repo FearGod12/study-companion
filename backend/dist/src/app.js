@@ -5,7 +5,6 @@ import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import { errorHandler } from './middlewares/errorHandler.js';
 import rateLimiter from './middlewares/rateLimiter.js';
-import router from './routes/users.js';
 import swaggerSpec from './swagger/swaggerConfig.js';
 import { makeResponse } from './utils/makeResponse.js';
 const app = express();
@@ -29,7 +28,11 @@ app.use((err, _req, res, next) => {
     next(err);
 });
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+import router from './routes/users.js';
+import scheduleRouter from './routes/schedule.js';
+// Mount routes
 app.use('/', router);
+app.use('/schedules', scheduleRouter);
 app.get('/api', async (_req, res, next) => {
     try {
         res.send(`Study Companion API is up and running`);

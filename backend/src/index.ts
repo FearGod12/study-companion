@@ -8,7 +8,7 @@ async function startServer() {
     // Initialize notification service
     await NotificationService.init();
 
-    // Start your Express server
+    // Start Express server
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });

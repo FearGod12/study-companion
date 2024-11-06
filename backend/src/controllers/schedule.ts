@@ -1,63 +1,47 @@
+// src/controllers/ScheduleApi.ts
 import { NextFunction, Response } from 'express';
-import { Schedule } from '../models/schedule.js';
+import { ScheduleService } from '../services/schedule.js';
+import { CustomError } from '../utils/customError.js';
+import { validationScheduleSchema } from '../utils/validators/schedule.js';
 
 export class ScheduleController {
-  // Create a new reading schedule
-  static async CreateSchedule(req: any, res: Response, next: NextFunction): Promise<void> {
+  static async createSchedule(req: any, res: Response, next: NextFunction): Promise<void> {
     try {
-      const schedule = new Schedule({
-        userId: req.user._id,
-        ...req.body,
-      });
-      await schedule.validate();
-      await schedule.save();
+      const { error } = validationScheduleSchema.validate(req.body);
+      if (error) {
+        throw new CustomError(400, error.details[0].message);
+      }
+
+      const schedule = await ScheduleService.createSchedule(req.user._id, req.body);
       res.status(201).json(schedule);
     } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      throw new CustomError(500, error.message);
     }
   }
 
-  // Get all schedules for a user
-  static async FetchSchedules(req: any, res: Response): Promise<void> {
+  static async getSchedules(req: any, res: Response, next: NextFunction): Promise<void> {
     try {
-      const schedules = await Schedule.find({
-        userId: req.user._id,
-        isActive: true,
-      }).sort({ startTime: 1 });
+      const schedules = await ScheduleService.getSchedules(req.user._id);
       res.json(schedules);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   }
 
-  // Update a schedule
-  static async UpdateSchedule(req: any, res: Response): Promise<void> {
+  static async updateSchedule(req: any, res: Response, next: NextFunction): Promise<void> {
     try {
-      const schedule = await Schedule.findOneAndUpdate(
-        { _id: req.params.id, userId: req.user._id },
-        req.body,
-        { new: true, runValidators: true },
-      );
+      const schedule = await ScheduleService.updateSchedule(req.user._id, req.params.id, req.body);
       if (!schedule) {
-        res.status(404).json({ error: 'Schedule not found' });
+        throw new CustomError(404, 'Schedule not found');
       }
-      res.json(schedule);
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }
   }
 
-  // Delete a schedule (soft delete)
-  static async DeleteSchedule(req: any, res: Response): Promise<void> {
+  static async deleteSchedule(req: any, res: Response, next: NextFunction): Promise<void> {
     try {
-      const schedule = await Schedule.findOneAndUpdate(
-        { _id: req.params.id, userId: req.user._id },
-        { isActive: false },
-        { new: true },
-      );
-      if (!schedule) {
-        res.status(404).json({ error: 'Schedule not found' });
-      }
+      await ScheduleService.deleteSchedule(req.user._id, req.params.id);
       res.json({ message: 'Schedule deleted successfully' });
     } catch (error: any) {
       res.status(500).json({ error: error.message });

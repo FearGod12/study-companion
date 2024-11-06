@@ -1,4 +1,3 @@
-// src/models/Schedule.ts
 import mongoose, { Schema } from 'mongoose';
 const scheduleSchema = new Schema({
     userId: {
@@ -33,6 +32,19 @@ const scheduleSchema = new Schema({
     isActive: {
         type: Boolean,
         default: true,
+    },
+    status: {
+        type: String,
+        enum: ['scheduled', 'in-progress', 'completed', 'missed'],
+        default: 'scheduled',
+    },
+    checkInInterval: {
+        type: Number,
+        default: 15, // Default check-in interval of 15 minutes, can be adjusted
+    },
+    reminderTimes: {
+        type: [Number],
+        default: [30, 5], // Send reminders 30 mins and 5 mins before start
     },
 }, {
     timestamps: true,

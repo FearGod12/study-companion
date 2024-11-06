@@ -1,13 +1,7 @@
 import { createClient } from 'redis';
-async function initializeRedis(redisUrl) {
-    // const client = createClient({ url: redisUrl });
-    const client = createClient({
-        password: process.env.REDIS_PASSWORD,
-        socket: {
-            host: process.env.REDIS_HOST || 'localhost',
-            port: 12611,
-        },
-    });
+async function initializeRedis() {
+    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+    const client = createClient({ url: redisUrl });
     return new Promise((resolve, reject) => {
         client.on('connect', () => {
             console.log('Redis client connected');
@@ -20,6 +14,5 @@ async function initializeRedis(redisUrl) {
         client.connect();
     });
 }
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-const redisPromise = await initializeRedis(redisUrl);
+const redisPromise = await initializeRedis();
 export default redisPromise;

@@ -1,5 +1,4 @@
-// src/models/Schedule.ts
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ISchedule extends Document {
   userId: mongoose.Types.ObjectId;
@@ -9,6 +8,9 @@ export interface ISchedule extends Document {
   isRecurring: boolean;
   recurringDays?: number[]; // 0-6 representing Sunday-Saturday
   isActive: boolean;
+  status: string; // "scheduled", "in-progress", "completed", "missed"
+  checkInInterval?: number; // Interval in minutes for check-ins during a session
+  reminderTimes: number[]; // Notification times in minutes before startTime (e.g., [30, 5])
   createdAt: Date;
   updatedAt: Date;
 }
@@ -48,6 +50,19 @@ const scheduleSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    status: {
+      type: String,
+      enum: ['scheduled', 'in-progress', 'completed', 'missed'],
+      default: 'scheduled',
+    },
+    checkInInterval: {
+      type: Number,
+      default: 15, // Default check-in interval of 15 minutes, can be adjusted
+    },
+    reminderTimes: {
+      type: [Number],
+      default: [30, 5], // Send reminders 30 mins and 5 mins before start
+    },
   },
   {
     timestamps: true,
@@ -58,4 +73,4 @@ const scheduleSchema = new Schema(
 scheduleSchema.index({ userId: 1, startTime: 1 });
 scheduleSchema.index({ isActive: 1, startTime: 1 });
 
-export const Schedule = mongoose.model<ISchedule>('Schedule', scheduleSchema);
+export const Schedule = mongoose.model('Schedule', scheduleSchema);

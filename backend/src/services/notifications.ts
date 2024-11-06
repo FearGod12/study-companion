@@ -25,7 +25,6 @@ export class NotificationService {
         maxConcurrency: 20,
       });
 
-
       this.setupJobProcessor();
       this.setupEventHandlers();
 
@@ -168,6 +167,10 @@ export class NotificationService {
         );
       }
     }
+  }
+
+  static updateNotifications(scheduleId: string) {
+    throw new Error('not yet implemented');
   }
 
   private static calculateNextOccurrence(startTime: Date, dayOfWeek: number): Date | null {
