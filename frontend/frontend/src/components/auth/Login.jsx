@@ -47,7 +47,10 @@ const Login = () => {
 
                     {/* Email Field */}
                     <div className="flex flex-col relative">
-                        <label htmlFor="email" className="font-ink-free flex items-center">
+                        <label
+                            htmlFor="email"
+                            className="font-ink-free flex items-center"
+                        >
                             <AiOutlineMail className="mr-2" />
                             Email
                         </label>
@@ -67,7 +70,10 @@ const Login = () => {
 
                     {/* Password Field */}
                     <div className="flex flex-col relative">
-                        <label htmlFor="password" className="font-ink-free flex items-center">
+                        <label
+                            htmlFor="password"
+                            className="font-ink-free flex items-center"
+                        >
                             <AiOutlineLock className="mr-2" />
                             Password
                         </label>
@@ -85,14 +91,26 @@ const Login = () => {
                         />
                     </div>
 
+                    <Link to="/signup" className="text-sm">
+                        Forgot Password?
+                    </Link>
+
                     {/* Login Button */}
                     <Button
-                        text={isSubmitting ? "Logging in..." : "Log In"}
+                        text={isSubmitting ? "Logging in..." : "Login"}
                         type="submit"
-                        justify="center"
-                        className="mt-6"
+                        className="text-white hover:bg-white hover:text-secondary hover:border-secondary hover:border"
                         disabled={!isValid || isSubmitting}
                     />
+
+                    <div className="mt-8 font-inria-sans text-sm">
+                        <p>
+                            Dont have an account?{" "}
+                            <span className="font-bold transition ease-in-out duration-300 hover:text-secondary">
+                                <Link to="/signup">Sign Up</Link>
+                            </span>
+                        </p>
+                    </div>
                 </Form>
             )}
         </Formik>

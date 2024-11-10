@@ -38,10 +38,10 @@ const VerifyEmail = () => {
                     Didn't get a code? <span className="font-bold">Click to resend</span>{" "}
                 </p>
                 <div className="flex gap-2">
-                    <Button text="Cancel" bgColor="gray-100"
-                    textColor="secondary"
+                    <Button text="Cancel" className="bg-white text-secondary border border-secondary hover:bg-secondary hover:text-white"
         />
-                    <Button text="Verify" />
+                    <Button text="Verify"
+                    className="bg-secondary text-white border border-white hover:bg-white hover:text-secondary hover:border-secondary" />
                 </div>
             </div>
         </div>

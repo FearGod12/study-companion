@@ -11,7 +11,10 @@ const Hero = () => {
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.
             </p>
             <Link to="/signup">
-                <Button text="Get Started" justify="left" marginTop={6} />
+                <Button
+                    text="Get Started"
+                    className="mt-4 text-white hover:bg-white hover:text-secondary hover:border-secondary hover:border"
+                />
             </Link>
         </div>
     );

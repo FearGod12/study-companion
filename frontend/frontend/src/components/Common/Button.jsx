@@ -1,24 +1,17 @@
-import classnames from "classnames";
+import classnames from 'classnames';
 
-const Button = ({ text, link, type = "button", justify = "center", marginTop = 0, bgColor = "secondary", textColor = "gray-100"}) => {
+const Button = ({ text, type = 'button', className = '', ...props }) => {
     return (
-        <div
-            className={classnames("flex", {
-                [`justify-${justify}`]: justify, // Dynamically apply justify content
-                [`mt-${marginTop}`]: marginTop, // Dynamically apply margin-top
-            })}
+        <button
+            type={type}
+            className={classnames(
+                "px-12 py-2 rounded-3xl bg-secondary font-bold text-sm transition duration-500 ease-in-out shadow-lg",
+                className
+            )}
+            {...props}
         >
-            <button
-                type={type}
-                className={classnames("px-12 py-2 rounded-3xl font-inria-sans text-sm transition ease-in-out duration-500 hover:text-secondary hover:bg-gray-100 font-bold hover:border border-secondary shadow-lg", {
-                    [`bg-${bgColor}`]: bgColor,
-                    [`text-${textColor}`]: textColor,
-                })}
-            >
-                {link}
-                {text}
-            </button>
-        </div>
+            {text}
+        </button>
     );
 };
 

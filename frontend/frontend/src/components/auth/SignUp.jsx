@@ -3,8 +3,12 @@ import * as Yup from "yup";
 import Button from "../Common/Button";
 import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const SignUp = () => {
+    const navigate = useNavigate();
+
     const initialValues = {
         firstname: "",
         lastname: "",
@@ -37,12 +41,14 @@ const SignUp = () => {
             .required("Address is required."),
     });
 
-    const handleSubmit = (values, { resetForm, setSubmitting }) => {
+    const handleSubmit = (event, values, { resetForm, setSubmitting }) => {
+        event.preventDefault();
         setSubmitting(true);
         setTimeout(() => {
             console.log("Form submitted successfully!", values);
             resetForm();
             setSubmitting(false);
+            navigate("/verify-email");
         }, 2000);
     };
 
@@ -60,7 +66,7 @@ const SignUp = () => {
                         </h1>
                     </div>
 
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 flex-col md:flex-row lg:flex-row">
                         <div className="flex flex-col">
                             <label
                                 htmlFor="firstname"
@@ -84,7 +90,10 @@ const SignUp = () => {
                         </div>
 
                         <div className="flex flex-col">
-                            <label htmlFor="lastname" className="font-ink-free flex">
+                            <label
+                                htmlFor="lastname"
+                                className="font-ink-free flex"
+                            >
                                 <AiOutlineUser className="mr-2" />
                                 Last Name
                             </label>
@@ -122,9 +131,12 @@ const SignUp = () => {
                         />
                     </div>
 
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 flex-col md:flex-row lg:flex-row">
                         <div className="flex flex-col">
-                            <label htmlFor="password" className="font-ink-free flex">
+                            <label
+                                htmlFor="password"
+                                className="font-ink-free flex"
+                            >
                                 <AiOutlineLock className="mr-2" />
                                 Password
                             </label>
@@ -166,7 +178,10 @@ const SignUp = () => {
                     </div>
 
                     <div className="flex flex-col">
-                        <label htmlFor="category" className="font-ink-free flex">
+                        <label
+                            htmlFor="category"
+                            className="font-ink-free flex"
+                        >
                             <AiOutlineUser className="mr-2" />
                             Category
                         </label>
@@ -188,10 +203,7 @@ const SignUp = () => {
                     </div>
 
                     <div className="flex flex-col">
-                        <label
-                            htmlFor="address"
-                            className="font-ink-free flex"
-                        >
+                        <label htmlFor="address" className="font-ink-free flex">
                             <FaMapMarkerAlt className="mr-2" />
                             Address
                         </label>
@@ -212,11 +224,18 @@ const SignUp = () => {
                     <Button
                         text={isSubmitting ? "Submitting..." : "Register"}
                         type="submit"
-                        justify="center"
-                        textColor="gray-100"
-                        className="mt-6"
+                        className="mt-6 text-white hover:bg-white hover:text-secondary hover:border-secondary hover:border"
                         disabled={!isValid || isSubmitting}
                     />
+
+                       <div className="mt-8 font-inria-sans text-sm">
+                        <p>
+                            Already have an account?{" "}
+                            <span className="font-bold transition ease-in-out duration-300 hover:text-secondary">
+                                <Link to="/login">Login</Link>
+                            </span>
+                        </p>
+                    </div>
                 </Form>
             )}
         </Formik>
