@@ -1,5 +1,5 @@
-import SignUp from "./auth/SignUp";
-import SignUpBackground from "../assets/Image/img-2.png";
+import SignUp from "../../auth/SignUp";
+import SignUpBackground from "../../../assets/Image/img-2.png";
 
 const SignUpPage = () => {
     return (

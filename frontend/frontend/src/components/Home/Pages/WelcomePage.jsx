@@ -1,6 +1,6 @@
-import Hero from "../Hero";
+import Hero from "../Common/Hero";
 import Header from "../Header";
-import background from "../../assets/Image/hero-img.png";
+import background from "../../../assets/Image/hero-img.png";
 
 const WelcomePage = () => {
     return (

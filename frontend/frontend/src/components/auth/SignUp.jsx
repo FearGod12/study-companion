@@ -1,6 +1,6 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import Button from "../Common/Button";
+import Button from "../Home/Common/Button";
 import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -228,7 +228,7 @@ const SignUp = () => {
                         disabled={!isValid || isSubmitting}
                     />
 
-                       <div className="mt-8 font-inria-sans text-sm">
+                    <div className="mt-8 font-inria-sans text-sm">
                         <p>
                             Already have an account?{" "}
                             <span className="font-bold transition ease-in-out duration-300 hover:text-secondary">

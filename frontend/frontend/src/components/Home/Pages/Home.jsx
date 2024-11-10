@@ -1,11 +1,11 @@
-import Logo from '../Common/Logo';
+import DarkLogo from '../Common/DarkLogo';
 import Carousel from '../Carousel';
 
 const Home = () => {
   return (
       <div className='container max-w-none h-screen'>
         <div >
-          <Logo />
+          <DarkLogo />
           <Carousel/>
         </div>
       </div>

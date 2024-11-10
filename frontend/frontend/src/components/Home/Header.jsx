@@ -1,10 +1,10 @@
 import Navbar from "./Common/Navbar";
-import Logo from "./Common/Logo";
+import DarkLogo from "./Common/DarkLogo";
 
 const Header = () => {
     return (
         <div className="flex justify-between items-center px-20 h-32">
-            <Logo />
+            <DarkLogo />
             <Navbar />
         </div>
     );
