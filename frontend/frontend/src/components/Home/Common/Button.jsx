@@ -5,7 +5,7 @@ const Button = ({ text, type = 'button', className = '', ...props }) => {
         <button
             type={type}
             className={classnames(
-                "px-12 py-2 rounded-3xl bg-secondary font-bold text-sm transition duration-500 ease-in-out shadow-lg",
+                "px-12 py-2 rounded-xl bg-secondary font-bold text-sm transition duration-500 ease-in-out shadow-md shadow-secondary",
                 className
             )}
             {...props}

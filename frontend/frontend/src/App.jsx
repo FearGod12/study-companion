@@ -7,12 +7,14 @@ import Dashboard from "./components/Main/Pages/Dashboard";
 import Schedule from "./components/Main/Pages/Schedule";
 import Setting from "./components/Main/Pages/Setting";
 import MainPage from "./components/Main/Pages/MainPage";
+import GetStarted from "./components/Home/Pages/GetStarted";
 
 const App = () => {
     return (
         <Router>
             <Routes>
                 <Route path="/" element={<WelcomePage />} />
+                <Route path="/get-started" element={<GetStarted />} />
                 <Route path="/signup" element={<SignUpPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/verify-email" element={<VerifyEmailPage />} />
