@@ -151,7 +151,7 @@ export default router;
  *       tags:
  *         - Users
  *       security:
- *         - BearerAuth: []
+ *         - bearerAuth: []
  *       responses:
  *         '200':
  *           description: User account retrieved successfully
@@ -215,7 +215,7 @@ export default router;
  *           nullable: true
  *
  *   securitySchemes:
- *     BearerAuth:
+ *     bearerAuth:
  *       type: http
  *       scheme: bearer
  *       bearerFormat: JWT
@@ -229,7 +229,7 @@ export default router;
  *     tags:
  *       - Users
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     consumes:
  *       - multipart/form-data
  *     requestBody:

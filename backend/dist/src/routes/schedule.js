@@ -22,10 +22,14 @@ const scheduleRouter = express.Router();
  *                 type: string
  *                 description: Title of the schedule
  *                 example: "Morning Study Session"
+ *               startDate:
+ *                 type: string
+ *                 description: Start date of the schedule in YYYY-MM-DD format
+ *                 example: "2024-12-01"
  *               startTime:
  *                 type: string
- *                 description: Start time of the schedule in HH:MM:SS or YYYY-MM-DDTHH:MM:SS format
- *                 example: "2024-12-01T08:00:00"
+ *                 description: Start time of the schedule in HH:MM:SS format
+ *                 example: "08:00:00"
  *               duration:
  *                 type: integer
  *                 description: Duration of the session in minutes
@@ -60,7 +64,7 @@ const scheduleRouter = express.Router();
  *                   example: "Morning Study Session"
  *                 startTime:
  *                   type: string
- *                   description: Start time of the schedule
+ *                   description: Combined start date and time of the schedule
  *                   example: "2024-12-01T08:00:00"
  *                 duration:
  *                   type: integer
@@ -131,11 +135,32 @@ scheduleRouter.get('/', isAuthenticated, ScheduleController.getSchedules);
  *             properties:
  *               title:
  *                 type: string
- *                 description: Title of the schedule
- *               date:
+ *                 description: Updated title of the schedule
+ *                 example: "Updated Study Session"
+ *               startDate:
  *                 type: string
- *                 format: date
- *                 description: Date of the schedule
+ *                 description: Updated start date in YYYY-MM-DD format
+ *                 example: "2024-12-15"
+ *               startTime:
+ *                 type: string
+ *                 description: Updated start time in HH:MM:SS format
+ *                 example: "09:30:00"
+ *               duration:
+ *                 type: integer
+ *                 description: Updated duration of the session in minutes
+ *                 example: 90
+ *               isRecurring:
+ *                 type: boolean
+ *                 description: Whether the schedule is recurring
+ *                 example: true
+ *               recurringDays:
+ *                 type: array
+ *                 description: Updated days of the week for recurring schedules (0 for Sunday through 6 for Saturday)
+ *                 items:
+ *                   type: integer
+ *                   minimum: 0
+ *                   maximum: 6
+ *                 example: [1, 3, 5]
  *     responses:
  *       200:
  *         description: Schedule updated successfully
