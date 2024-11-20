@@ -1,12 +1,13 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import { CustomError } from '../utils/customError.js';
+import { NigeriaTimeUtils } from '../utils/nigerian-time.js';
 
 export interface ISchedule extends Document {
   userId: mongoose.Types.ObjectId;
   title: string;
   startDate: Date;
   startTime: Date;
-  endTime: Date; // Added as virtual
+  endTime: Date;
   duration: number;
   isRecurring: boolean;
   recurringDays?: number[];
@@ -38,6 +39,10 @@ const scheduleSchema = new Schema(
       required: true,
     },
     startTime: {
+      type: Date,
+      required: true,
+    },
+    endTime: {
       type: Date,
       required: true,
     },
@@ -95,11 +100,6 @@ const scheduleSchema = new Schema(
   }
 );
 
-// Virtual for endTime
-scheduleSchema.virtual('endTime').get(function () {
-  return new Date(this.startTime.getTime() + this.duration * 60000);
-});
-
 // Make virtuals available when converting to JSON
 scheduleSchema.set('toJSON', { virtuals: true });
 scheduleSchema.set('toObject', { virtuals: true });
@@ -111,7 +111,7 @@ scheduleSchema.index({ status: 1, startTime: 1 });
 
 // Pre-save middleware to validate startTime is in the future
 scheduleSchema.pre('save', function (next) {
-  if (this.isNew && this.startTime < new Date()) {
+  if (this.isNew && NigeriaTimeUtils.isInNigerianFuture(this.startTime)) {
     next(new CustomError(400, 'Start time must be in the future'));
   }
   next();
