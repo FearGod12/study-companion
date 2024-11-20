@@ -12,7 +12,7 @@ const app = express();
 
 app.set('trust proxy', 1);
 app.use(rateLimiter);
-app.use(cors());
+app.use(cors({ origin: '*' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -40,7 +40,6 @@ import scheduleRouter from './routes/schedule.js';
 // Mount routes
 app.use('/', router);
 app.use('/schedules', scheduleRouter);
-
 
 app.get('/api', async (_req, res, next) => {
   try {
