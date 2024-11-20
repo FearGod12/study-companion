@@ -1,22 +1,19 @@
 import Joi from 'joi';
 
-export const validationScheduleSchema = Joi.object({
+export const createScheduleSchema = Joi.object({
   title: Joi.string().required().messages({
     'any.required': 'Title is required',
     'string.empty': 'Title cannot be empty',
   }),
+  startDate: Joi.date().iso().required().messages({
+    'date.base': 'Invalid date format',
+    'any.required': 'Start date is required',
+  }),
   startTime: Joi.string()
-    .regex(/^\d{2}:\d{2}:\d{2}$|^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/)
+    .regex(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/)
     .required()
-    .custom((value, helpers) => {
-      const startTime = new Date(value);
-      if (startTime <= new Date()) {
-        return helpers.message({ 'string.base': 'Start time must be in the future' });
-      }
-      return value;
-    })
     .messages({
-      'string.pattern.base': 'Start time must be in the format HH:MM:SS or YYYY-MM-DDTHH:MM:SS',
+      'string.pattern.base': 'Start time must be in HH:MM:SS format',
       'any.required': 'Start time is required',
     }),
   duration: Joi.number().min(1).required().messages({
@@ -31,4 +28,26 @@ export const validationScheduleSchema = Joi.object({
       'array.includesRequiredUnknowns': 'Recurring days are required when isRecurring is true',
       'number.base': 'Each recurring day must be a number between 0 (Sunday) and 6 (Saturday)',
     }),
+});
+
+export const updateScheduleSchema = Joi.object({
+  title: Joi.string().messages({
+    'any.required': 'Title is required',
+    'string.empty': 'Title cannot be empty',
+  }),
+  startDate: Joi.date().iso().required().messages({
+    'date.base': 'Invalid date format',
+  }),
+  startTime: Joi.string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/)
+    .messages({
+      'string.pattern.base': 'Start time must be in HH:MM:SS format',
+    }),
+  duration: Joi.number().min(1).messages({
+    'number.min': 'Duration must be at least 1 minute',
+  }),
+  isRecurring: Joi.boolean().optional(),
+  recurringDays: Joi.array().items(Joi.number().min(0).max(6)).messages({
+    'number.base': 'Each recurring day must be a number between 0 (Sunday) and 6 (Saturday)',
+  }),
 });

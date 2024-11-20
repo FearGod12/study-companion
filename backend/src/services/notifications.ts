@@ -6,12 +6,15 @@ import { EmailSubject, sendMail } from '../utils/sendMail.js';
 interface ReminderJobData {
   scheduleId: string;
   minutes: number;
+  retryCount?: number;
 }
 
 export class NotificationService {
   private static agenda: Agenda;
   private static readonly JOB_NAME = 'send-reading-reminder';
-  private static readonly REMINDER_TIMES = [30, 5] as const; // minutes before start
+  private static readonly REMINDER_TIMES = [30, 5] as const;
+  private static readonly MAX_RETRIES = 3;
+  private static readonly RETRY_DELAY = 2 * 60 * 1000; // 2 minutes
 
   static async init() {
     try {
@@ -44,7 +47,7 @@ export class NotificationService {
       this.JOB_NAME,
       { priority: 10, concurrency: 10 },
       async (job: Job<ReminderJobData>) => {
-        const { scheduleId, minutes } = job.attrs.data;
+        const { scheduleId, minutes, retryCount = 0 } = job.attrs.data;
 
         try {
           const schedule = await Schedule.findById(scheduleId)
@@ -62,18 +65,37 @@ export class NotificationService {
             return;
           }
 
+          // Check if it's too late to send the notification
+          const now = new Date();
+          const scheduleTime = new Date(schedule.startTime);
+          if (scheduleTime.getTime() - now.getTime() < minutes * 60000) {
+            console.log(`Too late to send ${minutes}min reminder for schedule ${scheduleId}`);
+            return;
+          }
+
           await sendMail(EmailSubject.VerifyEmail, 'reading-reminder', {
             user: schedule.userId,
             title: schedule.title,
             minutes: minutes,
+            startTime: schedule.startTime.toLocaleTimeString('en-NG'),
+            duration: schedule.duration,
           });
 
           console.log(`Reminder sent for schedule ${scheduleId} (${minutes} minutes)`);
         } catch (error) {
-          console.error('Failed to process reminder:', error);
-          throw error; // Let Agenda handle the retry
+          console.error(`Failed to process reminder (attempt ${retryCount + 1}):`, error);
+
+          if (retryCount < this.MAX_RETRIES) {
+            // Schedule retry
+            await this.agenda.schedule(new Date(Date.now() + this.RETRY_DELAY), this.JOB_NAME, {
+              ...job.attrs.data,
+              retryCount: retryCount + 1,
+            });
+          }
+
+          throw error;
         }
-      },
+      }
     );
   }
   private static setupEventHandlers() {
@@ -163,7 +185,7 @@ export class NotificationService {
             timezone: 'Africa/Lagos', // More precise than UTC+1
             skipImmediate: true,
             startDate: reminderTime,
-          },
+          }
         );
       }
     }
@@ -210,6 +232,46 @@ export class NotificationService {
       }
     } catch (error) {
       console.error('Error shutting down notification service:', error);
+      throw error;
+    }
+  }
+
+  static async updateSchedule(scheduleId: string) {
+    try {
+      // Cancel existing notifications
+      await this.cancelNotifications(scheduleId);
+
+      const schedule = await Schedule.findById(scheduleId);
+      if (!schedule || !schedule.isActive) {
+        return;
+      }
+
+      // Schedule new notifications
+      await this.scheduleNotifications(scheduleId);
+    } catch (error) {
+      console.error(`Failed to update notifications for ${scheduleId}:`, error);
+      throw error;
+    }
+  }
+
+  // Add method to handle study session completion
+  static async markScheduleComplete(scheduleId: string) {
+    try {
+      const schedule = await Schedule.findById(scheduleId);
+      if (!schedule) {
+        return;
+      }
+
+      // If it's a one-time schedule, mark it inactive
+      if (!schedule.isRecurring) {
+        schedule.isActive = false;
+        await schedule.save();
+        await this.cancelNotifications(scheduleId);
+      }
+
+      // Could add logic here to track completion statistics
+    } catch (error) {
+      console.error(`Failed to mark schedule ${scheduleId} as complete:`, error);
       throw error;
     }
   }

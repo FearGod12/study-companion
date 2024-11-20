@@ -2,7 +2,7 @@ import app from './app.js';
 import { NotificationService } from './services/notifications.js';
 async function startServer() {
     try {
-        const PORT = process.env.PORT || 3001;
+        const PORT = process.env.PORT || 3000;
         // Initialize notification service
         await NotificationService.init();
         // Start Express server
