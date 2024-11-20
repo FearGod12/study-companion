@@ -33,3 +33,9 @@ export const LoginValidator = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
 });
+
+export const resetPasswordSchema = Joi.object({
+  token: Joi.string().required().max(6).min(6),
+  password: Joi.string().min(6).required(),
+  confirmPassword: Joi.string().min(6).required(),
+});

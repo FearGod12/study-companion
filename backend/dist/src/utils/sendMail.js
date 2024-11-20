@@ -53,7 +53,7 @@ export async function sendErrorMail(subject, templateName, error, req) {
             throw new Error('ROOT_EMAIL environment variable is not defined');
         }
         const mailOptions = {
-            from: `"Payment Engine API" <${process.env.GMAIL_USER}>`,
+            from: `"Study Companion API" <${process.env.GMAIL_USER}>`,
             to: rootEmail.split(','),
             subject: subject,
             html: html,
