@@ -12,7 +12,7 @@ export class userService {
     }
     const user = await User.findOne({ email: data.email });
     if (user) {
-      throw new Error('Email already exists');
+      throw new CustomError(400, 'Email already exists');
     }
 
     // 6 digit reset token

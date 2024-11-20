@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import { CustomError } from '../utils/customError.js';
 const scheduleSchema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
@@ -84,7 +85,7 @@ scheduleSchema.index({ status: 1, startTime: 1 });
 // Pre-save middleware to validate startTime is in the future
 scheduleSchema.pre('save', function (next) {
     if (this.isNew && this.startTime < new Date()) {
-        next(new Error('Start time must be in the future'));
+        next(new CustomError(400, 'Start time must be in the future'));
     }
     next();
 });
@@ -107,7 +108,7 @@ scheduleSchema.methods.markMissed = async function () {
 };
 scheduleSchema.methods.startSession = async function () {
     if (this.status !== 'scheduled') {
-        throw new Error('Schedule must be in scheduled state to start');
+        throw new CustomError(400, 'Schedule must be in scheduled state to start');
     }
     this.status = 'in-progress';
     await this.save();

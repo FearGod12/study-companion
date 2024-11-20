@@ -41,8 +41,8 @@ export class UserController {
           makeResponse(
             true,
             'Account created successfully. Please use the code sent to your email to verify your account',
-            user,
-          ),
+            user
+          )
         );
     } catch (error) {
       next(error);
