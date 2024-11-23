@@ -9,6 +9,8 @@ router.post('/users/login', UserController.login);
 router.get('/users/me', isAuthenticated, UserController.getMe);
 router.patch('/users/me/avatar', isAuthenticated, upload.single('avatar'), // Add multer middleware
 UserController.updateAvatar);
+router.post('/users/reset-password', isAuthenticated, UserController.resetPassword);
+router.post('/users/request-password-reset', isAuthenticated, UserController.requestPasswordReset);
 export default router;
 /**
  * @swagger
@@ -264,4 +266,74 @@ export default router;
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ */
+/**
+ * @swagger
+ * /users/request-password-reset:
+ *   post:
+ *     summary: Request password reset
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Reset Password Process Initiated Successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
+ */
+/**
+ * @swagger
+ * /users/reset-password:
+ *   post:
+ *     summary: Reset user's password
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               confirmPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password Reset Successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   nullable: true
+ *       400:
+ *         description: Bad request - Invalid input data or token
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
  */

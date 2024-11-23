@@ -5,7 +5,9 @@ import { CustomError } from '../utils/customError.js';
 export class ScheduleService {
   static async createSchedule(userId: string, scheduleData: Partial<ISchedule>) {
     // Combine startDate and startTime into a single DateTime
-    const combinedStartTime = new Date(`${scheduleData.startDate}T${scheduleData.startTime}`);
+    const combinedStartTime = new Date(
+      `${scheduleData.startDate}T${scheduleData.startTime} Africa/Lagos`
+    );
 
     // Check for overlapping schedules
     const overlapping = await this.checkOverlappingSchedules(
@@ -22,6 +24,7 @@ export class ScheduleService {
       userId,
       ...scheduleData,
       startTime: combinedStartTime,
+      endTime: new Date(combinedStartTime.getTime() + scheduleData.duration! * 60000),
     });
 
     await schedule.validate();
@@ -81,7 +84,7 @@ export class ScheduleService {
 
     return schedule;
   }
-  
+
   static async deleteSchedule(userId: string, scheduleId: string): Promise<void> {
     const schedule = await Schedule.findOneAndUpdate(
       { _id: scheduleId, userId },
@@ -97,7 +100,7 @@ export class ScheduleService {
   }
 
   static async getSchedules(userId: string): Promise<ISchedule[]> {
-    const now = new Date();
+    const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Lagos' }));
     const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
     return Schedule.find({
@@ -114,7 +117,6 @@ export class ScheduleService {
     excludeId?: string
   ): Promise<boolean> {
     const endTime = new Date(startTime.getTime() + duration * 60000);
-    console.log('about to check for overlapping schedules');
     const query: any = {
       userId,
       isActive: true,
@@ -132,7 +134,6 @@ export class ScheduleService {
     }
 
     const overlapping = await Schedule.findOne(query);
-    console.log('overlapping', overlapping);
     return !!overlapping;
   }
 }

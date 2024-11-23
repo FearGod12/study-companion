@@ -24,6 +24,7 @@ export class ScheduleController {
       const schedule = await ScheduleService.createSchedule(req.user._id, {
         title,
         startTime,
+        startDate,
         duration,
         isRecurring,
         recurringDays,

@@ -66,7 +66,7 @@ export class NotificationService {
           }
 
           // Check if it's too late to send the notification
-          const now = new Date();
+          const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Lagos' }));
           const scheduleTime = new Date(schedule.startTime);
           if (scheduleTime.getTime() - now.getTime() < minutes * 60000) {
             console.log(`Too late to send ${minutes}min reminder for schedule ${scheduleId}`);
@@ -77,7 +77,7 @@ export class NotificationService {
             user: schedule.userId,
             title: schedule.title,
             minutes: minutes,
-            startTime: schedule.startTime.toLocaleTimeString('en-NG'),
+            startTime: schedule.startTime.toLocaleTimeString('en-NG', { timeZone: 'Africa/Lagos' }),
             duration: schedule.duration,
           });
 
@@ -201,7 +201,7 @@ export class NotificationService {
       return null;
     }
 
-    const result = new Date(startTime);
+    const result = new Date(startTime.toLocaleString('en-US', { timeZone: 'Africa/Lagos' }));
     result.setDate(result.getDate() + ((7 + dayOfWeek - result.getDay()) % 7));
     return result;
   }

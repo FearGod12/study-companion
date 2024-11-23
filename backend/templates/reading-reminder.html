@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Schedule Reminder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            background-color: #4a90e2;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .content {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .reminder-details {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #777;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Study Schedule Reminder</h1>
+    </div>
+
+    <div class="content">
+        <p>Hi {{user.firstName}},</p>
+
+        <p>This is a reminder for your upcoming study session: <strong>{{title}}</strong></p>
+
+        <div class="reminder-details">
+            <p><strong>Time:</strong> {{startTime}}</p>
+            <p><strong>Duration:</strong> {{duration}} minutes</p>
+            <p><strong>Reminder sent:</strong> {{minutes}} minutes before session</p>
+        </div>
+
+        <p>Stay focused and make the most of your study time!</p>
+    </div>
+
+    <div class="footer">
+        <p>© 2024 Study Companion App</p>
+    </div>
+</body>
+</html>
