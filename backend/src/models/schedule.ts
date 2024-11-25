@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import { CustomError } from '../utils/customError.js';
-import { NigeriaTimeUtils } from '../utils/nigerian-time.js';
 
 export interface ISchedule extends Document {
   userId: mongoose.Types.ObjectId;

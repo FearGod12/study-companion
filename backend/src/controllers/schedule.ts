@@ -20,7 +20,6 @@ export class ScheduleController {
       if (error) {
         throw new CustomError(400, error.details[0].message);
       }
-      console.log('about to create a schedule');
       const schedule = await ScheduleService.createSchedule(req.user._id, {
         title,
         startTime,
