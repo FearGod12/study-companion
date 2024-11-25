@@ -4,11 +4,14 @@ import { ScheduleService } from '../services/schedule.js';
 import { CustomError } from '../utils/customError.js';
 import { createScheduleSchema, updateScheduleSchema } from '../utils/validators/schedule.js';
 import { makeResponse } from '../utils/makeResponse.js';
+import { json } from 'body-parser';
 
 export class ScheduleController {
   static async createSchedule(req: any, res: Response, next: NextFunction): Promise<void> {
     try {
       const { title, startTime, startDate, duration, isRecurring, recurringDays } = req.body;
+
+      JSON.stringify
       const { error } = createScheduleSchema.validate({
         title,
         startTime,

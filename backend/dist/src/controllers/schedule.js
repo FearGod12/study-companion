@@ -6,6 +6,7 @@ export class ScheduleController {
     static async createSchedule(req, res, next) {
         try {
             const { title, startTime, startDate, duration, isRecurring, recurringDays } = req.body;
+            JSON.stringify;
             const { error } = createScheduleSchema.validate({
                 title,
                 startTime,
