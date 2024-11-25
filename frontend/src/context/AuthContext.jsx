@@ -1,67 +1,69 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 
 export const AuthContext = createContext();
 
-const AuthProvider = ({ children }) => {
-    const [auth, setAuth] = useState({
-        isAuthenticated: false,
-        user: null,
-        accessToken: null,
-    });
-
-    // Check token expiry and initialize auth state on page load
+export const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [accessToken, setAccessToken] = useState(null);
     useEffect(() => {
-        const checkTokenExpiry = () => {
-            const token = localStorage.getItem("accessToken");
-            if (token) {
-                try {
-                    const decodedToken = JSON.parse(atob(token.split(".")[1]));
-                    const expiry = decodedToken.exp;
-                    if (Date.now() >= expiry * 1000) {
-                        logout(); // Log out if token is expired
-                    } else {
-                        setAuth({
-                            isAuthenticated: true,
-                            user: JSON.parse(localStorage.getItem("user")),
-                            accessToken: token,
-                        });
-                    }
-                } catch (err) {
-                    // Handle token decoding errors
-                    console.error("Token decoding error:", err);
-                    logout();
-                }
-            }
-        };
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const storedToken = localStorage.getItem("accessToken");
 
-        checkTokenExpiry();
-    }, []); // This will run only once on mount
+        if (storedUser && storedToken) {
+            setUser(storedUser);
+            setAccessToken(storedToken);
+        } else {
+            console.warn("User or token not found in local storage.");
+        }
+        setLoading(false);
+    }, []);
 
-    const login = (userData, token) => {
-        localStorage.setItem("accessToken", token);
-        localStorage.setItem("user", JSON.stringify(userData));
-        setAuth({
-            isAuthenticated: true,
-            user: userData,
-            accessToken: token,
-        });
+    const login = async (email, password) => {
+        try {
+            const response = await axios.post(`${BASE_URL}/users/login`, {
+                email,
+                password,
+            });
+
+            const { accessToken } = response.data;
+            localStorage.setItem("accessToken", accessToken);
+            setAccessToken(accessToken);
+
+            // Fetch user details after successful login
+            const userResponse = await axios.get(`${BASE_URL}/users/me`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+
+            setUser(userResponse.data);
+        } catch (error) {
+            console.error("Login error:", error);
+            // Handle error, e.g., display error message, redirect to error page
+        } finally {
+            setLoading(false);
+        }
     };
 
     const logout = () => {
-        localStorage.removeItem("accessToken");
+        setUser(null);
+        setAccessToken(null);
         localStorage.removeItem("user");
-        setAuth({
-            isAuthenticated: false,
-            user: null,
-            accessToken: null,
-        });
+        localStorage.removeItem("accessToken");
     };
 
     return (
-        <AuthContext.Provider value={{ auth, login, logout }}>
+        <AuthContext.Provider
+            value={{ user, accessToken, login, logout, loading }}
+        >
             {children}
         </AuthContext.Provider>
     );
 };
 
-export default AuthProvider;
+export const useAuth = () => {
+    const { user, accessToken, login, logout, loading } =
+        useContext(AuthContext);
+    return { user, accessToken, login, logout, loading };
+};

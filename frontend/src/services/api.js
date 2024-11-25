@@ -1,98 +1,223 @@
 import axios from "axios";
+import { isTokenExpired } from "../utils/utils";
+import { toast } from "react-toastify";
 
-const API_BASE_URL = process.env.REACT_APP_BASE_URL;
+// Base API URL from environment variables
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-export const createUser = async (userData) => {
-    try {
-        const response = await axios.post(`${API_BASE_URL}/users`, userData, {
-            headers: {
-                "Content-Type": "application/json", // Ensures the correct media type
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`, // example token
-            },
-        });
-        console.log("User created successfully:", response.data);
-        return { success: true, data: response.data }; // Handle response as needed
-    } catch (error) {
-        if (error.response) {
-            console.error("Error creating user:", error.response.data);
-            throw new Error(
-                error.response.data.message || "Error creating user"
-            );
-        } else if (error.request) {
-            console.error("No response from server:", error.request);
-            throw new Error("No response from the server");
-        } else {
-            console.error("Error in request:", error.message);
-            throw new Error("Error in request: " + error.message);
+// Helper function to get default headers
+const getHeaders = (isAuth = false) => {
+    const headers = {
+        "Content-Type": "application/json",
+    };
+    if (isAuth) {
+        const token = localStorage.getItem("access_Token");
+        if (token) {
+            headers.Authorization = `Bearer ${token}`;
         }
+    }
+    return headers;
+};
+
+// Axios instance with base URL
+const apiClient = axios.create({
+    baseURL: BASE_URL,
+});
+
+// Axios request interceptor
+apiClient.interceptors.request.use((config) => {
+    const token = localStorage.getItem("access_Token");
+
+    // Check for token expiry
+    if (isTokenExpired()) {
+        toast.error("Your session has expired. Please log in again.", {
+            position: "top-right",
+            autoClose: 5000,
+        });
+        console.warn("Token expired. Logging out user.");
+        localStorage.removeItem("access_Token"); // Clear expired token
+        window.location.href = "/login"; // Redirect to login page
+        throw new axios.Cancel("Token expired. Redirecting to login...");
+    }
+
+    // Attach token to headers if valid
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+});
+
+export default apiClient;
+
+// Register a new user
+export const registerUser = async (userData) => {
+    try {
+        const response = await apiClient.post("/users", userData);
+        return { success: true, data: response.data };
+    } catch (error) {
+        throw new Error(
+            error.response?.data?.message ||
+                "Failed to register user. Please try again."
+        );
     }
 };
 
-// Email Verification API
+// Verify user's email with token (OTP)
 export const verifyEmail = async (email, token) => {
     try {
-        const response = await axios.post(
-            `${API_BASE_URL}/users/verify-email`,
-            { email, token },
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
-        );
+        const response = await apiClient.post("/users/verify-email", {
+            email,
+            token,
+        });
         return { success: true, data: response.data };
     } catch (error) {
-        if (error.response) {
-            console.error("Verification error:", error.response.data);
-            throw new Error(
-                error.response.data.message || "Email verification failed"
-            );
-        } else {
-            console.error("Error during email verification:", error.message);
-            throw new Error(
-                "Error during email verification: " + error.message
-            );
-        }
+        throw new Error(
+            error.response?.data?.message ||
+                "Failed to verify email. Please try again."
+        );
     }
 };
 
-// Login API
+// Login a user and fetch their access token
 export const loginUser = async (email, password) => {
     try {
-        const response = await axios.post(
-            `${API_BASE_URL}/users/login`,
-            {
-                email,
-                password,
-            },
-            {
-                headers: {
-                    "Content-Type": "application/json", // Ensures the correct media type
-                },
-            }
-        );
+        const response = await apiClient.post("/users/login", {
+            email,
+            password,
+        });
 
-        // Log the successful login response (token, message, etc.)
-        console.log("Login successful:", response.data);
+        // Save token to localStorage
+        const { access_Token } = response.data.data;
+        localStorage.setItem("access_Token", access_Token);
 
-        // You may want to store the access token in localStorage or cookies for subsequent requests
-        localStorage.setItem("accessToken", response.data.data.access_Token);
-
-        // Return response data or any other info as needed
         return { success: true, data: response.data };
     } catch (error) {
-        if (error.response) {
-            // Server responded with an error
-            console.error("Login failed:", error.response.data);
-            throw new Error(error.response.data.message || "Invalid email or password");
-        } else if (error.request) {
-            // No response from server
-            console.error("No response from server:", error.request);
-            throw new Error("No response from the server");
-        } else {
-            // Other errors (e.g., configuration issues)
-            console.error("Request error:", error.message);
-            throw new Error("Error in login request: " + error.message);
+        if (error.response?.status === 401) {
+            throw new Error("Invalid email or password.");
         }
+        throw new Error(
+            error.response?.data?.message || "Login failed. Please try again."
+        );
+    }
+};
+
+// Fetch current user's data
+export const getUserData = async () => {
+    try {
+        const response = await apiClient.get("/users/me");
+        return response.data;
+    } catch (error) {
+        throw new Error(
+            error.response?.data?.message ||
+                "Failed to fetch user data. Please try again."
+        );
+    }
+};
+
+// Update Avatar
+export const updateAvatar = async (file) => {
+    if (!file) {
+        throw new Error("No file provided for upload.");
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append("avatar", file);
+
+        const response = await apiClient.patch("/users/me/avatar", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+
+        console.log("Avatar updated successfully:", response.data);
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error(
+            "Error updating avatar:",
+            error.response?.data || error.message
+        );
+        throw new Error(
+            error.response?.data?.message ||
+                "Failed to update avatar. Please try again."
+        );
+    }
+};
+
+// Update User Details
+export const updateUserDetails = async (userData) => {
+    try {
+        const response = await apiClient.patch("/users/me", userData);
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error(
+            "Error updating user details:",
+            error.response?.data || error.message
+        );
+        throw new Error(
+            error.response?.data?.message ||
+                "Failed to update user details. Please try again."
+        );
+    }
+};
+
+
+// Schedule fetching session
+
+// Create user schedule
+export const createSchedules = async () => {
+    try {
+        const response = await apiClient.post("/schedules");
+        console.log("Event created:", response.data);
+        return { success: true, data: response.data };
+    } catch (error) {console.error(
+             "Error creating event:",
+             error.response?.data || error.message
+         );
+        throw new Error(
+            error.response?.data?.message ||
+                "Failed to add schedule. Please try again."
+        );
+         
+    }
+};
+
+// Retrieve user schedule
+export const retrieveSchedules = async () => {
+    try {
+        const response = await apiClient.get("/schedules");
+        return { success: true, data: response.data };
+    } catch (error) {
+        throw new Error(
+            error.response?.data?.message ||
+                "Failed to fetch schedule. Please try again."
+        );
+    }
+};
+
+// Update user schedule
+export const updateSchedules = async (id, updatedData) => {
+    try {
+        const response = await apiClient.put(`/schedules/${id}`, updatedData);
+        return { success: true, data: response.data };
+    } catch (error) {
+        throw new Error(
+            error.response?.data?.message ||
+            "Failed to update schedule. Please try again."
+        );
+    }
+};
+
+// Delete user schedule
+export const deleteSchedules = async (id) => {
+    try {
+        const response = await apiClient.delete(`/schedules/${id}`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        throw new Error(
+            error.response?.data?.message ||
+            "Failed to delete schedule. Please try again."
+        );
     }
 };

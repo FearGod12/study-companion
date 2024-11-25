@@ -9,11 +9,12 @@ import Layout from "./components/Pages/Main/Layout";
 import Schedule from "./components/Pages/Main/Schedule";
 import Setting from "./components/Pages/Main/Setting";
 import ProtectedRoute from "./components/Pages/Authentification/ProtectedRoute";
-import AuthProvider from "./context/AuthContext";
+import {AuthProvider} from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Suspense, lazy } from "react";
 import ReadingMode from "./components/Pages/Main/ReadingMode";
+import ProfileEdit from "./components/common/ProfileEdit";
 
 // Lazy load Dashboard component
 const Dashboard = lazy(() => import("./components/Pages/Main/Dashboard"));
@@ -30,14 +31,19 @@ const App = () => {
                     <Route path="/signup" element={<SignUpPage />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/verify-email" element={<VerifyEmailPage />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route
+                        path="/forgot-password"
+                        element={<ForgotPassword />}
+                    />
 
                     {/* Protected Routes with the SideMenu */}
                     <Route element={<Layout />}>
                         <Route
                             path="/dashboard"
                             element={
-                                <Suspense fallback={<div>Loading Dashboard...</div>}>
+                                <Suspense
+                                    fallback={<div>Loading Dashboard...</div>}
+                                >
                                     <Dashboard />
                                 </Suspense>
                             }
@@ -60,8 +66,23 @@ const App = () => {
                         />
                     </Route>
 
-                    {/* Public Route */}
-                    <Route path="/reading-mode" element={<ReadingMode />} />
+                    <Route
+                        path="/reading-mode"
+                        element={
+                            <ProtectedRoute>
+                                <ReadingMode />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/profile-edit"
+                        element={
+                            <ProtectedRoute>
+                                <ProfileEdit />
+                            </ProtectedRoute>
+                        }
+                    />
                 </Routes>
             </Router>
         </AuthProvider>

@@ -1,95 +1,98 @@
-import { FaUserCircle } from "react-icons/fa";
-import { useState, useEffect, useContext } from "react";
-import { AuthContext } from "../../context/AuthContext"; // Import AuthContext
+import React, { useState, useEffect } from "react";
+import { FaPenSquare, FaUserCircle } from "react-icons/fa";
+import { getUserData } from "../../services/api";
+import { Link } from "react-router-dom";
+import { set } from "date-fns";
 
 const Profile = () => {
-    // Access user data from AuthContext
-    const { auth } = useContext(AuthContext);
-    const [userData, setUserData] = useState({
-        fullName: "",
-        phoneNumber: "",
-        email: "",
-        address: "",
-        category: "",
-        profilePicture: null, // This could be a URL or local file
-    });
+    const [userData, setUserData] = useState(null);
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check if user data is available in AuthContext
-        if (auth?.user) {
-            setUserData({
-                fullName: auth.user.name,
-                phoneNumber: auth.user.phoneNumber,
-                email: auth.user.email,
-                address: auth.user.address,
-                category: auth.user.category,
-                profilePicture: auth.user.profilePicture,
-            });
-        }
-    }, [auth]); // Re-run if auth changes
+        const fetchUserData = async () => {
+            try {
+                const data = await getUserData();
+                setUserData(data.data); 
+            } catch (error) {
+                console.error(error.message);
+                setError(error.message)
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const handleEditProfile = () => {
-        // You can implement a redirect to an edit page or toggle an edit state
-        console.log("Edit profile clicked");
-    };
+        fetchUserData();
+    }, []);
+
+    if (loading) {
+        return <p>Loading profile...</p>;
+    }
+
+    if (error) {
+        return <p className="text-red-500">Error: {error}</p>;
+    }
 
     return (
         <div className="flex py-4 px-6 gap-12">
-            {/* Profile picture */}
-            <div className="outline outline-secondary p-12 rounded-full">
-                {userData.profilePicture ? (
+            {/* Profile Picture */}
+            <div className="">
+                {userData?.avatar ? (
                     <img
-                        src={userData.profilePicture}
+                        src={userData.avatar}
                         alt="Profile"
                         className="rounded-full w-20 h-20 object-cover"
                     />
                 ) : (
-                    <FaUserCircle size={70} />
+                    <div className="outline outline-secondary p-12 rounded-full">
+                        <FaUserCircle size={70} />
+                    </div>
                 )}
             </div>
 
             {/* User Information */}
             <div className="flex flex-col gap-2 text-sm">
-                <p className="">
-                    Full Name:
+                <p>
+                    First Name:
                     <span className="font-bold font-ink-free ml-4">
-                        {userData.fullName}
+                        {userData?.firstName || "N/A"}
                     </span>
                 </p>
-                <p className="">
+                <p>
+                    Last Name:
+                    <span className="font-bold font-ink-free ml-4">
+                        {userData?.lastName || "N/A"}
+                    </span>
+                </p>
+                <p>
                     Phone Number:
                     <span className="font-bold font-ink-free ml-4">
-                        {userData.phoneNumber}
+                        {userData?.phoneNumber || "N/A"}
                     </span>
                 </p>
-                <p className="">
+                <p>
                     Email:
                     <span className="font-bold font-ink-free ml-4">
-                        {userData.email}
+                        {userData?.email || "N/A"}
                     </span>
                 </p>
-                <p className="">
+                <p>
                     Address:
                     <span className="font-bold font-ink-free ml-4">
-                        {userData.address}
+                        {userData?.address || "N/A"}
                     </span>
                 </p>
-                <p className="">
+                <p>
                     Category:
                     <span className="font-bold font-ink-free ml-4">
-                        {userData.category}
+                        {userData?.category || "N/A"}
                     </span>
                 </p>
             </div>
-
-            {/* Edit Button */}
-            <div className="mt-4">
-                <button
-                    onClick={handleEditProfile}
-                    className="text-sm font-medium text-secondary hover:text-primary"
-                >
-                    Edit Profile
-                </button>
+            <div className="">
+                <Link to="/profile-edit">
+                    <FaPenSquare size={24} color="#960057" />
+                </Link>
             </div>
         </div>
     );

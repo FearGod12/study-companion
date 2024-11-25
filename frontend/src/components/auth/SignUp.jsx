@@ -5,10 +5,17 @@ import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { createUser } from "../../services/api"; // Import createUser API function
+import { registerUser } from "../../services/api";
+import { HiEye, HiEyeOff } from "react-icons/hi";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 const SignUp = () => {
     const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState({
+        password: false,
+        confirmPassword: false,
+    });
 
     const initialValues = {
         firstName: "",
@@ -37,10 +44,7 @@ const SignUp = () => {
                 "Password must contain at least one uppercase letter."
             )
             .matches(/[0-9]/, "Password must contain at least one number.")
-            .matches(
-                /[@$!%*?&]/,
-                "Password must contain at least one special character."
-            )
+            
             .required("Password is required."),
         confirmPassword: Yup.string()
             .oneOf([Yup.ref("password"), null], "Passwords must match.")
@@ -51,31 +55,27 @@ const SignUp = () => {
             .required("Address is required."),
     });
 
-   const handleSubmit = async (values, { setSubmitting }) => {
-       try {
-           const response = await createUser(values);
-           alert(`User created successfully: ${response.message}`);
-           console.log("Signup successful:", response.data);
+    const handleSubmit = async (values, { setSubmitting }) => {
+        setSubmitting(true);
 
-           if (response && response.data && response.data.verificationToken) {
-               alert("Please check your email for the verification link.");
-               navigate("/verify-email", { state: { email: values.email } });
-           }
-       } catch (error) {
-           console.error(
-               "Signup error:",
-               error.response?.data || error.message
-           );
-           const errorMessage =
-               error.response?.data?.message ||
-               error.message ||
-               "An unexpected error occurred.";
-           alert(`Error: ${errorMessage}`);
-       } finally {
-           setSubmitting(false);
-       }
-   };
-
+        // Reset any previous toasts
+        toast.dismiss();
+        try {
+            const response = await registerUser(values); // Pass values to the API
+            if (response.success) {
+                // Store the email temporarily for verification
+                localStorage.setItem("email", values.email);
+                toast.success(
+                    response.data.message || "Signup successful!"
+                );
+                navigate("/verify-email"); // Redirect to email verification page
+            }
+        } catch (error) {
+            toast.error(error.message || "Something went wrong");
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     return (
         <Formik
@@ -83,7 +83,7 @@ const SignUp = () => {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
         >
-            {({ isSubmitting, isValid, touched }) => (
+            {({ isSubmitting, isValid }) => (
                 <Form className="h-screen flex flex-col gap-4 max-w-md mx-auto justify-center">
                     <div className="text-center">
                         <h1 className="font-bold font-inria-sans pb-4 text-2xl text-secondary">
@@ -91,6 +91,7 @@ const SignUp = () => {
                         </h1>
                     </div>
 
+                    {/* First Name and Last Name */}
                     <div className="flex gap-4 flex-col md:flex-row lg:flex-row">
                         <div className="flex flex-col w-full">
                             <label
@@ -104,13 +105,13 @@ const SignUp = () => {
                                 type="text"
                                 id="firstName"
                                 name="firstName"
-                                placeholder="Please input first name"
+                                placeholder="Enter your first name"
                                 className="border py-2 px-4 rounded w-full text-sm focus:outline-none focus:ring focus:ring-secondary"
                             />
                             <ErrorMessage
                                 name="firstName"
                                 component="div"
-                                className="error text-red-500 text-sm"
+                                className="text-red-500 text-sm"
                             />
                         </div>
 
@@ -126,17 +127,18 @@ const SignUp = () => {
                                 type="text"
                                 id="lastName"
                                 name="lastName"
-                                placeholder="Please input last name"
+                                placeholder="Enter your last name"
                                 className="border py-2 px-4 rounded w-full text-sm focus:outline-none focus:ring focus:ring-secondary"
                             />
                             <ErrorMessage
                                 name="lastName"
                                 component="div"
-                                className="error text-red-500 text-sm"
+                                className="text-red-500 text-sm"
                             />
                         </div>
                     </div>
 
+                    {/* Email */}
                     <div className="flex flex-col">
                         <label htmlFor="email" className="font-ink-free flex">
                             <AiOutlineMail className="mr-2" />
@@ -146,18 +148,19 @@ const SignUp = () => {
                             type="email"
                             id="email"
                             name="email"
-                            placeholder="Email"
+                            placeholder="Enter your email"
                             className="border py-2 px-4 rounded w-full focus:outline-none focus:ring focus:ring-secondary"
                         />
                         <ErrorMessage
                             name="email"
                             component="div"
-                            className="error text-red-500 text-sm"
+                            className="text-red-500 text-sm"
                         />
                     </div>
 
+                    {/* Password and Confirm Password */}
                     <div className="flex gap-4 flex-col md:flex-row lg:flex-row">
-                        <div className="flex flex-col w-full">
+                        <div className="flex flex-col w-full relative">
                             <label
                                 htmlFor="password"
                                 className="font-ink-free flex"
@@ -165,21 +168,43 @@ const SignUp = () => {
                                 <AiOutlineLock className="mr-2" />
                                 Password
                             </label>
-                            <Field
-                                type="password"
-                                id="password"
-                                name="password"
-                                placeholder="Please input password"
-                                className="border py-2 px-4 rounded w-full text-sm focus:outline-none focus:ring focus:ring-secondary"
-                            />
+                            <div className="relative">
+                                <Field
+                                    type={
+                                        showPassword.password
+                                            ? "text"
+                                            : "password"
+                                    }
+                                    id="password"
+                                    name="password"
+                                    placeholder="Enter your password"
+                                    className="border py-2 px-4 rounded w-full text-sm focus:outline-none focus:ring focus:ring-secondary"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowPassword((prev) => ({
+                                            ...prev,
+                                            password: !prev.password,
+                                        }))
+                                    }
+                                    className="absolute top-1/2 right-4 transform -translate-y-1/2 text-gray-500"
+                                >
+                                    {showPassword.password ? (
+                                        <HiEyeOff />
+                                    ) : (
+                                        <HiEye />
+                                    )}
+                                </button>
+                            </div>
                             <ErrorMessage
                                 name="password"
                                 component="div"
-                                className="error text-red-500 text-sm"
+                                className="text-red-500 text-sm"
                             />
                         </div>
 
-                        <div className="flex flex-col w-full">
+                        <div className="flex flex-col w-full relative">
                             <label
                                 htmlFor="confirmPassword"
                                 className="font-ink-free flex"
@@ -187,21 +212,45 @@ const SignUp = () => {
                                 <AiOutlineLock className="mr-2" />
                                 Confirm Password
                             </label>
-                            <Field
-                                type="password"
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                placeholder="Please verify password"
-                                className="border py-2 px-4 rounded w-full text-sm focus:outline-none focus:ring focus:ring-secondary"
-                            />
+                            <div className="relative">
+                                <Field
+                                    type={
+                                        showPassword.confirmPassword
+                                            ? "text"
+                                            : "password"
+                                    }
+                                    id="confirmPassword"
+                                    name="confirmPassword"
+                                    placeholder="Confirm your password"
+                                    className="border py-2 px-4 rounded w-full text-sm focus:outline-none focus:ring focus:ring-secondary"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowPassword((prev) => ({
+                                            ...prev,
+                                            confirmPassword:
+                                                !prev.confirmPassword,
+                                        }))
+                                    }
+                                    className="absolute top-1/2 right-4 transform -translate-y-1/2 text-gray-500"
+                                >
+                                    {showPassword.confirmPassword ? (
+                                        <HiEyeOff />
+                                    ) : (
+                                        <HiEye />
+                                    )}
+                                </button>
+                            </div>
                             <ErrorMessage
                                 name="confirmPassword"
                                 component="div"
-                                className="error text-red-500 text-sm"
+                                className="text-red-500 text-sm"
                             />
                         </div>
                     </div>
 
+                    {/* Category */}
                     <div className="flex flex-col">
                         <label
                             htmlFor="category"
@@ -217,17 +266,18 @@ const SignUp = () => {
                             className="border py-2 px-4 rounded w-full focus:outline-none focus:ring focus:ring-secondary"
                         >
                             <option value="">Select category</option>
-                            <option value="o level">O Level</option>
-                            <option value="undergraduate">Undergraduate</option>
-                            <option value="graduate">Graduate</option>
+                            <option value="O level">O Level</option>
+                            <option value="undergraduate">  undergraduate</option>
+                            <option value="graduate">graduate</option>
                         </Field>
                         <ErrorMessage
                             name="category"
                             component="div"
-                            className="error text-red-500 text-sm"
+                            className="text-red-500 text-sm"
                         />
                     </div>
 
+                    {/* Address */}
                     <div className="flex flex-col">
                         <label htmlFor="address" className="font-ink-free flex">
                             <FaMapMarkerAlt className="mr-2" />
@@ -243,10 +293,11 @@ const SignUp = () => {
                         <ErrorMessage
                             name="address"
                             component="div"
-                            className="error text-red-500 text-sm"
+                            className="text-red-500 text-sm"
                         />
                     </div>
 
+                    {/* Submit Button */}
                     <Button
                         text={isSubmitting ? "Submitting..." : "Register"}
                         type="submit"
@@ -254,12 +305,15 @@ const SignUp = () => {
                         disabled={!isValid || isSubmitting}
                     />
 
-                    <div className="mt-8 font-inria-sans text-sm">
+                    <div className="mt-8 text-sm text-center">
                         <p>
                             Already have an account?{" "}
-                            <span className="font-bold transition ease-in-out duration-300 hover:text-secondary">
-                                <Link to="/login">Login</Link>
-                            </span>
+                            <Link
+                                to="/login"
+                                className="font-bold hover:text-secondary"
+                            >
+                                Login
+                            </Link>
                         </p>
                     </div>
                 </Form>

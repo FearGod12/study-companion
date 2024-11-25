@@ -1,22 +1,23 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Button from "../common/Button";
-import { useState } from "react";
+import { useState} from "react";
 import { AiOutlineMail, AiOutlineLock } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
+import { HiEye, HiEyeOff } from "react-icons/hi";
 import { loginUser } from "../../services/api";
+import { toast } from "react-toastify";
 
 const Login = () => {
-    const [errorMessage, setErrorMessage] = useState("");
-    const [showPassword, setShowPassword] = useState(false); // To toggle password visibility
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
-
+    
     const initialValues = {
         email: "",
         password: "",
     };
 
-    const validationSchema = Yup.object({
+    const LoginSchema = Yup.object().shape({
         email: Yup.string()
             .email("Invalid email address.")
             .required("Email is required."),
@@ -26,47 +27,46 @@ const Login = () => {
     });
 
     const handleSubmit = async (values, { resetForm, setSubmitting }) => {
+         setSubmitting(true);
+
+         // Reset any previous toasts
+         toast.dismiss();
+
         try {
+            // Simulate API call with the context's login function
             const response = await loginUser(values.email, values.password);
-            console.log("Login successful:", response.data);
 
-            // Store the access token securely (example: localStorage)
-            localStorage.setItem("accessToken", response.data.access_Token);
-
-            // Navigate to the dashboard
+            // Assuming response contains user information
+            console.log("Login successful:", response);
+            toast.success("Login successful");
+            // Navigate to dashboard or home page
             navigate("/dashboard");
         } catch (error) {
-            console.error(
-                "Login Error:",
-                error.response?.data || error.message
+            console.error("Login Error:", error.response || error.message);
+            toast.error(
+                error.response?.data?.message || "Failed to login. Please try again."
             );
-            setErrorMessage("Invalid email or password. Please try again.");
         } finally {
             setSubmitting(false);
-            resetForm();
+            resetForm(); // Clear form fields after submission
         }
     };
 
     return (
         <Formik
             initialValues={initialValues}
-            validationSchema={validationSchema}
+            validationSchema={LoginSchema}
             onSubmit={handleSubmit}
         >
             {({ isSubmitting, isValid }) => (
                 <Form className="h-screen flex flex-col gap-6 max-w-sm mx-auto justify-center">
                     <div className="text-center">
-                        <h1 className="font-bold font-inria-sans pb-4 text-2xl text-secondary">
-                            Log In
-                        </h1>
+                        <h1 className="font-bold text-2xl text-secondary pb-4">Log In</h1>
                     </div>
 
                     {/* Email Field */}
-                    <div className="flex flex-col relative">
-                        <label
-                            htmlFor="email"
-                            className="font-ink-free flex items-center"
-                        >
+                    <div className="flex flex-col">
+                        <label htmlFor="email" className="flex items-center">
                             <AiOutlineMail className="mr-2" />
                             Email
                         </label>
@@ -75,21 +75,18 @@ const Login = () => {
                             id="email"
                             name="email"
                             placeholder="Enter your email"
-                            className="border py-2 pl-10 pr-4 rounded w-full focus:outline-none focus:ring focus:ring-secondary text-sm"
+                            className="border py-2 px-4 rounded focus:outline-none focus:ring focus:ring-secondary"
                         />
                         <ErrorMessage
                             name="email"
                             component="div"
-                            className="text-red-500 text-sm"
+                            className="text-red-500 text-sm mt-1"
                         />
                     </div>
 
                     {/* Password Field */}
                     <div className="flex flex-col relative">
-                        <label
-                            htmlFor="password"
-                            className="font-ink-free flex items-center"
-                        >
+                        <label htmlFor="password" className="flex items-center">
                             <AiOutlineLock className="mr-2" />
                             Password
                         </label>
@@ -99,48 +96,47 @@ const Login = () => {
                                 id="password"
                                 name="password"
                                 placeholder="Enter your password"
-                                className="border py-2 pl-10 pr-4 rounded w-full focus:outline-none focus:ring focus:ring-secondary text-sm"
+                                className="border py-2 px-4 rounded focus:outline-none focus:ring focus:ring-secondary"
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute top-1/2 right-4 transform -translate-y-1/2 text-gray-500"
                             >
-                                {showPassword ? "Hide" : "Show"}
+                                {showPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
                             </button>
                         </div>
                         <ErrorMessage
                             name="password"
                             component="div"
-                            className="text-red-500 text-sm"
+                            className="text-red-500 text-sm mt-1"
                         />
                     </div>
 
-                    {/* Error Message */}
-                    {errorMessage && (
-                        <div className="text-red-500 text-sm text-center">
-                            {errorMessage}
-                        </div>
-                    )}
-
-                    <Link to="/forgot-password" className="text-sm">
+                    <Link
+                        to="/forgot-password"
+                        className="text-sm text-secondary hover:underline"
+                    >
                         Forgot Password?
                     </Link>
 
-                    {/* Login Button */}
+                    {/* Submit Button */}
                     <Button
                         text={isSubmitting ? "Logging in..." : "Login"}
                         type="submit"
-                        className="text-white hover:bg-white hover:text-secondary hover:border-secondary hover:border"
+                        className={`mt-4 ${isSubmitting || !isValid ? "opacity-50" : ""}`}
                         disabled={!isValid || isSubmitting}
                     />
 
-                    <div className="mt-8 font-inria-sans text-sm">
+                    <div className="mt-8 text-sm text-center">
                         <p>
                             Don't have an account?{" "}
-                            <span className="font-bold transition ease-in-out duration-300 hover:text-secondary">
-                                <Link to="/signup">Sign Up</Link>
-                            </span>
+                            <Link
+                                to="/signup"
+                                className="font-bold text-secondary hover:underline"
+                            >
+                                Sign Up
+                            </Link>
                         </p>
                     </div>
                 </Form>
