@@ -4,6 +4,7 @@ import { LoginValidator, resetPasswordSchema, UpdateMeValidator, UserValidator, 
 import { CustomError } from '../utils/customError.js';
 import { redisService } from '../services/redis.js';
 import { EmailSubject, sendMail } from '../utils/sendMail.js';
+import User from '../models/users.js';
 export class UserController {
     static createUser = async (req, res, next) => {
         try {
@@ -110,9 +111,13 @@ export class UserController {
     };
     static async requestPasswordReset(req, res, next) {
         try {
-            const user = req.user;
+            const { email } = req.body;
+            const user = await User.findOne({ email });
+            if (!user) {
+                throw new CustomError(404, 'User not found');
+            }
             const token = Math.floor(100000 + Math.random() * 900000);
-            const key = user.email + token;
+            const key = email + token;
             await redisService.saveData(key, token);
             sendMail(EmailSubject.ResetPassword, 'resetPassword', {
                 user: user,

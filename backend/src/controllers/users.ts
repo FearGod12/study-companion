@@ -133,9 +133,13 @@ export class UserController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const user = req.user as IUser;
+      const { email } = req.body;
+      const user = await User.findOne({ email });
+      if (!user) {
+        throw new CustomError(404, 'User not found');
+      }
       const token = Math.floor(100000 + Math.random() * 900000);
-      const key = user.email + token;
+      const key = email + token;
       await redisService.saveData(key, token);
 
       sendMail(EmailSubject.ResetPassword, 'resetPassword', {
