@@ -94,7 +94,7 @@ export async function sendErrorMail(
     }
 
     const mailOptions = {
-      from: `"Payment Engine API" <${process.env.GMAIL_USER}>`,
+      from: `"Study Companion API" <${process.env.GMAIL_USER}>`,
       to: rootEmail.split(','),
       subject: subject,
       html: html,

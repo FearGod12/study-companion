@@ -1,6 +1,9 @@
 import { userService } from '../services/users.js';
 import { makeResponse } from '../utils/makeResponse.js';
-import { LoginValidator, UpdateMeValidator, UserValidator, VerifyEmailValidator, } from '../utils/validators/users.js';
+import { LoginValidator, resetPasswordSchema, UpdateMeValidator, UserValidator, VerifyEmailValidator, } from '../utils/validators/users.js';
+import { CustomError } from '../utils/customError.js';
+import { redisService } from '../services/redis.js';
+import { EmailSubject, sendMail } from '../utils/sendMail.js';
 export class UserController {
     static createUser = async (req, res, next) => {
         try {
@@ -105,4 +108,51 @@ export class UserController {
             next(error);
         }
     };
+    static async requestPasswordReset(req, res, next) {
+        try {
+            const user = req.user;
+            const token = Math.floor(100000 + Math.random() * 900000);
+            const key = user.email + token;
+            await redisService.saveData(key, token);
+            sendMail(EmailSubject.ResetPassword, 'resetPassword', {
+                user: user,
+                token: token.toString(),
+            });
+            res
+                .status(200)
+                .json(makeResponse(true, 'Reset Password Process Initiated Successfully! Please Use the code sent to your email to reset your password', null));
+        }
+        catch (error) {
+            next(error);
+        }
+    }
+    static async resetPassword(req, res, next) {
+        try {
+            const { token, password, confirmPassword } = req.body;
+            const { error } = resetPasswordSchema.validate({
+                token,
+                password,
+                confirmPassword,
+            });
+            if (error) {
+                throw new CustomError(400, error.message);
+            }
+            const user = req.user;
+            const key = user.email + token;
+            const data = await redisService.getData(key);
+            if (!data) {
+                throw new CustomError(400, 'Invalid or Expired token');
+            }
+            if (password !== confirmPassword) {
+                throw new CustomError(400, 'Passwords do not match');
+            }
+            user.password = password;
+            await user.save();
+            redisService.deleteData(key);
+            res.status(200).json(makeResponse(true, 'Password Reset Successful', null));
+        }
+        catch (error) {
+            next(error);
+        }
+    }
 }

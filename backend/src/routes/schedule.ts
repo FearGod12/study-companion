@@ -121,7 +121,7 @@ scheduleRouter.get('/', isAuthenticated, ScheduleController.getSchedules);
  *     summary: Update a schedule
  *     tags:
  *       - Schedules
- *     security:
+ *     security: 
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
