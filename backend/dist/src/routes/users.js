@@ -324,6 +324,8 @@ export default router;
  *                 type: string
  *               confirmPassword:
  *                 type: string
+ *               email:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Password Reset Successful
