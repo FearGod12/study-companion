@@ -28,18 +28,11 @@ const Login = () => {
 
     const handleSubmit = async (values, { resetForm, setSubmitting }) => {
          setSubmitting(true);
-
-         // Reset any previous toasts
          toast.dismiss();
 
         try {
-            // Simulate API call with the context's login function
             const response = await loginUser(values.email, values.password);
-
-            // Assuming response contains user information
-            console.log("Login successful:", response);
             toast.success("Login successful");
-            // Navigate to dashboard or home page
             navigate("/dashboard");
         } catch (error) {
             console.error("Login Error:", error.response || error.message);
@@ -48,7 +41,7 @@ const Login = () => {
             );
         } finally {
             setSubmitting(false);
-            resetForm(); // Clear form fields after submission
+            resetForm(); 
         }
     };
 
@@ -61,7 +54,9 @@ const Login = () => {
             {({ isSubmitting, isValid }) => (
                 <Form className="h-screen flex flex-col gap-6 max-w-sm mx-auto justify-center">
                     <div className="text-center">
-                        <h1 className="font-bold text-2xl text-secondary pb-4">Log In</h1>
+                        <h1 className="font-bold text-2xl text-secondary pb-4">
+                            Log In
+                        </h1>
                     </div>
 
                     {/* Email Field */}
@@ -103,7 +98,11 @@ const Login = () => {
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute top-1/2 right-4 transform -translate-y-1/2 text-gray-500"
                             >
-                                {showPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
+                                {showPassword ? (
+                                    <HiEyeOff size={20} />
+                                ) : (
+                                    <HiEye size={20} />
+                                )}
                             </button>
                         </div>
                         <ErrorMessage
@@ -124,7 +123,9 @@ const Login = () => {
                     <Button
                         text={isSubmitting ? "Logging in..." : "Login"}
                         type="submit"
-                        className={`mt-4 ${isSubmitting || !isValid ? "opacity-50" : ""}`}
+                        className={`mt-4 text-white hover:bg-white hover:text-secondary hover:border-secondary hover:border  ${
+                            isSubmitting || !isValid ? "opacity-50" : ""
+                        }`}
                         disabled={!isValid || isSubmitting}
                     />
 
