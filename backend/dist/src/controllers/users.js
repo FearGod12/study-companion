@@ -8,10 +8,11 @@ import { LoginValidator, resetPasswordSchema, UpdateMeValidator, UserValidator, 
 export class UserController {
     static createUser = async (req, res, next) => {
         try {
-            const { firstName, lastName, email, category, password, confirmPassword, address } = req.body;
+            const { firstName, lastName, phoneNumber, email, category, password, confirmPassword, address, } = req.body;
             const { error } = UserValidator.validate({
                 firstName,
                 lastName,
+                phoneNumber,
                 email,
                 password,
                 category,
@@ -24,6 +25,7 @@ export class UserController {
             const user = await userService.createUser({
                 firstName,
                 lastName,
+                phoneNumber,
                 email,
                 password,
                 category,

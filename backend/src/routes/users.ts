@@ -49,6 +49,8 @@ export default router;
  *                   type: string
  *                 lastName:
  *                   type: string
+ *                 phoneNumber:
+ *                   type: string
  *                 email:
  *                   type: string
  *                   format: email
