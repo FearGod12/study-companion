@@ -4,7 +4,7 @@ import { CustomError } from '../utils/customError.js';
 export class ScheduleService {
     static async createSchedule(userId, scheduleData) {
         // Combine startDate and startTime into a single DateTime
-        const combinedStartTime = new Date(`${scheduleData.startDate}T${scheduleData.startTime} Africa/Lagos`);
+        const combinedStartTime = new Date(`${scheduleData.startDate}T${scheduleData.startTime}+01:00`);
         // Check for overlapping schedules
         const overlapping = await this.checkOverlappingSchedules(userId, combinedStartTime, scheduleData.duration);
         if (overlapping) {
@@ -63,7 +63,7 @@ export class ScheduleService {
         await NotificationService.cancelNotifications(schedule._id.toString());
     }
     static async getSchedules(userId) {
-        const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Lagos' }));
+        const now = new Date();
         const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
         return Schedule.find({
             userId,

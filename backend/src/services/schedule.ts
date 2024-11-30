@@ -5,9 +5,7 @@ import { CustomError } from '../utils/customError.js';
 export class ScheduleService {
   static async createSchedule(userId: string, scheduleData: Partial<ISchedule>) {
     // Combine startDate and startTime into a single DateTime
-    const combinedStartTime = new Date(
-      `${scheduleData.startDate}T${scheduleData.startTime} Africa/Lagos`
-    );
+    const combinedStartTime = new Date(`${scheduleData.startDate}T${scheduleData.startTime}+01:00`);
 
     // Check for overlapping schedules
     const overlapping = await this.checkOverlappingSchedules(
@@ -20,13 +18,13 @@ export class ScheduleService {
       throw new CustomError(400, 'This schedule overlaps with another study session');
     }
 
+
     const schedule = new Schedule({
       userId,
       ...scheduleData,
       startTime: combinedStartTime,
       endTime: new Date(combinedStartTime.getTime() + scheduleData.duration! * 60000),
     });
-
     await schedule.validate();
     await schedule.save();
 
@@ -100,7 +98,7 @@ export class ScheduleService {
   }
 
   static async getSchedules(userId: string): Promise<ISchedule[]> {
-    const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Lagos' }));
+    const now = new Date();
     const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
     return Schedule.find({

@@ -15,9 +15,9 @@ router.patch(
   upload.single('avatar'), // Add multer middleware
   UserController.updateAvatar
 );
-router.post('/users/reset-password', isAuthenticated, UserController.resetPassword);
+router.post('/users/reset-password', UserController.resetPassword);
 
-router.post('/users/request-password-reset', isAuthenticated, UserController.requestPasswordReset);
+router.post('/users/request-password-reset', UserController.requestPasswordReset);
 
 export default router;
 
@@ -48,6 +48,8 @@ export default router;
  *                 firstName:
  *                   type: string
  *                 lastName:
+ *                   type: string
+ *                 phoneNumber:
  *                   type: string
  *                 email:
  *                   type: string
@@ -287,6 +289,15 @@ export default router;
  *       - Users
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Reset Password Process Initiated Successfully
@@ -326,6 +337,8 @@ export default router;
  *               password:
  *                 type: string
  *               confirmPassword:
+ *                 type: string
+ *               email:
  *                 type: string
  *     responses:
  *       200:

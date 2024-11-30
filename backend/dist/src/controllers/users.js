@@ -1,16 +1,18 @@
-import { userService } from '../services/users.js';
-import { makeResponse } from '../utils/makeResponse.js';
-import { LoginValidator, resetPasswordSchema, UpdateMeValidator, UserValidator, VerifyEmailValidator, } from '../utils/validators/users.js';
-import { CustomError } from '../utils/customError.js';
+import User from '../models/users.js';
 import { redisService } from '../services/redis.js';
+import { userService } from '../services/users.js';
+import { CustomError } from '../utils/customError.js';
+import { makeResponse } from '../utils/makeResponse.js';
 import { EmailSubject, sendMail } from '../utils/sendMail.js';
+import { LoginValidator, resetPasswordSchema, UpdateMeValidator, UserValidator, VerifyEmailValidator, } from '../utils/validators/users.js';
 export class UserController {
     static createUser = async (req, res, next) => {
         try {
-            const { firstName, lastName, email, category, password, confirmPassword, address } = req.body;
+            const { firstName, lastName, phoneNumber, email, category, password, confirmPassword, address, } = req.body;
             const { error } = UserValidator.validate({
                 firstName,
                 lastName,
+                phoneNumber,
                 email,
                 password,
                 category,
@@ -23,6 +25,7 @@ export class UserController {
             const user = await userService.createUser({
                 firstName,
                 lastName,
+                phoneNumber,
                 email,
                 password,
                 category,
@@ -110,9 +113,13 @@ export class UserController {
     };
     static async requestPasswordReset(req, res, next) {
         try {
-            const user = req.user;
+            const { email } = req.body;
+            const user = await User.findOne({ email });
+            if (!user) {
+                throw new CustomError(404, 'User not found');
+            }
             const token = Math.floor(100000 + Math.random() * 900000);
-            const key = user.email + token;
+            const key = email + token;
             await redisService.saveData(key, token);
             sendMail(EmailSubject.ResetPassword, 'resetPassword', {
                 user: user,
@@ -128,16 +135,20 @@ export class UserController {
     }
     static async resetPassword(req, res, next) {
         try {
-            const { token, password, confirmPassword } = req.body;
+            const { token, password, confirmPassword, email } = req.body;
             const { error } = resetPasswordSchema.validate({
                 token,
                 password,
                 confirmPassword,
+                email,
             });
             if (error) {
                 throw new CustomError(400, error.message);
             }
-            const user = req.user;
+            const user = await User.findOne({ email });
+            if (!user) {
+                throw new CustomError(404, `User with email ${email} not found`);
+            }
             const key = user.email + token;
             const data = await redisService.getData(key);
             if (!data) {

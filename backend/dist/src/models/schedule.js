@@ -1,6 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
 import { CustomError } from '../utils/customError.js';
-import { NigeriaTimeUtils } from '../utils/nigerian-time.js';
 const scheduleSchema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
@@ -85,7 +84,7 @@ scheduleSchema.index({ isActive: 1, startTime: 1 });
 scheduleSchema.index({ status: 1, startTime: 1 });
 // Pre-save middleware to validate startTime is in the future
 scheduleSchema.pre('save', function (next) {
-    if (this.isNew && NigeriaTimeUtils.isInNigerianFuture(this.startTime)) {
+    if (this.startTime && this.startTime <= new Date()) {
         next(new CustomError(400, 'Start time must be in the future'));
     }
     next();

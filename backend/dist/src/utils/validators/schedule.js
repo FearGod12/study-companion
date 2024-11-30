@@ -1,9 +1,6 @@
 import Joi from 'joi';
 export const createScheduleSchema = Joi.object({
-    title: Joi.string().required().messages({
-        'any.required': 'Title is required',
-        'string.empty': 'Title cannot be empty',
-    }),
+    title: Joi.string().required(),
     startDate: Joi.date().iso().required().messages({
         'date.base': 'Invalid date format',
         'any.required': 'Start date is required',
