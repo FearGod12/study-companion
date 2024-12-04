@@ -195,7 +195,7 @@ const formatTitle = (title) =>
             setSchedules((prevSchedules) => prevSchedules.filter((schedule) => schedule._id !== id));
             toast.success("Schedule deleted successfully!");
         } catch (error) {
-            toast.error("Failed to delete schedule.");
+            toast.error("Failed to delete schedule. "  + (error.response?.data?.message || error.message));
         }
     };
 
