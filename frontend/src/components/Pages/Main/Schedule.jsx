@@ -42,7 +42,7 @@ const Schedule = () => {
             </header>
 
             {/* Main Content */}
-            <div className="flex flex-col-reverse lg:flex-row gap-8 ">
+            <div className="flex flex-col-reverse lg:flex-row md:flex-row gap-8 ">
                 {/* Add/Edit Form */}
                 <section className="lg:flex-initial lg:w-3/5 md:w-3/5 px-6 h-screen flex-1 font-ink-free bg-gray-100 dark:bg-gray-800 rounded">
                     <h2 className="text-xl font-semibold mb-6 mt-8">
