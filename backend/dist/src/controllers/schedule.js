@@ -6,6 +6,7 @@ export class ScheduleController {
     static async createSchedule(req, res, next) {
         try {
             const { title, startTime, startDate, duration, isRecurring, recurringDays } = req.body;
+            JSON.stringify;
             const { error } = createScheduleSchema.validate({
                 title,
                 startTime,
@@ -17,7 +18,6 @@ export class ScheduleController {
             if (error) {
                 throw new CustomError(400, error.details[0].message);
             }
-            console.log('about to create a schedule');
             const schedule = await ScheduleService.createSchedule(req.user._id, {
                 title,
                 startTime,
