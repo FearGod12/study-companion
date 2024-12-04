@@ -18,7 +18,6 @@ export class ScheduleService {
       throw new CustomError(400, 'This schedule overlaps with another study session');
     }
 
-
     const schedule = new Schedule({
       userId,
       ...scheduleData,
@@ -77,7 +76,7 @@ export class ScheduleService {
     });
 
     if (schedule) {
-      await NotificationService.updateNotifications(schedule._id!.toString());
+      // await NotificationService.updateNotifications(schedule._id!.toString());
     }
 
     return schedule;

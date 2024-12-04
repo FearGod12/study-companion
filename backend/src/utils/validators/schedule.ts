@@ -26,7 +26,6 @@ export const createScheduleSchema = Joi.object({
       'number.base': 'Each recurring day must be a number between 0 (Sunday) and 6 (Saturday)',
     }),
 });
-
 export const updateScheduleSchema = Joi.object({
   title: Joi.string().messages({
     'any.required': 'Title is required',
