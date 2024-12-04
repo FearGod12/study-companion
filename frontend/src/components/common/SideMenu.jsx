@@ -1,84 +1,94 @@
-import { useState } from "react";
-import { FaCalendar, FaGear, FaBars } from "react-icons/fa6"; // Add hamburger and close icons
-import LightLogo from "./LightLogo";
+import { FaCalendar, FaGear, FaBars } from "react-icons/fa6";
 import { RiDashboardLine } from "react-icons/ri";
 import { Link, useLocation } from "react-router-dom";
-import { FaTimes } from "react-icons/fa";
+import { FaTimesCircle } from "react-icons/fa";
+import useToggle from "../../hooks/useToggle"; 
 
 const SideMenu = () => {
     const location = useLocation();
-    const [isMenuOpen, setIsMenuOpen] = useState(false); // State to toggle menu on small screens
+    const [isMenuOpen, toggleMenu] = useToggle(); 
 
-    // Check if the current path matches the route to determine active tab
     const isActive = (path) => location.pathname === path;
 
-    const toggleMenu = () => setIsMenuOpen(!isMenuOpen); // Toggle menu visibility
-
     return (
-        <div className="flex flex-col gap-8 pt-4 w-full">
-            {/* Logo and Hamburger Toggle Button for Mobile */}
-            <div className="lg:hidden flex justify-between items-center px-6">
-                <LightLogo />
-                <button onClick={toggleMenu} className="text-gray-100">
-                    {isMenuOpen ? (
-                        <FaTimes size={30} /> // Close icon when menu is open
-                    ) : (
-                        <FaBars size={30} /> // Hamburger icon when menu is closed
-                    )}
+        <>
+            {/* Menu Container */}
+            {isMenuOpen && (
+                <div
+                    className={`h-screen lg:w-48 md:w-48 w-16 bg-secondary fixed transition-all duration-300`}
+                >
+                    {/* Logo and Close Icon */}
+                    <div className="flex items-center px-4 py-4">
+                        <button onClick={toggleMenu} className="text-gray-100">
+                            <FaTimesCircle size={23} />
+                        </button>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="flex flex-col mt-6">
+                        <ul className="flex flex-col gap-4">
+                            {/* Dashboard Tab */}
+                            <Link to="/dashboard">
+                                <li
+                                    className={`flex items-center gap-3 px-4 py-2 rounded-lg transition ease-in-out duration-300 ${
+                                        isActive("/dashboard")
+                                            ? "bg-gray-100 text-secondary shadow"
+                                            : "text-gray-100"
+                                    } hover:bg-gray-100 hover:text-secondary hover:shadow`}
+                                >
+                                    <RiDashboardLine size={20} />
+                                    <span className="hidden md:block">
+                                        Dashboard
+                                    </span>
+                                </li>
+                            </Link>
+
+                            {/* Schedule Tab */}
+                            <Link to="/schedule">
+                                <li
+                                    className={`flex items-center gap-3 px-4 py-2 rounded-lg transition ease-in-out duration-300 ${
+                                        isActive("/schedule")
+                                            ? "bg-gray-100 text-secondary shadow"
+                                            : "text-gray-100"
+                                    } hover:bg-gray-100 hover:text-secondary hover:shadow`}
+                                >
+                                    <FaCalendar size={20} />
+                                    <span className="hidden md:block">
+                                        Schedule
+                                    </span>
+                                </li>
+                            </Link>
+
+                            {/* Settings Tab */}
+                            <Link to="/settings">
+                                <li
+                                    className={`flex items-center gap-3 px-4 py-2 rounded-lg transition ease-in-out duration-300 ${
+                                        isActive("/settings")
+                                            ? "bg-gray-100 text-secondary shadow"
+                                            : "text-gray-100"
+                                    } hover:bg-gray-100 hover:text-secondary hover:shadow`}
+                                >
+                                    <FaGear size={20} />
+                                    <span className="hidden md:block">
+                                        Settings
+                                    </span>
+                                </li>
+                            </Link>
+                        </ul>
+                    </div>
+                </div>
+            )}
+
+            {/* Floating Menu Icon (when menu is closed) */}
+            {!isMenuOpen && (
+                <button
+                    onClick={toggleMenu}
+                    className="fixed top-6 left-6 text-secondary p-2 rounded-md bg-gray-100"
+                >
+                    <FaBars size={20} />
                 </button>
-            </div>
-
-            {/* Menu Items */}
-            <div
-                className={`lg:flex flex-col gap-4 text-gray-100 w-full lg:w-auto transition-all duration-300 ${
-                    isMenuOpen ? "block" : "hidden" // Show menu on mobile if isMenuOpen is true
-                }`}
-            >
-                <ul className="flex flex-col gap-4">
-                    {/* Dashboard Tab */}
-                    <Link to="/dashboard">
-                        <div
-                            className={`flex items-center gap-3 pl-6 pr-12 py-2 rounded-lg transition ease-in-out duration-500 hover:bg-gray-100 hover:text-secondary hover:shadow ${
-                                isActive("/dashboard")
-                                    ? "bg-gray-100 text-secondary shadow"
-                                    : ""
-                            }`}
-                        >
-                            <RiDashboardLine size={20} />
-                            <li>Dashboard</li>
-                        </div>
-                    </Link>
-
-                    {/* Schedule Tab */}
-                    <Link to="/schedule">
-                        <div
-                            className={`flex items-center gap-3 pl-6 pr-12 py-2 rounded-lg transition ease-in-out duration-500 hover:bg-gray-100 hover:text-secondary hover:shadow ${
-                                isActive("/schedule")
-                                    ? "bg-gray-100 text-secondary shadow"
-                                    : ""
-                            }`}
-                        >
-                            <FaCalendar />
-                            <li>Schedule</li>
-                        </div>
-                    </Link>
-
-                    {/* Settings Tab */}
-                    <Link to="/settings">
-                        <div
-                            className={`flex items-center gap-3 pl-6 pr-12 py-2 rounded-lg transition ease-in-out duration-500 hover:bg-gray-100 hover:text-secondary hover:shadow ${
-                                isActive("/settings")
-                                    ? "bg-gray-100 text-secondary shadow"
-                                    : ""
-                            }`}
-                        >
-                            <FaGear />
-                            <li>Settings</li>
-                        </div>
-                    </Link>
-                </ul>
-            </div>
-        </div>
+            )}
+        </>
     );
 };
 

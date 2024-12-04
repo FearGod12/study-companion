@@ -1,7 +1,7 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Button from "../common/Button";
-import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai";
+import { AiOutlineUser, AiOutlineMail, AiOutlineLock, AiOutlinePhone } from "react-icons/ai";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -21,6 +21,7 @@ const SignUp = () => {
         firstName: "",
         lastName: "",
         email: "",
+        phoneNumber: "",
         password: "",
         confirmPassword: "",
         category: "",
@@ -44,7 +45,7 @@ const SignUp = () => {
                 "Password must contain at least one uppercase letter."
             )
             .matches(/[0-9]/, "Password must contain at least one number.")
-            
+
             .required("Password is required."),
         confirmPassword: Yup.string()
             .oneOf([Yup.ref("password"), null], "Passwords must match.")
@@ -53,6 +54,12 @@ const SignUp = () => {
         address: Yup.string()
             .min(5, "Address must be at least 5 characters long.")
             .required("Address is required."),
+        phoneNumber: Yup.string()
+            .matches(
+                /^[+]?[0-9]{10,15}$/,
+                "Phone number must be valid and contain 10-15 digits."
+            )
+            .required("Phone number is required."),
     });
 
     const handleSubmit = async (values, { setSubmitting }) => {
@@ -80,19 +87,20 @@ const SignUp = () => {
             onSubmit={handleSubmit}
         >
             {({ isSubmitting, isValid }) => (
-                <Form className="h-screen flex flex-col gap-4 max-w-md mx-auto justify-center">
-                    <div className="text-center">
-                        <h1 className="font-bold font-inria-sans pb-4 text-2xl text-secondary">
+                <Form className="h-full flex flex-col gap-4 max-w-md mx-auto justify-center my-8 px-2">
+                    <div className="text-center ">
+                        <h1 className="font-bold font-inria-sans pb-2 text-lg text-secondary mt-9 text-left">
                             Create Account
                         </h1>
                     </div>
+                    <span className="underline bg-secondary h-0.5 mb-6 w-36"></span>
 
                     {/* First Name and Last Name */}
                     <div className="flex gap-4 flex-col md:flex-row lg:flex-row">
                         <div className="flex flex-col w-full">
                             <label
                                 htmlFor="firstName"
-                                className="font-ink-free flex"
+                                className="font-ink-free flex items-center"
                             >
                                 <AiOutlineUser className="mr-2" />
                                 First Name
@@ -114,7 +122,7 @@ const SignUp = () => {
                         <div className="flex flex-col w-full">
                             <label
                                 htmlFor="lastName"
-                                className="font-ink-free flex"
+                                className="font-ink-free flex items-center"
                             >
                                 <AiOutlineUser className="mr-2" />
                                 Last Name
@@ -136,7 +144,7 @@ const SignUp = () => {
 
                     {/* Email */}
                     <div className="flex flex-col">
-                        <label htmlFor="email" className="font-ink-free flex">
+                        <label htmlFor="email" className="font-ink-free flex items-center">
                             <AiOutlineMail className="mr-2" />
                             Email
                         </label>
@@ -154,12 +162,35 @@ const SignUp = () => {
                         />
                     </div>
 
+                    {/* Phone Number Field */}
+                    <div className="flex flex-col">
+                        <label
+                            htmlFor="phoneNumber"
+                            className="font-ink-free flex items-center"
+                        >
+                            <AiOutlinePhone className="mr-2" />
+                            Phone Number
+                        </label>
+                        <Field
+                            type="text"
+                            id="phoneNumber"
+                            name="phoneNumber"
+                            placeholder="Enter your phone number"
+                            className="border py-2 px-4 rounded w-full text-sm focus:outline-none focus:ring focus:ring-secondary"
+                        />
+                        <ErrorMessage
+                            name="phoneNumber"
+                            component="div"
+                            className="text-red-500 text-sm"
+                        />
+                    </div>
+
                     {/* Password and Confirm Password */}
                     <div className="flex gap-4 flex-col md:flex-row lg:flex-row">
                         <div className="flex flex-col w-full relative">
                             <label
                                 htmlFor="password"
-                                className="font-ink-free flex"
+                                className="font-ink-free flex items-center"
                             >
                                 <AiOutlineLock className="mr-2" />
                                 Password
@@ -203,7 +234,7 @@ const SignUp = () => {
                         <div className="flex flex-col w-full relative">
                             <label
                                 htmlFor="confirmPassword"
-                                className="font-ink-free flex"
+                                className="font-ink-free flex items-center"
                             >
                                 <AiOutlineLock className="mr-2" />
                                 Confirm Password
@@ -250,7 +281,7 @@ const SignUp = () => {
                     <div className="flex flex-col">
                         <label
                             htmlFor="category"
-                            className="font-ink-free flex"
+                            className="font-ink-free flex items-center"
                         >
                             <AiOutlineUser className="mr-2" />
                             Category
@@ -263,7 +294,10 @@ const SignUp = () => {
                         >
                             <option value="">Select category</option>
                             <option value="O level">O Level</option>
-                            <option value="undergraduate">  undergraduate</option>
+                            <option value="undergraduate">
+                                {" "}
+                                undergraduate
+                            </option>
                             <option value="graduate">graduate</option>
                         </Field>
                         <ErrorMessage
@@ -275,7 +309,7 @@ const SignUp = () => {
 
                     {/* Address */}
                     <div className="flex flex-col">
-                        <label htmlFor="address" className="font-ink-free flex">
+                        <label htmlFor="address" className="font-ink-free flex items-center">
                             <FaMapMarkerAlt className="mr-2" />
                             Address
                         </label>
@@ -306,7 +340,7 @@ const SignUp = () => {
                             Already have an account?{" "}
                             <Link
                                 to="/login"
-                                className="font-bold hover:text-secondary"
+                                className="font-bold hover:text-secondary hover:underline transition duration-300 ease-in-out"
                             >
                                 Login
                             </Link>

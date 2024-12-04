@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Button from "../../common/Button";
 
 const Setting = () => {
     const [theme, setTheme] = useState("light");
@@ -15,11 +16,6 @@ const Setting = () => {
         setNotifications(!notifications);
     };
 
-    // Handle password change
-    const handlePasswordChange = (e) => {
-        setPassword(e.target.value);
-    };
-
     // Handle form submission (just an example)
     const handleSaveSettings = (e) => {
         e.preventDefault();
@@ -29,11 +25,13 @@ const Setting = () => {
 
     return (
         <div className="p-6">
-            <h2 className="text-2xl mb-4">Settings</h2>
+            <h2 className="md:text-2xl font-bold text-secondary text-pretty mb-4 mt-20">
+                Settings
+            </h2>
 
             {/* Theme Setting */}
-            <div className="mb-4">
-                <label htmlFor="theme" className="block text-lg">
+            <div className="mb-4 flex gap-6 items-center text-sm">
+                <label htmlFor="theme" className="">
                     Theme
                 </label>
                 <select
@@ -48,8 +46,8 @@ const Setting = () => {
             </div>
 
             {/* Notifications Setting */}
-            <div className="mb-4">
-                <label htmlFor="notifications" className="block text-lg">
+            <div className="lg:text-2xl md:text-2xl text-sm mb-6 flex gap-8 items-center">
+                <label htmlFor="notifications" className="">
                     Notifications
                 </label>
                 <div className="flex items-center mt-2">
@@ -64,28 +62,12 @@ const Setting = () => {
                 </div>
             </div>
 
-            {/* Password Change */}
-            <div className="mb-4">
-                <label htmlFor="password" className="block text-lg">
-                    Change Password
-                </label>
-                <input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={handlePasswordChange}
-                    placeholder="Enter new password"
-                    className="mt-1 p-2 border rounded w-full"
-                />
-            </div>
-
             {/* Save Settings Button */}
-            <button
+            <Button
                 onClick={handleSaveSettings}
-                className="p-2 bg-blue-500 text-white rounded-lg"
-            >
-                Save Settings
-            </button>
+                className="p-2 bg-secondary text-white rounded-lg"
+                text='Save'
+          />
         </div>
     );
 };

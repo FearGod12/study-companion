@@ -1,15 +1,16 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Button from "../common/Button";
-import { useState} from "react";
+import { useState } from "react";
 import { AiOutlineMail, AiOutlineLock } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import { HiEye, HiEyeOff } from "react-icons/hi";
-import { loginUser } from "../../services/api";
 import { toast } from "react-toastify";
+import { useAuth } from "../../context/useAuth"; 
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
+    const { login } = useAuth(); 
     const navigate = useNavigate();
     
     const initialValues = {
@@ -26,24 +27,23 @@ const Login = () => {
             .required("Password is required."),
     });
 
-    const handleSubmit = async (values, { resetForm, setSubmitting }) => {
-         setSubmitting(true);
-         toast.dismiss();
+      const handleSubmit = async (values, { setSubmitting }) => {
+          setSubmitting(true);
+          toast.dismiss();
 
-        try {
-            const response = await loginUser(values.email, values.password);
-            toast.success("Login successful");
-            navigate("/dashboard");
+          try {
+              await login(values.email, values.password); 
+              toast.success("Login successful");
+              navigate('/dashboard')
+    
         } catch (error) {
-            console.error("Login Error:", error.response || error.message);
-            toast.error(
-                error.response?.data?.message || "Failed to login. Please try again."
-            );
-        } finally {
-            setSubmitting(false);
-            resetForm(); 
-        }
-    };
+            console.error("Login Error:", error);
+            toast.error(error.message || "Login failed. Please try again.");
+        
+          } finally {
+              setSubmitting(false);
+          }
+      };
 
     return (
         <Formik
@@ -52,12 +52,13 @@ const Login = () => {
             onSubmit={handleSubmit}
         >
             {({ isSubmitting, isValid }) => (
-                <Form className="h-screen flex flex-col gap-6 max-w-sm mx-auto justify-center">
+                <Form className="h-screen flex flex-col gap-6 max-w-sm mx-auto justify-center w-full">
                     <div className="text-center">
-                        <h1 className="font-bold text-2xl text-secondary pb-4">
-                            Log In
+                        <h1 className="font-bold text-lg text-secondary pb-2 text-left">
+                            Login
                         </h1>
                     </div>
+                    <span className="underline bg-secondary h-0.5 mb-6 w-36"></span>
 
                     {/* Email Field */}
                     <div className="flex flex-col">
@@ -91,7 +92,7 @@ const Login = () => {
                                 id="password"
                                 name="password"
                                 placeholder="Enter your password"
-                                className="border py-2 px-4 rounded focus:outline-none focus:ring focus:ring-secondary"
+                                className="border py-2 px-4 rounded focus:outline-none focus:ring focus:ring-secondary w-full"
                             />
                             <button
                                 type="button"
@@ -131,7 +132,7 @@ const Login = () => {
 
                     <div className="mt-8 text-sm text-center">
                         <p>
-                            Don't have an account?{" "}
+                            Dont have an account?{" "}
                             <Link
                                 to="/signup"
                                 className="font-bold text-secondary hover:underline"

@@ -9,18 +9,11 @@ const LoginPage = () => {
             {/* Left section with login form */}
             <div className="flex-1 p-6 lg:px-12 flex flex-col justify-center">
                 <Login />
-                <div className="border-t pt-4 mt-6 flex justify-center items-center">
-                    <p className="text-sm">Don't have an account? </p>
-                    {/* Sign-up Button now navigates to Sign Up page */}
-                    <Link to="/signup">
-                        <Button text="Sign Up" className="ml-2" />
-                    </Link>
-                </div>
             </div>
 
             {/* Right section with background image and welcome message */}
             <div className="flex-1 lg:flex lg:flex-col hidden bg-secondary shadow-lg shadow-secondary h-screen justify-center items-center relative">
-                <div className="py-4 text-center mx-4">
+                <div className="py-4 mt-6 text-center mx-4">
                     <h2 className="text-4xl font-inria-sans font-bold text-gray-100">
                         Welcome to{" "}
                         <span className="font-light">Study Companion</span>

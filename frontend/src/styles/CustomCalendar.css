@@ -1,14 +1,10 @@
-/* CustomCalendar.css */
 .custom-calendar {
-    font-size: 0.8rem; /* Adjust font size */
+    font-size: 0.8rem; 
     border: 0;
-}
-
-.custom-calendar .react-calendar__tile {
-    padding: 4px 2px; /* Adjust padding for calendar cells */
+    width:fit-content
 }
 
 .react-calendar__tile--now {
-    background-color: #960057; /* Set a custom color (e.g., Tomato) */
-    color: white; /* Change the text color */
+    background-color: #960057; 
+    color: white; 
 }

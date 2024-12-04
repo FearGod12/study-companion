@@ -1,190 +1,244 @@
-import React, { useState, useEffect } from "react";
-import { Calendar } from "primereact/calendar";
-import { useNavigate } from "react-router-dom";
-import TimePicker from "react-time-picker";
-import { Toast } from "primereact/toast";
 
-import "primereact/resources/themes/saga-blue/theme.css";
-import "primereact/resources/primereact.min.css";
-import "primeicons/primeicons.css";
-import "react-time-picker/dist/TimePicker.css";
-import { useSchedules } from "../../../hooks/useSchedule"; 
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { FaRegEdit } from "react-icons/fa";
+import useSchedules from "../../../hooks/useSchedule";
 
 const Schedule = () => {
-    const [upcomingTasks, setUpcomingTasks] = useState([]);
     const {
-        tasks,
-        selectedDate,
-        fromTime,
-        toTime,
-        title,
-        editingEvent,
-        isRecurring,
-        recurringDays,
-        setTitle,
-        setSelectedDate,
-        setFromTime,
-        setToTime,
-        setIsRecurring,
-        setRecurringDays,
-        handleRecurringToggle,
-        handleAddEvent,
-        handleEditEvent,
-        handleUpdateEvent,
-        handleDeleteEvent,
-        handleStartEvent,
-        resetInputs,
+        schedules,
+        newSchedule,
+        editingSchedule,
+        loading,
         daysOfWeek,
-        toast,
-    } = useSchedules(setUpcomingTasks);
-
-    // Tooltip for recurring days
-    const TooltipWrapper = ({ children, tooltipText }) => (
-        <div className="relative group">
-            {children}
-            <div className="absolute opacity-0 group-hover:opacity-100 bg-gray-700 text-white text-xs rounded px-2 py-1 bottom-full left-1/2 transform -translate-x-1/2">
-                {tooltipText}
-            </div>
-        </div>
-    );
+        formatTitle,
+        formatDate,
+        formatTime,
+        searchQuery,
+        filterOptions,
+        isDarkMode,
+        setNewSchedule,
+        setEditingSchedule,
+        setSearchQuery,
+        setFilterOptions,
+        toggleDarkMode,
+        handleCreateSchedule,
+        handleUpdateSchedule,
+        handleDeleteSchedule,
+        handleRecurringDayChange,
+        handleRecurringDayChangeEdit,
+    } = useSchedules();
 
     return (
-        <div className="container max-w-none flex gap-4 font-inria-sans">
-            <Toast ref={toast} />
-            <div className="w-2/3 bg-gray-100 flex flex-col rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-bold mb-6 text-secondary text-pretty">
-                    {editingEvent !== null ? "Edit Event" : "Create Event"}
-                </h2>
-                <div className="mb-4">
-                    <div className="flex items-center gap-8 font-bold">
-                        <label>Event Title</label>
+        <div className="p-6 bg-gray-200 dark:bg-gray-900 dark:text-white">
+            {/* Header Section */}
+            <header className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold ml-12 text-secondary">Study Manager</h1>
+                <button
+                    onClick={toggleDarkMode}
+                    className="px-4 py-2 bg-gray-700 text-gray-100 rounded"
+                >
+                    {isDarkMode ? "Light Mode" : "Dark Mode"}
+                </button>
+            </header>
+
+            {/* Main Content */}
+            <div className="flex flex-col-reverse lg:flex-row gap-8 ">
+                {/* Add/Edit Form */}
+                <section className="lg:flex-initial lg:w-3/5 md:w-3/5 px-6 h-screen flex-1 font-ink-free bg-gray-100 dark:bg-gray-800 rounded">
+                    <h2 className="text-xl font-semibold mb-6 mt-8">
+                        {editingSchedule ? "Edit Schedule" : "Add New Schedule"}
+                    </h2>
+                    <form
+    onSubmit={(e) => {
+        e.preventDefault();
+        if (editingSchedule) {
+            const updatedSchedule = {
+                ...editingSchedule,
+                title: newSchedule.title || editingSchedule.title,
+                startDate: newSchedule.startDate || editingSchedule.startDate,
+                startTime: newSchedule.startTime || editingSchedule.startTime,
+                duration: newSchedule.duration || editingSchedule.duration,
+                isRecurring: newSchedule.isRecurring !== undefined ? newSchedule.isRecurring : editingSchedule.isRecurring,
+                recurringDays: newSchedule.recurringDays.length > 0 ? newSchedule.recurringDays : editingSchedule.recurringDays,
+            };
+            handleUpdateSchedule(updatedSchedule._id, updatedSchedule);
+            setEditingSchedule(null);
+        } else {
+            handleCreateSchedule();
+        }
+        setNewSchedule({
+            title: "",
+            startDate: "",
+            startTime: "",
+            duration: 0,
+            isRecurring: false,
+            recurringDays: [],
+        });
+    }}
+    className="space-y-4 "
+
+                    >
                         <input
                             type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded"
+                            placeholder="Title"
+                            value={editingSchedule ? editingSchedule.title : newSchedule.title}
+                            onChange={(e) =>
+                                editingSchedule
+                                    ? setEditingSchedule((prev) => ({ ...prev, title: e.target.value }))
+                                    : setNewSchedule((prev) => ({ ...prev, title: e.target.value }))
+                            }
+                            className="p-2 rounded-lg w-full dark:bg-gray-700 dark:text-white"
                         />
-                    </div>
-                </div>
-                <div className="flex items-center gap-8 font-bold">
-                    <label>Select Date</label>
-                    <Calendar
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.value)}
-                        dateFormat="yy/mm/dd"
-                        className="mb-4"
-                        showIcon
-                    />
-                </div>
-                <div className="flex gap-6">
-                    <div className="flex items-center gap-8 font-bold">
-                        <label>Start Time</label>
-                        <TimePicker
-                            value={fromTime}
-                            onChange={setFromTime}
-                            disableClock
-                            clearIcon={null}
+                        <input
+                            type="date"
+                            value={editingSchedule ? editingSchedule.startDate : newSchedule.startDate}
+                            onChange={(e) =>
+                                editingSchedule
+                                    ? setEditingSchedule((prev) => ({ ...prev, startDate: e.target.value }))
+                                    : setNewSchedule((prev) => ({ ...prev, startDate: e.target.value }))
+                            }
+                            className="p-2 rounded-lg w-full dark:bg-gray-700 dark:text-white"
                         />
-                    </div>
-                    <div className="flex items-center gap-8 font-bold">
-                        <label>End Time</label>
-                        <TimePicker
-                            value={toTime}
-                            onChange={setToTime}
-                            disableClock
-                            clearIcon={null}
+                        <input
+                            type="time"
+                            value={editingSchedule ? editingSchedule.startTime : newSchedule.startTime}
+                            onChange={(e) =>
+                                editingSchedule
+                                    ? setEditingSchedule((prev) => ({ ...prev, startTime: e.target.value }))
+                                    : setNewSchedule((prev) => ({ ...prev, startTime: e.target.value }))
+                            }
+                            className="p-2 rounded-lg w-full dark:bg-gray-700 dark:text-white"
                         />
-                    </div>
-                </div>
+                        <input
+                            type="number"
+                            placeholder="Duration (in minutes)"
+                            value={editingSchedule ? editingSchedule.duration : newSchedule.duration}
+                            onChange={(e) =>
+                                editingSchedule
+                                    ? setEditingSchedule((prev) => ({ ...prev, duration: e.target.value }))
+                                    : setNewSchedule((prev) => ({ ...prev, duration: e.target.value }))
+                            }
+                            className="p-2 rounded-lg w-full dark:bg-gray-700 dark:text-white"
+                        />
+                        <div className="flex items-center gap-4">
+                            <label className="flex gap-2 ml-2">
+                                <input
+                                    type="checkbox"
+                                    checked={editingSchedule ? editingSchedule.isRecurring : newSchedule.isRecurring}
+                                    onChange={(e) =>
+                                        editingSchedule
+                                            ? setEditingSchedule((prev) => ({
+                                                  ...prev,
+                                                  isRecurring: e.target.checked,
+                                              }))
+                                            : setNewSchedule((prev) => ({
+                                                  ...prev,
+                                                  isRecurring: e.target.checked,
+                                              }))
+                                    }
+                                />
+                                Recurring
+                            </label>
+                            {((editingSchedule && editingSchedule.isRecurring) || newSchedule.isRecurring) && (
+                                <div className="flex gap-2">
+                                    {daysOfWeek.map((day) => (
+                                        <label key={day.id}>
+                                            <input
+                                                type="checkbox"
+                                                checked={
+                                                    editingSchedule
+                                                        ? editingSchedule.recurringDays.includes(day.id)
+                                                        : newSchedule.recurringDays.includes(day.id)
+                                                }
+                                                onChange={() =>
+                                                    editingSchedule
+                                                        ? handleRecurringDayChangeEdit(day.id)
+                                                        : handleRecurringDayChange(day.id)
+                                                }
+                                            />
+                                            {day.label}
+                                        </label>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        <button
+                            type="submit"
+                            className="px-4 py-2 bg-secondary text-white rounded"
+                        >
+                            {editingSchedule ? "Update Schedule" : "Add Schedule"}
+                        </button>
+                    </form>
+                </section>
 
-                <div className="flex gap-6">
-                    <TooltipWrapper tooltipText="Enable if this event repeats on specific days.">
-                        <label>Recurring</label>
-                    </TooltipWrapper>
-                    <input
-                        type="checkbox"
-                        checked={isRecurring}
-                        onChange={handleRecurringToggle}
-                    />
-                </div>
-                {isRecurring && (
-                    <div className="flex gap-6">
-                        <label>Select Recurring Days</label>
-                        <div className="days-of-week">
-                            {daysOfWeek.map((day) => (
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        checked={recurringDays.includes(day.id)}
-                                        onChange={() =>
-                                            handleRecurringChange(day.id)
-                                        }
-                                    />
-                                    {day.label}
-                                </label>
-                            ))}
+                {/* Search and Schedule List */}
+                <section className="flex-1 bg-gray-100 dark:bg-gray-800 p-4 rounded h-full">
+                    <div className="mb-4 space-y-4">
+                        <input
+                            type="text"
+                            placeholder="Search schedules..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="p-2 rounded-lg w-full dark:bg-gray-700 dark:text-white"
+                        />
+                        <div className="flex gap-4">
+                            <input
+                                type="date"
+                                value={filterOptions.startDate}
+                                onChange={(e) =>
+                                    setFilterOptions((prev) => ({ ...prev, startDate: e.target.value }))
+                                }
+                                className="p-2 rounded-lg w-full dark:bg-gray-700 dark:text-white"
+                            />
+                            <input
+                                type="date"
+                                value={filterOptions.endDate}
+                                onChange={(e) =>
+                                    setFilterOptions((prev) => ({ ...prev, endDate: e.target.value }))
+                                }
+                                className="p-2 rounded-lg w-full dark:bg-gray-700 dark:text-white"
+                            />
                         </div>
                     </div>
-                )}
-                <button
-                    onClick={
-                        editingEvent === null
-                            ? handleAddEvent
-                            : handleUpdateEvent
-                    }
-                    className="mt-4 px-6 py-2 bg-secondary text-white rounded"
-                >
-                    {editingEvent === null ? "Add Event" : "Update Event"}
-                </button>
-            </div>
 
-            {/* Upcoming Events Section */}
-            <div className="w-1/3 bg-white p-4 rounded-lg shadow-md">
-                <h2 className="text-2xl font-bold mb-4 text-secondary">
-                    Upcoming Tasks
-                </h2>
-                <ul className="space-y-4">
-                    {tasks.map((task, index) => (
-                        <li
-                            key={task.id}
-                            className="flex flex-col border-b px-4 py-2 gap-2 bg-[#de66a64d] rounded-lg justify-center"
-                        >
-                            <div className="flex justify-between items-center">
-                                <p className="text-lg font-semibold">
-                                    {task.title}
-                                </p>
-                                <div>
-                                    <p className="text-lg font-semibold">
-                                        {format(task.startDateTime, "PP p")}
-                                    </p>
-                                    {highlightEventBadge(task)}
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <button
-                                        onClick={() => handleEditEvent(index)}
-                                        className="text-blue-500"
-                                    >
-                                        <i className="pi pi-pencil"></i>
-                                    </button>
-                                    <button
-                                        onClick={() => handleDeleteEvent(index)}
-                                        className="text-red-500"
-                                    >
-                                        <i className="pi pi-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            {!task.started && (
-                                <button
-                                    onClick={() => handleStartEvent(index)}
-                                    className="px-4 py-2 bg-secondary text-white rounded"
+                    {loading ? (
+                        <p className="mt-8">Loading...</p>
+                    ) : schedules.length > 0 ? (
+                        <ul className="space-y-4 overflow-auto">
+                            {schedules.map((schedule) => (
+                                <li
+                                    key={schedule._id}
+                                    className="flex justify-between items-center p-4 rounded-lg bg-secondary text-gray-100 dark:text-gray-300"
                                 >
-                                    Start Task
-                                </button>
-                            )}
-                        </li>
-                    ))}
-                </ul>
+                                    <div>
+                                        <h3 className="text-lg font-semibold">{formatTitle(schedule.title)}</h3>
+                                        <p className="text-sm">
+                                            {formatDate(schedule.startDate)} - {formatTime(schedule.startTime)} </p>
+                                            <p>{schedule.duration} minutes</p>
+                                            
+                                        
+                                    </div>
+                                    <div className="flex gap-2 items-center">
+                                        <button
+                                            onClick={() => setEditingSchedule(schedule)}
+                                            className="text-gray-100 hover:text-blue-300"
+                                        >
+                                            <FaRegEdit />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteSchedule(schedule._id)}
+                                            className="text-gray-100 hover:text-red-200"
+                                        >
+                                           <RiDeleteBin6Line />
+                                        </button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>No schedules found.</p>
+                    )}
+                </section>
             </div>
         </div>
     );

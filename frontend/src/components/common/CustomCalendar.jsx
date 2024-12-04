@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css"; // Import the default CSS
+import "react-calendar/dist/Calendar.css"; 
 import "../../styles/CustomCalendar.css";
 import { FaCalendarCheck } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -9,8 +9,8 @@ const CustomCalendar = () => {
     const [date, setDate] = useState(new Date());
 
     return (
-        <div className="flex h-full justify-between mx-8">
-            <div className="items-center flex">
+        <div className="flex h-full justify-between gap-3 mx-2">
+            <div className="items-center flex p-4">
                 <Calendar
                     onChange={setDate}
                     value={date}
