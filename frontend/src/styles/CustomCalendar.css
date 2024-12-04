@@ -1,0 +1,10 @@
+.custom-calendar {
+    font-size: 0.8rem; 
+    border: 0;
+    width:fit-content
+}
+
+.react-calendar__tile--now {
+    background-color: #960057; 
+    color: white; 
+}
