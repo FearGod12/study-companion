@@ -7,9 +7,8 @@ import VerifyEmailPage from "./components/Pages/Authentification/VerifyEmailPage
 import ForgotPassword from "./components/auth/ForgotPassword";
 import Layout from "./components/Pages/Main/Layout";
 import Schedule from "./components/Pages/Main/Schedule";
-import Setting from "./components/Pages/Main/Setting";
-import ProtectedRoute from "./components/Pages/Authentification/ProtectedRoute";
-import { AuthProvider } from "./context/AuthProvider";
+import Setting from "./components/Pages/Main/Setting";;
+import  AuthProvider  from "./context/AuthProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Suspense, lazy } from "react";
@@ -17,11 +16,11 @@ import ReadingMode from "./components/Pages/Main/ReadingMode";
 import ProfileEdit from "./components/common/ProfileEdit";
 import ErrorBoundary from "./components/ErrorBoundary";
 import PasswordReset from "./components/auth/PasswordReset";
+import PrivateRoute from "./components/Pages/Authentification/PrivateRoute";
 
-// Lazy load Dashboard component
 const Dashboard = lazy(() => import("./components/Pages/Main/Dashboard"));
 
-// Define routes
+
 const router = createBrowserRouter(
     [
         {
@@ -59,7 +58,7 @@ const router = createBrowserRouter(
                 {
                     path: "dashboard",
                     element: (
-                        <Suspense fallback={<div>Loading Dashboard...</div>}>
+                        <Suspense fallback={<div>loading...</div>}>
                             <Dashboard />
                         </Suspense>
                     ),
@@ -67,17 +66,17 @@ const router = createBrowserRouter(
                 {
                     path: "schedule",
                     element: (
-                        <ProtectedRoute>
+                        <PrivateRoute>
                             <Schedule />
-                        </ProtectedRoute>
+                        </PrivateRoute>
                     ),
                 },
                 {
                     path: "settings",
                     element: (
-                        <ProtectedRoute>
+                        <PrivateRoute>
                             <Setting />
-                        </ProtectedRoute>
+                        </PrivateRoute>
                     ),
                 },
             ],
@@ -85,17 +84,17 @@ const router = createBrowserRouter(
         {
             path: "/reading-mode",
             element: (
-                <ProtectedRoute>
+                <PrivateRoute>
                     <ReadingMode />
-                </ProtectedRoute>
+                </PrivateRoute>
             ),
         },
         {
             path: "/profile-edit",
             element: (
-                <ProtectedRoute>
+                <PrivateRoute>
                     <ProfileEdit />
-                </ProtectedRoute>
+                </PrivateRoute>
             ),
         },
     ],

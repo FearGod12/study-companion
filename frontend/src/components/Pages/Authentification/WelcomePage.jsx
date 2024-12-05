@@ -32,7 +32,7 @@ const WelcomePage = () => {
             </section>
 
             {/* Carousel Section */}
-            <section id="feature" className="h-screen bg-gray-100 flex justify-center items-center bg-secondary">
+            <section id="feature" className="h-screen flex justify-center items-center bg-secondary">
                 <Carousel />
             </section>
         </div>

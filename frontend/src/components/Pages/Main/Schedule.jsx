@@ -1,4 +1,3 @@
-
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 import useSchedules from "../../../hooks/useSchedule";
@@ -49,34 +48,33 @@ const Schedule = () => {
                         {editingSchedule ? "Edit Schedule" : "Add New Schedule"}
                     </h2>
                     <form
-    onSubmit={(e) => {
-        e.preventDefault();
-        if (editingSchedule) {
-            const updatedSchedule = {
-                ...editingSchedule,
-                title: newSchedule.title || editingSchedule.title,
-                startDate: newSchedule.startDate || editingSchedule.startDate,
-                startTime: newSchedule.startTime || editingSchedule.startTime,
-                duration: newSchedule.duration || editingSchedule.duration,
-                isRecurring: newSchedule.isRecurring !== undefined ? newSchedule.isRecurring : editingSchedule.isRecurring,
-                recurringDays: newSchedule.recurringDays.length > 0 ? newSchedule.recurringDays : editingSchedule.recurringDays,
-            };
-            handleUpdateSchedule(updatedSchedule._id, updatedSchedule);
-            setEditingSchedule(null);
-        } else {
-            handleCreateSchedule();
-        }
-        setNewSchedule({
-            title: "",
-            startDate: "",
-            startTime: "",
-            duration: 0,
-            isRecurring: false,
-            recurringDays: [],
-        });
-    }}
-    className="space-y-4 "
-
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            if (editingSchedule) {
+                                const updatedSchedule = {
+                                    ...editingSchedule,
+                                    title: newSchedule.title || editingSchedule.title,
+                                    startDate: newSchedule.startDate || editingSchedule.startDate,
+                                    startTime: newSchedule.startTime || editingSchedule.startTime,
+                                    duration: newSchedule.duration || editingSchedule.duration,
+                                    isRecurring: newSchedule.isRecurring !== undefined ? newSchedule.isRecurring : editingSchedule.isRecurring,
+                                    recurringDays: newSchedule.recurringDays.length > 0 ? newSchedule.recurringDays : editingSchedule.recurringDays,
+                                };
+                                handleUpdateSchedule(updatedSchedule._id, updatedSchedule);
+                                setEditingSchedule(null);
+                            } else {
+                                handleCreateSchedule();
+                            }
+                            setNewSchedule({
+                                title: "",
+                                startDate: "",
+                                startTime: "",
+                                duration: 0,
+                                isRecurring: false,
+                                recurringDays: [],
+                            });
+                        }}
+                        className="space-y-4"
                     >
                         <input
                             type="text"
@@ -145,11 +143,9 @@ const Schedule = () => {
                                         <label key={day.id}>
                                             <input
                                                 type="checkbox"
-                                                checked={
-                                                    editingSchedule
-                                                        ? editingSchedule.recurringDays.includes(day.id)
-                                                        : newSchedule.recurringDays.includes(day.id)
-                                                }
+                                                checked={editingSchedule
+                                                    ? editingSchedule.recurringDays.includes(day.id)
+                                                    : newSchedule.recurringDays.includes(day.id)}
                                                 onChange={() =>
                                                     editingSchedule
                                                         ? handleRecurringDayChangeEdit(day.id)
@@ -213,10 +209,9 @@ const Schedule = () => {
                                     <div>
                                         <h3 className="text-lg font-semibold">{formatTitle(schedule.title)}</h3>
                                         <p className="text-sm">
-                                            {formatDate(schedule.startDate)} - {formatTime(schedule.startTime)} </p>
-                                            <p>{schedule.duration} minutes</p>
-                                            
-                                        
+                                            {formatDate(schedule.startDate)} - {formatTime(schedule.startTime)}
+                                        </p>
+                                        <p>{schedule.duration} minutes</p>
                                     </div>
                                     <div className="flex gap-2 items-center">
                                         <button
@@ -242,6 +237,6 @@ const Schedule = () => {
             </div>
         </div>
     );
-};
+}
 
 export default Schedule;
