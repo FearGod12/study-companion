@@ -14,12 +14,10 @@ const Schedule = () => {
         formatTime,
         searchQuery,
         filterOptions,
-        isDarkMode,
         setNewSchedule,
         setEditingSchedule,
         setSearchQuery,
         setFilterOptions,
-        toggleDarkMode,
         handleCreateSchedule,
         handleUpdateSchedule,
         handleDeleteSchedule,
@@ -28,22 +26,16 @@ const Schedule = () => {
     } = useSchedules();
 
     return (
-        <div className="p-6 bg-gray-200 dark:bg-gray-900 dark:text-white">
+        <div className="p-6 bg-gray-200 h-screen">
             {/* Header Section */}
-            <header className="flex justify-between items-center mb-6">
+            <header className=" mb-6">
                 <h1 className="text-2xl font-bold ml-12 text-secondary">Study Manager</h1>
-                <button
-                    onClick={toggleDarkMode}
-                    className="px-4 py-2 bg-gray-700 text-gray-100 rounded"
-                >
-                    {isDarkMode ? "Light Mode" : "Dark Mode"}
-                </button>
             </header>
 
             {/* Main Content */}
-            <div className="flex flex-col-reverse lg:flex-row md:flex-row gap-8 ">
+            <div className="flex flex-col-reverse lg:flex-row md:flex-row gap-8">
                 {/* Add/Edit Form */}
-                <section className="lg:flex-initial lg:w-3/5 md:w-3/5 px-6 h-screen flex-1 font-ink-free bg-gray-100 dark:bg-gray-800 rounded">
+                <section className="lg:flex-initial lg:w-3/5 md:w-3/5 px-6 flex-1 font-ink-free bg-gray-100 rounded py-8">
                     <h2 className="text-xl font-semibold mb-6 mt-8">
                         {editingSchedule ? "Edit Schedule" : "Add New Schedule"}
                     </h2>
@@ -85,7 +77,7 @@ const Schedule = () => {
                                     ? setEditingSchedule((prev) => ({ ...prev, title: e.target.value }))
                                     : setNewSchedule((prev) => ({ ...prev, title: e.target.value }))
                             }
-                            className="p-2 rounded-lg w-full dark:bg-gray-700 dark:text-white"
+                            className="p-2 rounded-lg w-full"
                         />
                         <input
                             type="date"
@@ -95,7 +87,7 @@ const Schedule = () => {
                                     ? setEditingSchedule((prev) => ({ ...prev, startDate: e.target.value }))
                                     : setNewSchedule((prev) => ({ ...prev, startDate: e.target.value }))
                             }
-                            className="p-2 rounded-lg w-full dark:bg-gray-700 dark:text-white"
+                            className="p-2 rounded-lg w-full"
                         />
                         <input
                             type="time"
@@ -105,7 +97,7 @@ const Schedule = () => {
                                     ? setEditingSchedule((prev) => ({ ...prev, startTime: e.target.value }))
                                     : setNewSchedule((prev) => ({ ...prev, startTime: e.target.value }))
                             }
-                            className="p-2 rounded-lg w-full dark:bg-gray-700 dark:text-white"
+                            className="p-2 rounded-lg w-ful"
                         />
                         <input
                             type="number"
@@ -116,9 +108,9 @@ const Schedule = () => {
                                     ? setEditingSchedule((prev) => ({ ...prev, duration: e.target.value }))
                                     : setNewSchedule((prev) => ({ ...prev, duration: e.target.value }))
                             }
-                            className="p-2 rounded-lg w-full dark:bg-gray-700 dark:text-white"
+                            className="p-2 rounded-lg w-full"
                         />
-                        <div className="flex items-center gap-4">
+                        <div className="flex gap-4 flex-col">
                             <label className="flex gap-2 ml-2">
                                 <input
                                     type="checkbox"
@@ -138,7 +130,7 @@ const Schedule = () => {
                                 Recurring
                             </label>
                             {((editingSchedule && editingSchedule.isRecurring) || newSchedule.isRecurring) && (
-                                <div className="flex gap-2">
+                                <div className="space-x-4">
                                     {daysOfWeek.map((day) => (
                                         <label key={day.id}>
                                             <input
@@ -168,14 +160,14 @@ const Schedule = () => {
                 </section>
 
                 {/* Search and Schedule List */}
-                <section className="flex-1 bg-gray-100 dark:bg-gray-800 p-4 rounded h-full">
+                <section className="flex-1 bg-gray-100 p-4 rounded">
                     <div className="mb-4 space-y-4">
                         <input
                             type="text"
                             placeholder="Search schedules..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="p-2 rounded-lg w-full dark:bg-gray-700 dark:text-white"
+                            className="p-2 rounded-lg w-full"
                         />
                         <div className="flex gap-4">
                             <input
@@ -184,7 +176,7 @@ const Schedule = () => {
                                 onChange={(e) =>
                                     setFilterOptions((prev) => ({ ...prev, startDate: e.target.value }))
                                 }
-                                className="p-2 rounded-lg w-full dark:bg-gray-700 dark:text-white"
+                                className="p-2 rounded-lg w-full"
                             />
                             <input
                                 type="date"
@@ -192,7 +184,7 @@ const Schedule = () => {
                                 onChange={(e) =>
                                     setFilterOptions((prev) => ({ ...prev, endDate: e.target.value }))
                                 }
-                                className="p-2 rounded-lg w-full dark:bg-gray-700 dark:text-white"
+                                className="p-2 rounded-lg w-full"
                             />
                         </div>
                     </div>
@@ -200,11 +192,11 @@ const Schedule = () => {
                     {loading ? (
                         <p className="mt-8">Loading...</p>
                     ) : schedules.length > 0 ? (
-                        <ul className="space-y-4 overflow-auto">
+                        <ul className="space-y-4 overflow-auto h-3/4">
                             {schedules.map((schedule) => (
                                 <li
                                     key={schedule._id}
-                                    className="flex justify-between items-center p-4 rounded-lg bg-secondary text-gray-100 dark:text-gray-300"
+                                    className="flex justify-between items-center p-4 rounded-lg bg-secondary text-gray-100"
                                 >
                                     <div>
                                         <h3 className="text-lg font-semibold">{formatTitle(schedule.title)}</h3>
@@ -231,7 +223,10 @@ const Schedule = () => {
                             ))}
                         </ul>
                     ) : (
-                        <p>No schedules found.</p>
+                        <div className="flex items-center justify-center">
+                             <p>No schedules found.</p>
+                        </div>
+                       
                     )}
                 </section>
             </div>

@@ -10,7 +10,7 @@ const Hero = () => {
             <p className="w-64 font-ink-free lg:text-left md:text-left text-center">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.
             </p>
-            <Link to="/get-started">
+            <Link to="/welcome">
                 <Button
                     text="Get Started"
                     className="mt-4 text-white hover:bg-white hover:text-secondary hover:border-secondary hover:border"

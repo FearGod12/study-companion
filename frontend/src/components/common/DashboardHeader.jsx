@@ -7,16 +7,16 @@ import { useAuth } from "../../context/useAuth";
 
 const DashboardHeader = () => {
     const navigate = useNavigate();
-    const { user, logout, loading } = useAuth();
+    const { user, loading } = useAuth();
 
     const handleLogout = () => {
-        logout();
+        localStorage.removeItem("access_Token");
         navigate("/login");
         toast.success("Logged out successfully.");
     };
 
     if (loading) {
-        return null; // Show nothing while loading
+        return null;
     }
 
     return (

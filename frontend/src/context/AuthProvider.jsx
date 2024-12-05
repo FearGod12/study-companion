@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getUserData } from "../services/api"; // No need for token-based API call anymore
+import { getUserData } from "../services/api"; 
 import PropTypes from "prop-types";
 import { AuthContext } from "./AuthContext";
 
@@ -10,21 +10,25 @@ const AuthProvider = ({ children }) => {
 
     // Fetch user data
     const fetchUserData = async () => {
-        setLoading(true); // Ensure loading state is set to true before fetching
+        setLoading(true); 
         try {
-            const data = await getUserData(); // Direct API call to get user data without token
-            console.log("Fetched user data:", data); // Log the fetched user data
+            const data = await getUserData();
+            console.log("Fetched user data:", data); 
             setUser(data.data); 
         } catch (err) {
             console.error("Error fetching user data:", err);
             setError(err.message || "Failed to fetch user data.");
         } finally {
-            setLoading(false); // Set loading to false once the API request is finished
+            setLoading(false); 
         }
     };
 
+    const refreshUserData = () => {
+        fetchUserData();
+    };
+
     useEffect(() => {
-        fetchUserData(); // Fetch user data on initial load
+        fetchUserData(); 
     }, []);
 
     return (
@@ -33,7 +37,8 @@ const AuthProvider = ({ children }) => {
                 user,
                 loading,
                 error,
-                fetchUserData, // Add the method to fetch user data
+                fetchUserData,
+                refreshUserData
             }}
         >
             {children}

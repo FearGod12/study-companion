@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import WelcomePage from "./components/Pages/Authentification/WelcomePage";
-import GetStarted from "./components/Pages/Authentification/GetStarted";
+import GetStartedPage from "./components/Pages/Authentification/GetStartedPage";
+import Welcome from "./components/Pages/Authentification/Welcome";
 import SignUpPage from "./components/Pages/Authentification/SignUpPage";
 import LoginPage from "./components/Pages/Authentification/LoginPage";
 import VerifyEmailPage from "./components/Pages/Authentification/VerifyEmailPage";
@@ -13,7 +13,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Suspense, lazy } from "react";
 import ReadingMode from "./components/Pages/Main/ReadingMode";
-import ProfileEdit from "./components/common/ProfileEdit";
 import ErrorBoundary from "./components/ErrorBoundary";
 import PasswordReset from "./components/auth/PasswordReset";
 import PrivateRoute from "./components/Pages/Authentification/PrivateRoute";
@@ -25,11 +24,11 @@ const router = createBrowserRouter(
     [
         {
             path: "/",
-            element: <WelcomePage />,
+            element: <GetStartedPage />,
         },
         {
-            path: "/get-started",
-            element: <GetStarted />,
+            path: "/welcome",
+            element: <Welcome />,
         },
         {
             path: "/signup",
@@ -86,14 +85,6 @@ const router = createBrowserRouter(
             element: (
                 <PrivateRoute>
                     <ReadingMode />
-                </PrivateRoute>
-            ),
-        },
-        {
-            path: "/profile-edit",
-            element: (
-                <PrivateRoute>
-                    <ProfileEdit />
                 </PrivateRoute>
             ),
         },
