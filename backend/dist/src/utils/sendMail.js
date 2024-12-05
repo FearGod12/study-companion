@@ -8,6 +8,7 @@ export var EmailSubject;
     EmailSubject["VerifyEmail"] = "Verify Email";
     EmailSubject["PaymentConfirmation"] = "Payment Confirmation";
     EmailSubject["ServerError"] = "Internal Server Error";
+    EmailSubject["StudySessionReminder"] = "Study Session Reminder";
 })(EmailSubject || (EmailSubject = {}));
 function createTransporter() {
     return nodemailer.createTransport({
