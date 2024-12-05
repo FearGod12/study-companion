@@ -43,9 +43,10 @@ export class ScheduleController {
     }
     static async updateSchedule(req, res, next) {
         try {
-            const { title, startTime, duration, isRecurring, recurringDays } = req.body;
+            const { title, startTime, duration, startDate, isRecurring, recurringDays } = req.body;
             const updateData = {
                 startTime,
+                startDate,
                 duration,
                 isRecurring,
                 recurringDays,

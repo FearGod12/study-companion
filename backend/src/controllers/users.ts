@@ -56,8 +56,8 @@ export class UserController {
           makeResponse(
             true,
             'Account created successfully. Please use the code sent to your email to verify your account',
-            user,
-          ),
+            user
+          )
         );
     } catch (error) {
       next(error);
@@ -96,6 +96,32 @@ export class UserController {
     try {
       const user = req.user;
       res.json(makeResponse(true, 'User Account retrieved successfully', user));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static updateUser = async (req: any, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { firstName, lastName, phoneNumber, category, address } = req.body;
+      const updateData: { [key: string]: any } = {
+        firstName,
+        lastName,
+        phoneNumber,
+        category,
+        address,
+      };
+      // remove undefined values from updateData
+      Object.keys(updateData).forEach(
+        key => updateData[key] === undefined && delete updateData[key]
+      );
+      const { error } = UpdateMeValidator.validate(updateData);
+      if (error) {
+        throw new CustomError(400, error.details[0].message);
+      }
+      const user = req.user;
+      const updatedUser = await userService.updateUser(user._id, updateData);
+      res.json(makeResponse(true, 'User updated successfully', updatedUser));
     } catch (error) {
       next(error);
     }
@@ -140,7 +166,7 @@ export class UserController {
   static async requestPasswordReset(
     req: Request | any,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ): Promise<void> {
     try {
       const { email } = req.body;
@@ -163,8 +189,8 @@ export class UserController {
           makeResponse(
             true,
             'Reset Password Process Initiated Successfully! Please Use the code sent to your email to reset your password',
-            null,
-          ),
+            null
+          )
         );
     } catch (error) {
       next(error);

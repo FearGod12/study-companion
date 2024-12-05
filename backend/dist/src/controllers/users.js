@@ -77,6 +77,30 @@ export class UserController {
             next(error);
         }
     };
+    static updateUser = async (req, res, next) => {
+        try {
+            const { firstName, lastName, phoneNumber, category, address } = req.body;
+            const updateData = {
+                firstName,
+                lastName,
+                phoneNumber,
+                category,
+                address,
+            };
+            // remove undefined values from updateData
+            Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
+            const { error } = UpdateMeValidator.validate(updateData);
+            if (error) {
+                throw new CustomError(400, error.details[0].message);
+            }
+            const user = req.user;
+            const updatedUser = await userService.updateUser(user._id, updateData);
+            res.json(makeResponse(true, 'User updated successfully', updatedUser));
+        }
+        catch (error) {
+            next(error);
+        }
+    };
     static updateAvatar = async (req, res, next) => {
         try {
             const user = req.user;

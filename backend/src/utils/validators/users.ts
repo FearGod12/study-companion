@@ -17,12 +17,11 @@ export const VerifyEmailValidator = Joi.object({
 });
 
 export const UpdateMeValidator = Joi.object({
-  firstName: Joi.string().required(),
-  lastName: Joi.string().required(),
-  email: Joi.string().email().required(),
-  phoneNumber: Joi.string().required(),
+  firstName: Joi.string(),
+  lastName: Joi.string(),
+  phoneNumber: Joi.string(),
   category: Joi.string().valid('O level', 'undergraduate', 'graduate'),
-  address: Joi.string().required(),
+  address: Joi.string(),
 });
 
 export const UpdateAvatarValidator = Joi.object({

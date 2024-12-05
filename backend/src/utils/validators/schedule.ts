@@ -35,7 +35,7 @@ export const updateScheduleSchema = Joi.object({
     'date.base': 'Invalid date format',
   }),
   startTime: Joi.string()
-    .regex(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/)
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
     .messages({
       'string.pattern.base': 'Start time must be in HH:MM:SS format',
     }),
