@@ -2,14 +2,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
 import { FaArrowRightFromBracket } from "react-icons/fa6";
 import DarkLogo from "./DarkLogo";
-import { useAuth } from "../../context/useAuth";
 import { toast } from "react-toastify";
-import useUser from "../../hooks/useUser";
+import { useAuth } from "../../context/useAuth";
 
 const DashboardHeader = () => {
     const navigate = useNavigate();
-    const { logout } = useAuth();
-    const { user, loading } = useUser();
+    const { user, logout, loading } = useAuth();
 
     const handleLogout = () => {
         logout();
@@ -31,7 +29,7 @@ const DashboardHeader = () => {
                 <h1 className="lg:text-xl md:text-xl text-sm text-gray-800">
                     Welcome{" "}
                     <span className="font-bold">
-                        {user?.firstName || "User"}
+                        {user.firstName || "User"}
                     </span>
                 </h1>
             </div>

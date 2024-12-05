@@ -1,16 +1,15 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Button from "../common/Button";
-import { useState } from "react";
+import { useState} from "react";
 import { AiOutlineMail, AiOutlineLock } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import { HiEye, HiEyeOff } from "react-icons/hi";
+import { loginUser } from "../../services/api";
 import { toast } from "react-toastify";
-import { useAuth } from "../../context/useAuth"; 
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
-    const { login } = useAuth(); 
     const navigate = useNavigate();
     
     const initialValues = {
@@ -27,23 +26,24 @@ const Login = () => {
             .required("Password is required."),
     });
 
-      const handleSubmit = async (values, { setSubmitting }) => {
-          setSubmitting(true);
-          toast.dismiss();
+    const handleSubmit = async (values, { resetForm, setSubmitting }) => {
+         setSubmitting(true);
+         toast.dismiss();
 
-          try {
-              await login(values.email, values.password); 
-              toast.success("Login successful");
-              navigate('/dashboard')
-    
+        try {
+            const response = await loginUser(values.email, values.password);
+            toast.success("Login successful");
+            navigate("/dashboard");
         } catch (error) {
-            console.error("Login Error:", error);
-            toast.error(error.message || "Login failed. Please try again.");
-        
-          } finally {
-              setSubmitting(false);
-          }
-      };
+            console.error("Login Error:", error.response || error.message);
+            toast.error(
+                error.response?.data?.message || "Failed to login. Please try again."
+            );
+        } finally {
+            setSubmitting(false);
+            resetForm(); 
+        }
+    };
 
     return (
         <Formik
@@ -132,7 +132,7 @@ const Login = () => {
 
                     <div className="mt-8 text-sm text-center">
                         <p>
-                            Dont have an account?{" "}
+                            Don't have an account?{" "}
                             <Link
                                 to="/signup"
                                 className="font-bold text-secondary hover:underline"
