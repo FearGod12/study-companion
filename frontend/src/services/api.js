@@ -119,9 +119,9 @@ export const createSchedule = async (scheduleData) => {
 
 
 export const retrieveSchedules = async () => {
-    try {
+    try { 
         const response = await apiClient.get("/schedules");
-        const schedules = response.data?.data || response.data; 
+        const schedules = response.data?.data || response.data;
         return { success: true, data: schedules };
     } catch (error) {
         throw new Error(handleApiError(error, "Failed to fetch schedules."));
