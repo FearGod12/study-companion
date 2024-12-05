@@ -182,7 +182,6 @@ export class NotificationService {
             minutes,
           },
           {
-
             skipImmediate: true,
             startDate: reminderTime,
           }
@@ -191,7 +190,7 @@ export class NotificationService {
     }
   }
 
-  static updateNotifications(scheduleId: string) {
+  static async updateNotifications(scheduleId: string) {
     throw new Error('not yet implemented');
   }
 
