@@ -28,7 +28,7 @@ export const createScheduleSchema = Joi.object({
 });
 export const updateScheduleSchema = Joi.object({
   title: Joi.string(),
-  startDate: Joi.date().iso().required().messages({
+  startDate: Joi.date().iso().messages({
     'date.base': 'Invalid date format',
   }),
   startTime: Joi.string(),
