@@ -17,7 +17,7 @@ const Profile = () => {
     return (
         <div className="flex py-4 px-6 justify-between w-full">
             {userData ? (
-                <div className="flex lg:flex-row md:flex-row flex-col gap-6">
+                <div className="flex lg:flex-row md:flex-row flex-col gap-4">
                     {/* Profile Picture Section */}
                     <div className="flex flex-col">
                         

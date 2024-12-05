@@ -1,48 +1,41 @@
 import { useState, useEffect } from "react";
-import { loginUser, getUserData } from "../services/api";
+import { getUserData } from "../services/api"; // No need for token-based API call anymore
 import PropTypes from "prop-types";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "./AuthContext";
 
 const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const token = localStorage.getItem("token");
-                if (!token) return;
-                // Fetch user data with token
-                const response = await getUserData(token);
-                setUser(response.data);
-            } catch (err) {
-                console.error("Auth Error:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUser();
-    }, []);
-
-    const login = async (email, password) => {
+    // Fetch user data
+    const fetchUserData = async () => {
+        setLoading(true); // Ensure loading state is set to true before fetching
         try {
-            const response = await loginUser(email, password);
-            const { accessToken, userData } = response.data;
-            localStorage.setItem("token", accessToken);
-            setUser(userData);
+            const data = await getUserData(); // Direct API call to get user data without token
+            console.log("Fetched user data:", data); // Log the fetched user data
+            setUser(data.data); 
         } catch (err) {
-            console.error("Login Error:", err);
+            console.error("Error fetching user data:", err);
+            setError(err.message || "Failed to fetch user data.");
+        } finally {
+            setLoading(false); // Set loading to false once the API request is finished
         }
     };
 
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem("token");
-    };
+    useEffect(() => {
+        fetchUserData(); // Fetch user data on initial load
+    }, []);
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                loading,
+                error,
+                fetchUserData, // Add the method to fetch user data
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );

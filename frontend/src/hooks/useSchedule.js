@@ -114,9 +114,13 @@ const useSchedules = () => {
   };
 
   const formatTimeToHHMMSS = time => {
+    if (!time) {
+      return '00:00:00'; // Default value for empty time
+    }
     const parts = time.split(':');
     return parts.length === 2 ? `${time}:00` : time;
   };
+  
 
   const handleRecurringDayChange = dayId => {
     setNewSchedule(prevSchedule => {
@@ -170,26 +174,27 @@ const useSchedules = () => {
   };
 
   const handleUpdateSchedule = async (id, payload) => {
+    console.log("Updated schedule data to be saved:", payload);
     try {
       const response = await updateSchedule(id, payload);
       const updatedSchedule = await response.data.data;
-      console.log(updatedSchedule);
       const formattedSchedule = {
         ...updatedSchedule,
         startDate: updatedSchedule.startDate.split('T')[0],
         startTime: updatedSchedule.startTime.split('T')[1]?.split('.')[0],
-      };
-
-      setSchedules(prevSchedules =>
+    };
+    setSchedules(prevSchedules =>
         prevSchedules.map(schedule => (schedule._id === id ? formattedSchedule : schedule))
-      );
+    );
       toast.success('Schedule updated successfully!');
     } catch (error) {
       console.log(error.message);
-
       toast.error('Failed to update schedule: ' + (error.response?.data?.message || error.message));
     }
   };
+
+  
+  
 
   const handleDeleteSchedule = async id => {
     try {
