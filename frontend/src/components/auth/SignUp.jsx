@@ -66,15 +66,16 @@ const SignUp = () => {
         setSubmitting(true);
         toast.dismiss();
         try {
-            const response = await registerUser(values); // Pass values to the API
+            const response = await registerUser(values);
             if (response.success) {
-                // Store the email temporarily for verification
                 localStorage.setItem("email", values.email);
                 toast.success(response.data.message || "Signup successful!");
-                navigate("/verify-email"); // Redirect to email verification page
+                navigate("/verify-email"); 
             }
-        } catch (error) {
-            toast.error(error.message || "Something went wrong");
+        }  catch (error) {
+                toast.error(error.response?.data || error.message );
+                throw error;
+            
         } finally {
             setSubmitting(false);
         }

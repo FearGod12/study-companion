@@ -233,3 +233,4 @@ const formatTitle = (title) =>
 };
 
 export default useSchedules;
+

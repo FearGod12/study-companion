@@ -1,109 +1,93 @@
-import { useState, useEffect } from "react";
-import { FaPenSquare, FaTimes, FaUserCircle } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import { useAuth } from "../../context/useAuth";
-import AvatarUpload from "./AvatarUpload"; 
+import useUser from "../../hooks/useUser";
+import { FaSpinner, FaUserCircle } from "react-icons/fa";
 
 const Profile = () => {
-    const { user, fetchUserData, loading } = useAuth();
-    const [isAvatarUploadVisible, setAvatarUploadVisible] = useState(false);
+    const { userData, loading, error, handleFileChange, handleAvatarUpdate, refreshUserData } = useUser();
 
-    useEffect(() => {
-        if (!user && !loading) {
-            fetchUserData();
-        }
-    }, [user, loading, fetchUserData]);
+    if (loading)
+        return (
+            <div className="flex items-center justify-center">
+                <FaSpinner className="animate-spin text-gray-500" size={24} />
+                <p className="ml-2">Loading user data...</p>
+            </div>
+        );
 
-    if (loading) {
-        return null;
-    }
-
-    if (!user) {
-        return null;
-    }
+    if (error) return <p className="text-red-500">An error occurred: {error}</p>;
 
     return (
         <div className="flex py-4 px-6 justify-between w-full">
-            {/* Profile Picture */}
-            <div className="flex lg:flex-row md:flex-row flex-col gap-6">
-                <div
-                    className="flex items-center justify-center cursor-pointer"
-                    onClick={() => setAvatarUploadVisible(true)} // Show AvatarUpload on click
-                >
-                    {user?.avatar ? (
-                        <img
-                            src={user.avatar}
-                            alt="Profile"
-                            className="rounded-full w-20 h-20 object-cover"
-                        />
-                    ) : (
-                        <div>
-                            <FaUserCircle size={70} />
+            {userData ? (
+                <div className="flex lg:flex-row md:flex-row flex-col gap-6">
+                    {/* Profile Picture Section */}
+                    <div className="flex flex-col">
+                        
+                            {userData.avatar ? (
+                                <img
+                                    src={userData.avatar}
+                                    alt="User Avatar"
+                                    className="rounded-full w-40 h-40 object-cover"
+                                />
+                            ) : (
+                                <FaUserCircle size={70} />
+                            )}
+                        
+
+                        {/* Avatar Update Section */}
+                        <div className="mt-4 flex flex-col gap-2">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                className="text-sm"
+                            />
+                            <button
+                                onClick={handleAvatarUpdate}
+                                disabled={loading}
+                                className={`p-2 rounded-md w-32 ${
+                                    loading
+                                        ? "bg-gray-400 text-gray-600"
+                                        : "bg-secondary text-white hover:bg-pink-800"
+                                }`}
+                            >
+                                {loading ? "Updating..." : "Update Avatar"}
+                            </button>
                         </div>
-                    )}
-                </div>
+                    </div>
 
-                {/* User Information */}
-                <div className="flex flex-col gap-2 text-sm">
-                    <p>
-                        First Name:
-                        <span className="font-bold font-ink-free ml-4">
-                            {user?.firstName || "N/A"}
-                        </span>
-                    </p>
-                    <p>
-                        Last Name:
-                        <span className="font-bold font-ink-free ml-4">
-                            {user?.lastName || "N/A"}
-                        </span>
-                    </p>
-                    <p>
-                        Phone Number:
-                        <span className="font-bold font-ink-free ml-4">
-                            {user?.phoneNumber || "N/A"}
-                        </span>
-                    </p>
-                    <p>
-                        Email:
-                        <span className="font-bold font-ink-free ml-4">
-                            {user?.email || "N/A"}
-                        </span>
-                    </p>
-                    <p>
-                        Address:
-                        <span className="font-bold font-ink-free ml-4">
-                            {user?.address || "N/A"}
-                        </span>
-                    </p>
-                    <p>
-                        Category:
-                        <span className="font-bold font-ink-free ml-4">
-                            {user?.category || "N/A"}
-                        </span>
-                    </p>
-                </div>
-            </div>
-
-            <div>
-                <Link to="/profile-edit">
-                    <FaPenSquare size={24} color="#960057" />
-                </Link>
-            </div>
-
-            {/* Avatar Upload Modal */}
-            {isAvatarUploadVisible && (
-                <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className="bg-white p-4 rounded shadow-lg relative border-2">
-                        <AvatarUpload />
-                        <button
-                            onClick={() => setAvatarUploadVisible(false)}
-                            className="mt-4 p-2 bg-red-500 text-white rounded hover:bg-red-600 absolute top-0 right-4"
-                        >
-                            <FaTimes/>
-                        </button>
+                    {/* User Information */}
+                    <div className="flex flex-col gap-2 text-sm">
+                        {[
+                            { label: "First Name", value: userData.firstName },
+                            { label: "Last Name", value: userData.lastName },
+                            { label: "Phone Number", value: userData.phoneNumber },
+                            { label: "Email", value: userData.email },
+                            { label: "Address", value: userData.address },
+                            { label: "Category", value: userData.category },
+                        ].map(({ label, value }) => (
+                            <p key={label}>
+                                {label}:
+                                <span className="font-bold ml-4">{value || "N/A"}</span>
+                            </p>
+                        ))}
                     </div>
                 </div>
+            ) : (
+                <p>No user data available.</p>
             )}
+
+            {/* Refresh Button */}
+            <div className="flex items-center">
+                <button
+                    onClick={refreshUserData}
+                    disabled={loading}
+                    className="p-2 rounded-full bg-gray-200 hover:bg-gray-300"
+                >
+                    <FaSpinner
+                        size={24}
+                        className={`${loading ? "animate-spin text-gray-500" : "text-gray-700"}`}
+                    />
+                </button>
+            </div>
         </div>
     );
 };

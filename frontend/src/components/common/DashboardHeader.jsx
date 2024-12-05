@@ -1,17 +1,15 @@
-import { FaArrowRightFromBracket } from "react-icons/fa6";
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
+import { FaArrowRightFromBracket } from "react-icons/fa6";
 import DarkLogo from "./DarkLogo";
-import { useAuth } from "../../context/useAuth"; 
+import { useAuth } from "../../context/useAuth";
 import { toast } from "react-toastify";
-
+import useUser from "../../hooks/useUser";
 
 const DashboardHeader = () => {
     const navigate = useNavigate();
-    const { user, logout } = useAuth();
-    console.log("User in DashboardHeader:", user);
-    const [loading, setLoading] = useState(true);
+    const { logout } = useAuth();
+    const { user, loading } = useUser();
 
     const handleLogout = () => {
         logout();
@@ -19,17 +17,8 @@ const DashboardHeader = () => {
         toast.success("Logged out successfully.");
     };
 
-    useEffect(() => {
-        if (!user) {
-            navigate("/login");
-            return;
-        }
-
-        setLoading(false);
-    }, [user, navigate]);
-
-     if (loading) {
-        return null; 
+    if (loading) {
+        return null; // Show nothing while loading
     }
 
     return (
@@ -42,8 +31,7 @@ const DashboardHeader = () => {
                 <h1 className="lg:text-xl md:text-xl text-sm text-gray-800">
                     Welcome{" "}
                     <span className="font-bold">
-                        {" "}
-                        {user?.firstName}
+                        {user?.firstName || "User"}
                     </span>
                 </h1>
             </div>

@@ -25,14 +25,14 @@ const GetStarted = () => {
                 <Link to='/login'>
                   <Button
                       text="Login"
-                      className="text-secondary border border-secondary bg-white hover:bg-secondary hover:text-white"
+                      className="text-secondary hover:border border-gray-100 bg-white hover:bg-secondary hover:text-white"
                   />
                   </Link>
 
                   <Link to='/signup'>
                   <Button
                       text="Sign up"
-                      className="text-secondary border border-secondary bg-white hover:bg-secondary hover:text-white"
+                      className="text-secondary hover:border border-gray-100 bg-white hover:bg-secondary hover:text-white"
                   />
                   </Link>
               </div>

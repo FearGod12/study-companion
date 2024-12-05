@@ -23,7 +23,8 @@ export const registerUser = async (userData) => {
         const response = await apiClient.post("/users", userData);
         return { success: true, data: response.data };
     } catch (error) {
-        throw new Error(handleApiError(error, "Failed to register user."));
+        console.error("Failed to register user", error.response?.data || error.message);
+        throw error;
     }
 };
 
