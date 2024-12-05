@@ -148,7 +148,7 @@ export class NotificationService {
             }
         }
     }
-    static updateNotifications(scheduleId) {
+    static async updateNotifications(scheduleId) {
         throw new Error('not yet implemented');
     }
     static calculateNextOccurrence(startTime, dayOfWeek) {

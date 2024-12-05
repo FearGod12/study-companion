@@ -51,7 +51,7 @@ export class ScheduleService {
             runValidators: true,
         });
         if (schedule) {
-            await NotificationService.updateNotifications(schedule._id.toString());
+            // await NotificationService.updateNotifications(schedule._id!.toString());
         }
         return schedule;
     }

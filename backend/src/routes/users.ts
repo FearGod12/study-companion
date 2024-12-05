@@ -9,6 +9,7 @@ router.post('/users', UserController.createUser);
 router.post('/users/verify-email', UserController.verifyEmail);
 router.post('/users/login', UserController.login);
 router.get('/users/me', isAuthenticated, UserController.getMe);
+router.patch('/users/me', isAuthenticated, UserController.updateUser);
 router.patch(
   '/users/me/avatar',
   isAuthenticated,
@@ -361,4 +362,54 @@ export default router;
  *         description: Unauthorized
  *       500:
  *         description: Internal Server Error
+ */
+
+/**
+ * @swagger
+ * /users/me:
+ *   patch:
+ *     summary: Update the current user's profile
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *                 description: Updated first name of the user
+ *                 example: "John"
+ *               lastName:
+ *                 type: string
+ *                 description: Updated last name of the user
+ *                 example: "Doe"
+ *               phoneNumber:
+ *                 type: string
+ *                 description: Updated phone number
+ *                 example: "+1234567890"
+ *               category:
+ *                 type: string
+ *                 description: User's educational category
+ *                 enum: ['O level', 'undergraduate', 'graduate']
+ *                 example: "undergraduate"
+ *               address:
+ *                 type: string
+ *                 description: Updated user address
+ *                 example: "123 Main St, Anytown, USA"
+ *     responses:
+ *       200:
+ *         description: User profile updated successfully
+ *         content:
+ *             application/json:
+ *               schema:
+ *                 $ref: '#/components/schemas/UserResponse'
+ *       400:
+ *         description: Invalid input or validation error
+ *       401:
+ *         description: Unauthorized - authentication required
  */

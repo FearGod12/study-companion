@@ -10,8 +10,8 @@ import { makeResponse } from './utils/makeResponse.js';
 
 const app = express();
 
-app.set('trust proxy', 1);
-app.use(rateLimiter);
+// app.set('trust proxy', 1);
+// app.use(rateLimiter);
 app.use(cors({ origin: '*' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());

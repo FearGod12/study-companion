@@ -65,4 +65,12 @@ export class userService {
       throw new Error(error.message);
     }
   }
+
+  static async updateUser(id: string, data: any) {
+    const user = await User.findByIdAndUpdate(id, data, { new: true });
+    if (!user) {
+      throw new CustomError(404, 'User not found');
+    }
+    return user;
+  }
 }
