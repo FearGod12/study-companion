@@ -1,14 +1,78 @@
+import mongoose from 'mongoose';
 import cron from 'node-cron';
 import { Schedule } from '../models/schedule.js';
 import User from '../models/users.js';
 import { EmailSubject, sendMail } from '../utils/sendMail.js';
+// Mongoose Schema for Scheduled Notifications
+const ScheduledNotificationSchema = new mongoose.Schema({
+    scheduleId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Schedule',
+        required: true,
+    },
+    minutesBefore: {
+        type: Number,
+        required: true,
+    },
+    scheduledFor: {
+        type: Date,
+        required: true,
+    },
+    isExecuted: {
+        type: Boolean,
+        default: false,
+    },
+    cronJobId: {
+        type: String,
+        required: true,
+    },
+    isRecurring: {
+        type: Boolean,
+        default: false,
+    },
+    recurringDayOfWeek: {
+        type: Number,
+        required: false,
+    },
+});
+const ScheduledNotification = mongoose.model('ScheduledNotification', ScheduledNotificationSchema);
 export class NotificationService {
+    // In-memory storage of currently active cron jobs
     static scheduledNotifications = new Map();
+    // Reminder times in minutes before the event
     static REMINDER_TIMES = [30, 5];
+    // Timezone for scheduling
+    static TIMEZONE = 'Africa/Lagos';
+    /**
+     * Initialize the notification service
+     * Recovers and re-schedules any pending notifications
+     */
     static async init() {
         console.log('Notification service initialized');
-        // Optional: You could add any startup logic here
+        try {
+            // Find all active schedules
+            const activeSchedules = await Schedule.find({ isActive: true });
+            // Find pending scheduled notifications
+            const pendingNotifications = await ScheduledNotification.find({
+                isExecuted: false,
+                scheduledFor: { $gt: new Date() },
+            }).populate('scheduleId');
+            // Re-schedule notifications for each pending notification
+            for (const notification of pendingNotifications) {
+                const schedule = notification.scheduleId;
+                if (schedule && schedule.isActive) {
+                    await this.scheduleNotifications(schedule._id.toString());
+                }
+            }
+        }
+        catch (error) {
+            console.error('Failed to initialize notification service:', error);
+        }
     }
+    /**
+     * Schedule notifications for a specific schedule
+     * @param scheduleId - ID of the schedule to schedule notifications for
+     */
     static async scheduleNotifications(scheduleId) {
         try {
             // First, cancel any existing notifications for this schedule
@@ -32,6 +96,10 @@ export class NotificationService {
             throw error;
         }
     }
+    /**
+     * Schedule one-time notifications for a schedule
+     * @param schedule - Schedule to create notifications for
+     */
     static async scheduleOneTimeNotifications(schedule) {
         const scheduledJobs = [];
         for (const minutes of this.REMINDER_TIMES) {
@@ -46,6 +114,12 @@ export class NotificationService {
             const job = cron.schedule(cronExpression, async () => {
                 try {
                     await this.sendReminderEmail(schedule, minutes);
+                    // Mark the notification as executed in the database
+                    await ScheduledNotification.findOneAndUpdate({
+                        scheduleId: schedule._id,
+                        minutesBefore: minutes,
+                        isRecurring: false,
+                    }, { isExecuted: true });
                     // Remove the job after it's executed
                     job.stop();
                 }
@@ -54,7 +128,18 @@ export class NotificationService {
                 }
             }, {
                 scheduled: true,
-                timezone: 'Africa/Lagos',
+                timezone: this.TIMEZONE,
+            });
+            // Generate a unique identifier for the job
+            const cronJobId = `${schedule._id}_${minutes}_${Date.now()}`;
+            // Persist the scheduled notification in the database
+            await ScheduledNotification.create({
+                scheduleId: schedule._id,
+                minutesBefore: minutes,
+                scheduledFor: reminderTime,
+                isExecuted: false,
+                cronJobId: cronJobId,
+                isRecurring: false,
             });
             scheduledJobs.push({
                 scheduleId: schedule._id.toString(),
@@ -64,6 +149,10 @@ export class NotificationService {
         // Store scheduled jobs
         this.scheduledNotifications.set(schedule._id.toString(), scheduledJobs);
     }
+    /**
+     * Schedule recurring notifications for a schedule
+     * @param schedule - Recurring schedule to create notifications for
+     */
     static async scheduleRecurringNotifications(schedule) {
         const scheduledJobs = [];
         for (const dayOfWeek of schedule.recurringDays) {
@@ -85,7 +174,19 @@ export class NotificationService {
                     }
                 }, {
                     scheduled: true,
-                    timezone: 'Africa/Lagos',
+                    timezone: this.TIMEZONE,
+                });
+                // Generate a unique identifier for the job
+                const cronJobId = `${schedule._id}_${dayOfWeek}_${minutes}_${Date.now()}`;
+                // Persist the scheduled notification in the database
+                await ScheduledNotification.create({
+                    scheduleId: schedule._id,
+                    minutesBefore: minutes,
+                    scheduledFor: this.calculateNextRun(schedule.startTime, dayOfWeek, minutes),
+                    isExecuted: false,
+                    cronJobId: cronJobId,
+                    isRecurring: true,
+                    recurringDayOfWeek: dayOfWeek,
                 });
                 scheduledJobs.push({
                     scheduleId: schedule._id.toString(),
@@ -96,6 +197,11 @@ export class NotificationService {
         // Store or update scheduled jobs for this schedule
         this.scheduledNotifications.set(schedule._id.toString(), scheduledJobs);
     }
+    /**
+     * Send a reminder email for a specific schedule
+     * @param schedule - Schedule to send reminder for
+     * @param minutes - Minutes before the schedule to send reminder
+     */
     static async sendReminderEmail(schedule, minutes) {
         const user = await User.findById(schedule.userId);
         if (!user) {
@@ -106,11 +212,15 @@ export class NotificationService {
             user: user,
             title: schedule.title,
             minutes: minutes,
-            startTime: schedule.startTime.toLocaleTimeString('en-NG', { timeZone: 'Africa/Lagos' }),
+            startTime: schedule.startTime.toLocaleTimeString('en-NG', { timeZone: this.TIMEZONE }),
             duration: schedule.duration,
         });
         console.log(`Reminder sent for schedule ${schedule._id} (${minutes} minutes)`);
     }
+    /**
+     * Cancel notifications for a specific schedule
+     * @param scheduleId - ID of the schedule to cancel notifications for
+     */
     static async cancelNotifications(scheduleId) {
         const scheduledJobs = this.scheduledNotifications.get(scheduleId);
         if (scheduledJobs) {
@@ -120,8 +230,17 @@ export class NotificationService {
             });
             // Remove the entry from the map
             this.scheduledNotifications.delete(scheduleId);
+            // Remove scheduled notifications from database
+            await ScheduledNotification.deleteMany({
+                scheduleId: scheduleId,
+                isExecuted: false,
+            });
         }
     }
+    /**
+     * Update notifications for a schedule
+     * @param scheduleId - ID of the schedule to update
+     */
     static async updateSchedule(scheduleId) {
         try {
             // Cancel existing notifications
@@ -138,6 +257,10 @@ export class NotificationService {
             throw error;
         }
     }
+    /**
+     * Mark a schedule as complete
+     * @param scheduleId - ID of the schedule to mark complete
+     */
     static async markScheduleComplete(scheduleId) {
         try {
             const schedule = await Schedule.findById(scheduleId);
@@ -156,15 +279,44 @@ export class NotificationService {
             throw error;
         }
     }
-    // Helper method to create a one-time cron expression
+    /**
+     * Create a cron expression for a one-time notification
+     * @param reminderTime - Time to schedule the notification
+     * @returns Cron expression string
+     */
     static createCronExpression(reminderTime) {
         return `${reminderTime.getMinutes()} ${reminderTime.getHours()} ${reminderTime.getDate()} ${reminderTime.getMonth() + 1} *`;
     }
-    // Helper method to create a recurring cron expression
+    /**
+     * Create a cron expression for recurring notifications
+     * @param startTime - Original start time of the schedule
+     * @param dayOfWeek - Day of week for recurring schedule
+     * @param minutesBefore - Minutes before the schedule to send reminder
+     * @returns Cron expression string
+     */
     static createRecurringCronExpression(startTime, dayOfWeek, minutesBefore) {
         const reminderTime = new Date(startTime.getTime() - minutesBefore * 60000);
         return `${reminderTime.getMinutes()} ${reminderTime.getHours()} * * ${dayOfWeek}`;
     }
+    /**
+     * Calculate the next run time for a recurring notification
+     * @param startTime - Original start time of the schedule
+     * @param dayOfWeek - Day of week for recurring schedule
+     * @param minutesBefore - Minutes before the schedule to send reminder
+     * @returns Date of next scheduled run
+     */
+    static calculateNextRun(startTime, dayOfWeek, minutesBefore) {
+        const reminderTime = new Date(startTime.getTime() - minutesBefore * 60000);
+        const nextRun = new Date();
+        // Set to next occurrence of the specific day of week
+        nextRun.setDate(nextRun.getDate() + ((dayOfWeek + 7 - nextRun.getDay()) % 7));
+        nextRun.setHours(reminderTime.getHours(), reminderTime.getMinutes(), 0, 0);
+        return nextRun;
+    }
+    /**
+     * Shutdown the notification service
+     * Stops all scheduled jobs and clears the map
+     */
     static async shutdown() {
         // Stop all scheduled jobs
         this.scheduledNotifications.forEach(jobs => {
