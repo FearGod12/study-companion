@@ -1,60 +1,44 @@
-import { useAuth } from "../../context/useAuth";
-import useUser from "../../hooks/useUser";
-import { FaSpinner, FaUserCircle } from "react-icons/fa";
+import { useState } from "react";
+import { FaSpinner } from "react-icons/fa6";
+import { FaTimes, FaUserCircle } from "react-icons/fa";
+import useUser from "../../hooks/useUser"; 
 
 const Profile = () => {
-    const { loading, error, handleFileChange, handleAvatarUpdate } = useUser();
+    const { user, loading, handleFileChange, handleAvatarUpdate } = useUser();
+    const [isModalOpen, setModalOpen] = useState(false);
 
-    const { user, refreshUserData } = useAuth();
+    const toggleModal = () => setModalOpen(!isModalOpen);
 
     if (loading)
         return (
             <div className="flex items-center justify-center">
                 <FaSpinner className="animate-spin text-gray-500" size={24} />
-                <p className="ml-2">Loading user data...</p>
+                <p className="ml-2 p-6">Loading user data...</p>
             </div>
         );
 
-    if (error) return <p className="text-red-500">An error occurred: {error}</p>;
-
     return (
-        <div className="flex py-4 px-6 justify-between w-full">
+        <div className="flex py-4 px-10 items-center justify-between w-full">
             {user ? (
                 <div className="flex lg:flex-row md:flex-row flex-col gap-4">
                     {/* Profile Picture Section */}
                     <div className="flex flex-col">
-                        
-                            {user.avatar ? (
-                                <img
-                                    src={user.avatar}
-                                    alt="User Avatar"
-                                    className="rounded-full w-40 h-40 object-cover"
-                                />
-                            ) : (
-                                <FaUserCircle size={70} />
-                            )}
-                        
-
-                        {/* Avatar Update Section */}
-                        <div className="mt-4 flex flex-col gap-2">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                className="text-sm"
+                        {user.avatar ? (
+                            <img
+                                src={user.avatar}
+                                alt="User Avatar"
+                                className="rounded-full w-40 h-40 object-cover"
                             />
-                            <button
-                                onClick={handleAvatarUpdate}
-                                disabled={loading}
-                                className={`p-2 rounded-md w-32 ${
-                                    loading
-                                        ? "bg-gray-400 text-gray-600"
-                                        : "bg-secondary text-white hover:bg-pink-800"
-                                }`}
-                            >
-                                {loading ? "Updating..." : "Update Avatar"}
-                            </button>
-                        </div>
+                        ) : (
+                            <FaUserCircle size={70} />
+                        )}
+                        {/* Open Modal Button */}
+                        <button
+                            onClick={toggleModal}
+                            className="mt-4 p-2 rounded-md bg-secondary text-white hover:bg-pink-800 w-32"
+                        >
+                            Update Avatar
+                        </button>
                     </div>
 
                     {/* User Information */}
@@ -78,19 +62,42 @@ const Profile = () => {
                 <p>No user data available.</p>
             )}
 
-            {/* Refresh Button */}
-            <div className="flex items-center">
-                <button
-                    onClick={refreshUserData}
-                    disabled={loading}
-                    className="p-2 rounded-full bg-gray-200 hover:bg-gray-300"
+            {/* Avatar Update Modal */}
+            {isModalOpen && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                    onClick={toggleModal} 
                 >
-                    <FaSpinner
-                        size={24}
-                        className={`${loading ? "animate-spin text-gray-500" : "text-gray-700"}`}
-                    />
-                </button>
-            </div>
+                    <div
+                        className="bg-white rounded-lg p-6 w-80 relative"
+                        onClick={(e) => e.stopPropagation()} 
+                    >
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="mb-4 w-full text-sm"
+                        />
+                        <button
+                            onClick={handleAvatarUpdate}
+                            disabled={loading}
+                            className={`p-2 rounded-md w-full ${
+                                loading
+                                    ? "bg-gray-400 text-gray-600"
+                                    : "bg-secondary text-white hover:bg-pink-800"
+                            }`}
+                        >
+                            {loading ? "Updating..." : "Update"}
+                        </button>
+                        <button
+                            onClick={toggleModal}
+                            className="mt-4 p-2 rounded-md bg-red-500 hover:bg-red-400 text-gray-100 absolute top-0 right-4"
+                        >
+                            <FaTimes />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
