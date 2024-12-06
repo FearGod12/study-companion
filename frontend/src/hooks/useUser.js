@@ -13,8 +13,7 @@ const useUser = () => {
     // Handle file selection
     const handleFileChange = (e) => {
         const file = e.target.files[0];
-        if (file) {
-            // Validate file type and size (optional)
+        if (file) { 
             if (!file.type.startsWith("image/")) {
                 toast.error("Please select an image file.");
                 return;
@@ -37,16 +36,16 @@ const useUser = () => {
         setError(null);
 
         try {
-            await updateAvatar(avatarFile); // Call API to update avatar
-            await fetchUserData(); // Refresh user data from AuthContext
+            await updateAvatar(avatarFile); 
+            await fetchUserData();
             toast.success("Avatar updated successfully!");
         } catch (err) {
             console.error(err);
             setError(err.message || "Failed to update avatar.");
             toast.error("Error updating avatar. Please try again.");
         } finally {
-            setAvatarFile(null); // Reset selected file
-            setLoading(false); // Stop loading
+            setAvatarFile(null); 
+            setLoading(false);
         }
     };
 
