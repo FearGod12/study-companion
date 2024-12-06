@@ -1,8 +1,11 @@
+import { useAuth } from "../../context/useAuth";
 import useUser from "../../hooks/useUser";
 import { FaSpinner, FaUserCircle } from "react-icons/fa";
 
 const Profile = () => {
-    const { userData, loading, error, handleFileChange, handleAvatarUpdate, refreshUserData } = useUser();
+    const { loading, error, handleFileChange, handleAvatarUpdate } = useUser();
+
+    const { user, refreshUserData } = useAuth();
 
     if (loading)
         return (
@@ -16,14 +19,14 @@ const Profile = () => {
 
     return (
         <div className="flex py-4 px-6 justify-between w-full">
-            {userData ? (
+            {user ? (
                 <div className="flex lg:flex-row md:flex-row flex-col gap-4">
                     {/* Profile Picture Section */}
                     <div className="flex flex-col">
                         
-                            {userData.avatar ? (
+                            {user.avatar ? (
                                 <img
-                                    src={userData.avatar}
+                                    src={user.avatar}
                                     alt="User Avatar"
                                     className="rounded-full w-40 h-40 object-cover"
                                 />
@@ -57,12 +60,12 @@ const Profile = () => {
                     {/* User Information */}
                     <div className="flex flex-col gap-2 text-sm">
                         {[
-                            { label: "First Name", value: userData.firstName },
-                            { label: "Last Name", value: userData.lastName },
-                            { label: "Phone Number", value: userData.phoneNumber },
-                            { label: "Email", value: userData.email },
-                            { label: "Address", value: userData.address },
-                            { label: "Category", value: userData.category },
+                            { label: "First Name", value: user.firstName },
+                            { label: "Last Name", value: user.lastName },
+                            { label: "Phone Number", value: user.phoneNumber },
+                            { label: "Email", value: user.email },
+                            { label: "Address", value: user.address },
+                            { label: "Category", value: user.category },
                         ].map(({ label, value }) => (
                             <p key={label}>
                                 {label}:

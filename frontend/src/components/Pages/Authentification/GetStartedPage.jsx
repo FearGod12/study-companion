@@ -3,7 +3,7 @@ import WelcomeHeader from "../../common/WelcomeHeader";
 import background from "../../../assets/Image/hero-img.png";
 import Carousel from "../../common/Carousel";
 
-const WelcomePage = () => {
+const GetStartedPage = () => {
     return (
         <div className="container max-w-none overflow-x-hidden w-screen flex flex-col">
             {/* Header */}
@@ -39,4 +39,4 @@ const WelcomePage = () => {
     );
 };
 
-export default WelcomePage;
+export default GetStartedPage;

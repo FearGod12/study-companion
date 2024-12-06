@@ -2,7 +2,7 @@ import DarkLogo from '../../common/DarkLogo';
 import Button from '../../common/Button';
 import { Link } from 'react-router-dom';
 
-const GetStarted = () => {
+const Welcome = () => {
   return (
       <div className="container max-w-none h-screen font-inria-sans ">
           <div className="py-2 pl-4">
@@ -43,4 +43,4 @@ const GetStarted = () => {
   );
 }
 
-export default GetStarted
+export default Welcome

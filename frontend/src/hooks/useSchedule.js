@@ -40,7 +40,6 @@ const useSchedules = () => {
   const [timeZone, setTimeZone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
 
   useEffect(() => {
-    // Fetch schedules from the API
     const fetchSchedules = async () => {
       setLoading(true);
       try {
@@ -59,22 +58,7 @@ const useSchedules = () => {
     };
 
     fetchSchedules();
-
-    // Check for dark mode preference in localStorage
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-      setIsDarkMode(JSON.parse(savedDarkMode));
-    }
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
-    if (isDarkMode) {
-      document.body.classList.add('dark');
-    } else {
-      document.body.classList.remove('dark');
-    }
-  }, [isDarkMode]);
 
   // Filtered and searched schedules
   const filteredSchedules = schedules.filter(schedule => {
@@ -174,7 +158,6 @@ const useSchedules = () => {
   };
 
   const handleUpdateSchedule = async (id, payload) => {
-    console.log("Updated schedule data to be saved:", payload);
     try {
       const response = await updateSchedule(id, payload);
       const updatedSchedule = await response.data.data;
@@ -193,9 +176,6 @@ const useSchedules = () => {
     }
   };
 
-  
-  
-
   const handleDeleteSchedule = async id => {
     try {
       await deleteSchedule(id);
@@ -204,10 +184,6 @@ const useSchedules = () => {
     } catch (error) {
       toast.error('Failed to delete schedule. ' + (error.response?.data?.message || error.message));
     }
-  };
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(prev => !prev);
   };
 
   return {
@@ -230,7 +206,6 @@ const useSchedules = () => {
     setTimeZone,
     setSearchQuery,
     setFilterOptions,
-    toggleDarkMode,
     handleCreateSchedule,
     handleUpdateSchedule,
     handleDeleteSchedule,

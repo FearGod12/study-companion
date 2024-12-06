@@ -7,7 +7,7 @@ const useUser = () => {
     const [userData, setUserData] = useState(null);
     const [error, setError ] = useState()
     const [loading, setLoading] = useState(true);
-const [avatarFile, setAvatarFile] = useState(null);
+    const [avatarFile, setAvatarFile] = useState(null);
 
         const fetchUserData = async () => {
             try {
@@ -25,7 +25,7 @@ const [avatarFile, setAvatarFile] = useState(null);
     const updateUserAvatar = async (avatarFile) => {
         try {
             const updatedUser = await updateAvatar(avatarFile);
-            setUserData(updatedUser.data); // Update the user state with the new avatar
+            setUserData(updatedUser.data); 
             return updatedUser;
         } catch (err) {
             setError(err.message || "Failed to update avatar.");
@@ -71,8 +71,9 @@ const [avatarFile, setAvatarFile] = useState(null);
         loading,
         error,
         fetchUserData,
-     handleFileChange, 
-     handleAvatarUpdate, refreshUserData,
+        handleFileChange, 
+        handleAvatarUpdate, 
+        refreshUserData,
         updateAvatar: updateUserAvatar,
     };
 };
