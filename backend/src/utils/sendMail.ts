@@ -9,6 +9,7 @@ export enum EmailSubject {
   VerifyEmail = 'Verify Email',
   PaymentConfirmation = 'Payment Confirmation',
   ServerError = 'Internal Server Error',
+  StudySessionReminder = 'Study Session Reminder',
 }
 
 interface EmailData {

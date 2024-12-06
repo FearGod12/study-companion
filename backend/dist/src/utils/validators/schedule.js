@@ -26,18 +26,11 @@ export const createScheduleSchema = Joi.object({
     }),
 });
 export const updateScheduleSchema = Joi.object({
-    title: Joi.string().messages({
-        'any.required': 'Title is required',
-        'string.empty': 'Title cannot be empty',
-    }),
-    startDate: Joi.date().iso().required().messages({
+    title: Joi.string(),
+    startDate: Joi.date().iso().messages({
         'date.base': 'Invalid date format',
     }),
-    startTime: Joi.string()
-        .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-        .messages({
-        'string.pattern.base': 'Start time must be in HH:MM:SS format',
-    }),
+    startTime: Joi.string(),
     duration: Joi.number().min(1).messages({
         'number.min': 'Duration must be at least 1 minute',
     }),
