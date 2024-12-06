@@ -7,10 +7,14 @@ const SECRET = process.env.SECRET_KEY || 'MY SUPER SECRETE KEY';
  * @returns The generated JWT token.
  */
 export const generateToken = (user) => {
-    return jwt.sign({
+    const expiresIn = '24h';
+    const expiresInMs = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const expiresAt = new Date(Date.now() + expiresInMs);
+    const token = jwt.sign({
         _id: user._id,
         email: user.email,
-    }, SECRET, { expiresIn: '24h' });
+    }, SECRET, { expiresIn });
+    return { token, expiresAt };
 };
 /**
  * Verifies the authenticity of a JWT token.
