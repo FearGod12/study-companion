@@ -45,6 +45,8 @@ export class ReadingSessionController {
         );
 
         if (activeSessionEndTime < new Date()) {
+          schedule.isActive = false;
+          await schedule.save();
           activeSession.status = 'completed';
           await activeSession.save();
         } else {
@@ -99,6 +101,16 @@ export class ReadingSessionController {
   static async endSession(req: any, res: Response, next: NextFunction): Promise<void> {
     try {
       const { scheduleId } = req.params;
+      const schedule = await Schedule.findOne({
+        _id: scheduleId,
+        userId: req.user._id,
+        isActive: true,
+      });
+      if (!schedule) {
+        res.status(404).json({ error: 'Schedule not found' });
+        return;
+      }
+
       const session = await ReadingSession.findOne({
         userId: req.user._id,
         scheduleId,
@@ -120,6 +132,8 @@ export class ReadingSessionController {
       session.duration = duration;
       session.status = 'completed';
       await session.save();
+      schedule.isActive = false;
+      await schedule.save();
 
       res.json(makeResponse(true, 'session ended successfully', session));
     } catch (error) {
@@ -127,6 +141,36 @@ export class ReadingSessionController {
     }
   }
 
+  static async getAllSessions(req: any, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = req.user._id;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const skip = (page - 1) * limit;
+
+      const sessions = await ReadingSession.find({ userId })
+        .skip(skip)
+        .limit(limit)
+        .sort({ startTime: -1 });
+
+      const total = await ReadingSession.countDocuments({ userId });
+      const totalPages = Math.ceil(total / limit);
+
+      res.json(
+        makeResponse(true, 'All sessions retrieved', {
+          sessions,
+          pagination: {
+            currentPage: page,
+            totalPages,
+            totalItems: total,
+            itemsPerPage: limit,
+          },
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
   static async getUserStatistics(req: any, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user._id;

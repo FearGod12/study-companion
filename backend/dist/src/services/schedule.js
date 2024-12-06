@@ -68,7 +68,7 @@ export class ScheduleService {
         return Schedule.find({
             userId,
             isActive: true,
-            startTime: { $gte: now, $lte: thirtyDaysFromNow },
+            startTime: { $lte: thirtyDaysFromNow },
         }).sort({ startTime: 1 });
     }
     static async checkOverlappingSchedules(userId, startTime, duration, excludeId) {
