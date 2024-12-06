@@ -1,4 +1,4 @@
-import { FaCalendar, FaGear, FaBars } from "react-icons/fa6";
+import { FaCalendar,  FaBars } from "react-icons/fa6";
 import { RiDashboardLine } from "react-icons/ri";
 import { Link, useLocation } from "react-router-dom";
 import { FaTimesCircle } from "react-icons/fa";
@@ -55,22 +55,6 @@ const SideMenu = () => {
                                     <FaCalendar size={20} />
                                     <span className="hidden md:block">
                                         Schedule
-                                    </span>
-                                </li>
-                            </Link>
-
-                            {/* Settings Tab */}
-                            <Link to="/settings">
-                                <li
-                                    className={`flex items-center gap-3 px-4 py-2 rounded-lg transition ease-in-out duration-300 ${
-                                        isActive("/settings")
-                                            ? "bg-gray-100 text-secondary shadow"
-                                            : "text-gray-100"
-                                    } hover:bg-gray-100 hover:text-secondary hover:shadow`}
-                                >
-                                    <FaGear size={20} />
-                                    <span className="hidden md:block">
-                                        Settings
                                     </span>
                                 </li>
                             </Link>

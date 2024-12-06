@@ -3,7 +3,7 @@ import { FaPlus } from "react-icons/fa";
 import { FaArrowRightFromBracket } from "react-icons/fa6";
 import DarkLogo from "./DarkLogo";
 import { toast } from "react-toastify";
-import { useAuth } from "../../context/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 
 const DashboardHeader = () => {
     const navigate = useNavigate();

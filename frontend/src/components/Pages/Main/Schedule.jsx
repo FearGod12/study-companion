@@ -26,7 +26,7 @@ const Schedule = () => {
     } = useSchedules();
 
     return (
-        <div className="p-6 bg-gray-200 h-screen">
+        <div className="p-6 bg-gray-200 ">
             {/* Header Section */}
             <header className=" mb-6">
                 <h1 className="text-2xl font-bold ml-12 text-secondary">Study Manager</h1>
@@ -99,6 +99,8 @@ const Schedule = () => {
                             }
                             className="p-2 rounded-lg w-ful"
                         />
+                        <div className="space-y-2">
+                        <label>Duration (in minutes)</label>
                         <input
                             type="number"
                             placeholder="Duration (in minutes)"
@@ -109,7 +111,7 @@ const Schedule = () => {
                                     : setNewSchedule((prev) => ({ ...prev, duration: e.target.value }))
                             }
                             className="p-2 rounded-lg w-full"
-                        />
+                        /></div>
                         <div className="flex gap-4 flex-col">
                             <label className="flex gap-2 ml-2">
                                 <input

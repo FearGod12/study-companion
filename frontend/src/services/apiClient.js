@@ -43,7 +43,7 @@ apiClient.interceptors.response.use(
         if (status === 401) {
             toast.error("Unauthorized. Please log in again.");
             localStorage.removeItem("access_Token");
-            window.location.href = "/login"; // Redirect to login
+            window.location.href = "/login";
         }
         return Promise.reject(error);
     }

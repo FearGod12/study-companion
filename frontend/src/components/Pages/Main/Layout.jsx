@@ -1,36 +1,23 @@
 import { Outlet } from "react-router-dom";
 import SideMenu from "../../common/SideMenu";
-import { useState, useEffect } from "react"; 
-import { useAuth } from "../../../context/useAuth"; 
-import { getUserData } from "../../../services/api"; 
+import { useAuth } from "../../../hooks/useAuth"; // Assuming you have useAuth
 import Loading from "../../common/Loading"; 
 
 const Layout = () => {
-    const { user } = useAuth(); 
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        if (!user) {
-            window.location.href = "";
-        } else {
-            const fetchUserData = async () => {
-                try {
-                    setLoading(true);
-                    await getUserData(); 
-                } catch (error) {
-                    console.error("Error fetching user data:", error.message);
-                } finally {
-                    setLoading(false);
-                }
-            };
-            fetchUserData();
-        }
-    }, [user]);
+    const { loading, user } = useAuth();  // Get loading state from AuthContext
 
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen w-full">
-                <Loading/>
+                <Loading />
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="flex justify-center items-center h-screen w-full">
+                <p>User not authenticated. Please log in.</p>
             </div>
         );
     }
@@ -44,7 +31,7 @@ const Layout = () => {
 
             {/* Main Content Area */}
             <div className="flex-1 h-full">
-                <Outlet /> {/* Render the main content of the page */}
+                <Outlet /> 
             </div>
         </div>
     );

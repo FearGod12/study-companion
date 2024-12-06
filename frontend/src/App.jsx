@@ -7,7 +7,6 @@ import VerifyEmailPage from "./components/Pages/Authentification/VerifyEmailPage
 import ForgotPassword from "./components/auth/ForgotPassword";
 import Layout from "./components/Pages/Main/Layout";
 import Schedule from "./components/Pages/Main/Schedule";
-import Setting from "./components/Pages/Main/Setting";;
 import  AuthProvider  from "./context/AuthProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,6 +15,7 @@ import ReadingMode from "./components/Pages/Main/ReadingMode";
 import ErrorBoundary from "./components/ErrorBoundary";
 import PasswordReset from "./components/auth/PasswordReset";
 import PrivateRoute from "./components/Pages/Authentification/PrivateRoute";
+import Loading from "./components/common/Loading";
 
 const Dashboard = lazy(() => import("./components/Pages/Main/Dashboard"));
 
@@ -57,7 +57,7 @@ const router = createBrowserRouter(
                 {
                     path: "dashboard",
                     element: (
-                        <Suspense fallback={<div>loading...</div>}>
+                        <Suspense fallback={<div className="container max-w-none h-screen"><Loading/></div>}>
                             <Dashboard />
                         </Suspense>
                     ),
@@ -67,14 +67,6 @@ const router = createBrowserRouter(
                     element: (
                         <PrivateRoute>
                             <Schedule />
-                        </PrivateRoute>
-                    ),
-                },
-                {
-                    path: "settings",
-                    element: (
-                        <PrivateRoute>
-                            <Setting />
                         </PrivateRoute>
                     ),
                 },
@@ -99,15 +91,12 @@ const router = createBrowserRouter(
 
 const App = () => {
     return (
+        <ErrorBoundary>
         <AuthProvider>
-            {" "}
-            {/* Keep AuthProvider here */}
             <ToastContainer />
-            <ErrorBoundary>
-                <RouterProvider router={router} hydration={true} />{" "}
-                {/* Wrap RouterProvider here */}
-            </ErrorBoundary>
+            <RouterProvider router={router} />
         </AuthProvider>
+    </ErrorBoundary>
     );
 };
 
