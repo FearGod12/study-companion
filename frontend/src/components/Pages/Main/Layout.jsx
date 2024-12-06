@@ -1,10 +1,10 @@
 import { Outlet } from "react-router-dom";
 import SideMenu from "../../common/SideMenu";
-import { useAuth } from "../../../hooks/useAuth"; // Assuming you have useAuth
+import { useAuth } from "../../../hooks/useAuth"; 
 import Loading from "../../common/Loading"; 
 
 const Layout = () => {
-    const { loading, user } = useAuth();  // Get loading state from AuthContext
+    const { loading, user } = useAuth(); 
 
     if (loading) {
         return (

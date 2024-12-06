@@ -1,13 +1,14 @@
-import React from "react";
+import { Component } from "react";
+import PropTypes from "prop-types";
 
-class ErrorBoundary extends React.Component {
+class ErrorBoundary extends Component {
     constructor(props) {
         super(props);
-        this.state = { hasError: false };
+        this.state = { hasError: false, error: null };
     }
 
     static getDerivedStateFromError(error) {
-        return { hasError: true };
+        return { hasError: true, error };
     }
 
     componentDidCatch(error, errorInfo) {
@@ -16,10 +17,23 @@ class ErrorBoundary extends React.Component {
 
     render() {
         if (this.state.hasError) {
-            return <h1>Something went wrong.</h1>;
+            return (
+                <div style={{ padding: "20px", textAlign: "center" }}>
+                    <h1>Something went wrong.</h1>
+                    <p>{this.state.error?.toString()}</p>
+                    <button onClick={() => window.location.reload()}>
+                        Refresh Page
+                    </button>
+                </div>
+            );
         }
+
         return this.props.children;
     }
 }
+
+ErrorBoundary.propTypes = {
+    children: PropTypes.node.isRequired, 
+};
 
 export default ErrorBoundary;
