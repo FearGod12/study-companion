@@ -23,8 +23,6 @@ const useSchedules = () => {
     isRecurring: null,
   });
 
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
   const daysOfWeek = [
     { id: 1, label: 'Monday' },
     { id: 2, label: 'Tuesday' },
@@ -93,13 +91,13 @@ const useSchedules = () => {
   const formatTime = timeStr => {
     const [hours, minutes] = timeStr.split(':').map(Number);
     const period = hours >= 12 ? 'pm' : 'am';
-    const hour = hours % 12 || 12; // Convert 0 -> 12 for 12-hour format
+    const hour = hours % 12 || 12;
     return `${hour}:${minutes.toString().padStart(2, '0')} ${period}`;
   };
 
   const formatTimeToHHMMSS = time => {
     if (!time) {
-      return '00:00:00'; // Default value for empty time
+      return '00:00:00'; 
     }
     const parts = time.split(':');
     return parts.length === 2 ? `${time}:00` : time;
@@ -199,7 +197,6 @@ const useSchedules = () => {
     timeZone,
     searchQuery,
     filterOptions,
-    isDarkMode,
     setNewSchedule,
     setEditingSchedule,
     setLocale,
