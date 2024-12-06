@@ -152,6 +152,71 @@ studySessionRouter.post('/:scheduleId/check-in', isAuthenticated, ReadingSession
 studySessionRouter.post('/:scheduleId/end', isAuthenticated, ReadingSessionController.endSession);
 /**
  * @swagger
+ * /study-sessions:
+ *   get:
+ *     summary: Retrieve all user's reading sessions with pagination
+ *     tags:
+ *       - Study Sessions
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number for paginated results
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved reading sessions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 'All sessions retrieved'
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     sessions:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/ReadingSession'
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         currentPage:
+ *                           type: integer
+ *                           example: 1
+ *                         totalPages:
+ *                           type: integer
+ *                           example: 5
+ *                         totalItems:
+ *                           type: integer
+ *                           example: 50
+ *                         itemsPerPage:
+ *                           type: integer
+ *                           example: 10
+ *       401:
+ *         description: Unauthorized, authentication token is missing or invalid
+ */
+studySessionRouter.get('/', isAuthenticated, ReadingSessionController.getAllSessions);
+/**
+ * @swagger
  * /study-sessions/statistics:
  *   get:
  *     summary: Retrieve user's reading session statistics
