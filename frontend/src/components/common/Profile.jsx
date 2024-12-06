@@ -18,9 +18,9 @@ const Profile = () => {
         );
 
     return (
-        <div className="flex py-4 px-10 items-center justify-between w-full">
+        <div className="flex py-4 px-10 items-center justify-center w-full">
             {user ? (
-                <div className="flex lg:flex-row md:flex-row flex-col gap-4">
+                <div className="flex lg:flex-row md:flex-row flex-col gap-6 p-2 items-center">
                     {/* Profile Picture Section */}
                     <div className="flex flex-col">
                         {user.avatar ? (
@@ -35,9 +35,9 @@ const Profile = () => {
                         {/* Open Modal Button */}
                         <button
                             onClick={toggleModal}
-                            className="mt-4 p-2 rounded-md bg-secondary text-white hover:bg-pink-800 w-32"
+                            className="mt-4 p-1 rounded-md bg-secondary text-white hover:bg-pink-800 w-32 text-sm"
                         >
-                            Update Avatar
+                            Change Avatar
                         </button>
                     </div>
 
