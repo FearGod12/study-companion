@@ -36,10 +36,12 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 import router from './routes/users.js';
 import scheduleRouter from './routes/schedule.js';
+import studySessionRouter from './routes/reading-session.js';
 
 // Mount routes
 app.use('/', router);
 app.use('/schedules', scheduleRouter);
+app.use('/study-sessions', studySessionRouter);
 
 app.get('/api', async (_req, res, next) => {
   try {
