@@ -45,6 +45,7 @@ export class ScheduleController {
         try {
             const { title, startTime, duration, startDate, isRecurring, recurringDays } = req.body;
             const updateData = {
+                title,
                 startTime,
                 startDate,
                 duration,
