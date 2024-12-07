@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { getUserData, loginUser } from "../services/api";
 import { toast } from "react-toastify";
 import { AuthContext } from "./AuthContext";
+import Loading from "../components/common/Loading";
 
 
 const AuthProvider = ({ children }) => {
@@ -51,7 +52,7 @@ const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={{ user, loading, error, login, fetchUserData }}>
-            {loading ? <div>Loading...</div> : children}
+            {loading ? <div className="container max-w-none h-screen w-screen flex items-center justify-center" ><Loading/>.</div> : children}
         </AuthContext.Provider>
     );
 };
