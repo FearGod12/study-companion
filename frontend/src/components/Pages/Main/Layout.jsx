@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import SideMenu from "../../common/SideMenu";
 import { useAuth } from "../../../hooks/useAuth"; 
 import Loading from "../../common/Loading"; 
@@ -19,9 +19,11 @@ const Layout = () => {
         return (
             <div className="flex justify-center items-center h-screen w-full">
                 <p className="text-center text-wrap">User not authenticated. Please log in.</p>
+                <Link to='/login'>
                 <Button
                 text='Login'
                 className="text-gray-100 hover:text-secondary hover:boder border-secondary hover:bg-gray-100 mt-6"/>
+                </Link>
             </div>
         );
     }
