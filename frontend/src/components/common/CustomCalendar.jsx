@@ -9,8 +9,8 @@ const CustomCalendar = () => {
     const [date, setDate] = useState(new Date());
 
     return (
-        <div className="flex h-full justify-between gap-3 mx-2">
-            <div className="items-center flex p-4">
+        <div className="flex h-full justify-between gap-2 lg:gap-3 md:gap-3 mx-2">
+            <div className="items-center flex py-2">
                 <Calendar
                     onChange={setDate}
                     value={date}

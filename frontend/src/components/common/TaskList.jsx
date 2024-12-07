@@ -56,20 +56,6 @@ const TaskList = () => {
                                             
                                         
                                     </div>
-                                    <div className="flex gap-2 items-center">
-                                        <button
-                                            onClick={() => setEditingSchedule(schedule)}
-                                            className="text-gray-100 hover:text-blue-300"
-                                        >
-                                            <FaRegEdit />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteSchedule(schedule._id)}
-                                            className="text-gray-100 hover:text-red-200"
-                                        >
-                                           <RiDeleteBin6Line/>
-                                        </button>
-                                    </div>
                                 </li>
                             ))}
                         </ul>
@@ -82,14 +68,14 @@ const TaskList = () => {
                         <button
                             onClick={goToPreviousPage}
                             disabled={currentPage === 0}
-                            className="px-4 py-2 bg-gray-400 text-white rounded disabled:opacity-50"
+                            className="px-2 py-2 bg-secondary text-white rounded disabled:opacity-50"
                         >
                            <FaArrowLeft/>
                         </button>
                         <button
                             onClick={goToNextPage}
                             disabled={(currentPage + 1) * tasksPerPage >= schedules.length}
-                            className="px-4 py-2 bg-gray-400 text-white rounded disabled:opacity-50"
+                            className="px-2 py-2 bg-secondary text-white rounded disabled:opacity-50"
                         >
                            <FaArrowRight/>
                         </button>

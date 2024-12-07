@@ -26,12 +26,7 @@ const Schedule = () => {
     } = useSchedules();
 
     return (
-        <div className="p-6 bg-gray-200 ">
-            {/* Header Section */}
-            <header className=" mb-6">
-                <h1 className="text-2xl font-bold ml-12 text-secondary">Study Manager</h1>
-            </header>
-
+        <div className="container max-w-none bg-gray-200 w-screen p-6 lg:h-screen md:h-screen">
             {/* Main Content */}
             <div className="flex flex-col-reverse lg:flex-row md:flex-row gap-8">
                 {/* Add/Edit Form */}
@@ -162,7 +157,7 @@ const Schedule = () => {
                 </section>
 
                 {/* Search and Schedule List */}
-                <section className="flex-1 bg-gray-100 p-4 rounded">
+                <section className="flex-1 bg-gray-100 py-8 px-6 rounded">
                     <div className="mb-4 space-y-4">
                         <input
                             type="text"
@@ -177,14 +172,6 @@ const Schedule = () => {
                                 value={filterOptions.startDate}
                                 onChange={(e) =>
                                     setFilterOptions((prev) => ({ ...prev, startDate: e.target.value }))
-                                }
-                                className="p-2 rounded-lg w-full"
-                            />
-                            <input
-                                type="date"
-                                value={filterOptions.endDate}
-                                onChange={(e) =>
-                                    setFilterOptions((prev) => ({ ...prev, endDate: e.target.value }))
                                 }
                                 className="p-2 rounded-lg w-full"
                             />

@@ -9,13 +9,13 @@ const Welcome = () => {
               <DarkLogo />
           </div>
 <div className='h-screen flex border justify-center items-center relative'>
-    <div className="flex flex-col items-center justify-center h-3/5 w-3/5 bg-secondary shadow-2xl shadow-secondary absolute top-20 right-40 rounded"></div>
-     <div className="flex flex-col items-center justify-center h-3/5 w-3/5 bg-secondary shadow-lg shadow-white z-10 rounded border-t border-white">
+    <div className="lg:flex md:flex  flex-col items-center justify-center h-3/5 w-3/5 bg-secondary shadow-2xl shadow-secondary hidden absolute lg:top-20 lg:right-40 rounded"></div>
+     <div className="flex flex-col items-center justify-center h-3/5 lg:w-3/5 md:w-3/5 w-4/5 bg-secondary shadow-lg shadow-white z-10 rounded border-t border-white">
               <div className="flex flex-col items-center">
                   <h1 className="text-3xl text-white font-bold py-3">
                       Welcome
                   </h1>
-                  <p className="font-ink-free text-sm w-1/2 px-4 py-3 mb-6 text-center text-white">
+                  <p className="font-ink-free lg:text-lg md:text-lg text-sm w-3/4 py-3 mb-6 text-center text-white">
                       We are glad to have you! TopicalTest.NG is designed to
                       give you a smooth studying experience, helping you achieve
                       your academic goals with ease.

@@ -1,18 +1,15 @@
-// import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from "jwt-decode";
 
 export const isTokenExpired = () => {
-  const token = localStorage.getItem('access_Token');
-  if (token) {
-    let expirationTime = localStorage.getItem('tokenExpiresAt');
-    if (expirationTime) {
-      const expirationDate = new Date(expirationTime);
-      const currentTime = new Date();
+    const token = localStorage.getItem("access_Token");
+    if (token) {
+        const decoded = jwtDecode(token);
+        const expirationTime = decoded.exp * 1000; // Convert expiration time to milliseconds
+        const currentTime = Date.now();
 
-      if (expirationDate < currentTime) {
-        return true;
-      }
-      return false;
+        if (expirationTime < currentTime) {
+            return true;
+        }
     }
-  }
-  return true;
+    return false;
 };

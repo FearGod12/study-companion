@@ -38,7 +38,7 @@ const Navbar = () => {
             <div className="md:hidden flex items-center">
                 <button
                     onClick={toggleMobileMenu}
-                    className="focus:outline-none"
+                    className="focus:outline-none -mr-8"
                 >
                     {/* Hamburger Icon */}
                     <div className="text-gray-100">
@@ -51,8 +51,8 @@ const Navbar = () => {
 
             {/* Mobile Menu Dropdown */}
             {isMobileMenuOpen && (
-                <div className="md:hidden absolute shadow w-40 -left-16 bg-white">
-                    <ul className="flex flex-col px-4 pt-9 gap-5 font-inria-sans pb-6 divide-y transition ease-in-out duration-500">
+                <div className="md:hidden absolute shadow w-32 -left-20 bg-white">
+                    <ul className="flex flex-col px-4  gap-5 font-inria-sans pb-6 divide-y transition ease-in-out duration-500">
                         <li
                                 onClick={() => scrollToSection("home")}
                                 className="hover:text-secondary cursor-pointer divider pt-3"

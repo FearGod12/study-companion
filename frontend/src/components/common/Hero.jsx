@@ -3,8 +3,8 @@ import Button from "./Button";
 
 const Hero = () => {
     return (
-        <div className="flex flex-col lg:items-left md:items-start items-center ">
-            <h1 className="font-inria-sans text-4xl font-bold text-secondary mb-3">
+        <div className="flex flex-col lg:items-left md:items-start items-center">
+            <h1 className="font-inria-sans text-4xl font-bold text-secondary mb-3 text-center lg:text-left md:text-left">
                 Study Campanion
             </h1>
             <p className="w-64 font-ink-free lg:text-left md:text-left text-center">

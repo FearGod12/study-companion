@@ -2,7 +2,6 @@ import mongoose, { Document, Schema } from 'mongoose';
 import { CustomError } from '../utils/customError.js';
 
 export interface ISchedule extends Document {
-  _id: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   title: string;
   startDate: Date;
