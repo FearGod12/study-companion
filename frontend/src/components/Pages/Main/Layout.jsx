@@ -17,7 +17,7 @@ const Layout = () => {
 
   if (!user) {
     return (
-      <div className="flex justify-center items-center h-screen w-full">
+      <div className="flex flex-col justify-center items-center h-screen w-full">
         <p className="text-center text-wrap">
           User not authenticated. Please log in.
         </p>
