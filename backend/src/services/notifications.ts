@@ -1,42 +1,142 @@
-import cron from 'node-cron';
+import { Agenda, Job } from 'agenda';
 import { ISchedule, Schedule } from '../models/schedule.js';
-import User, { IUser } from '../models/users.js';
+import { IUser } from '../models/users.js';
 import { EmailSubject, sendMail } from '../utils/sendMail.js';
 
-interface ScheduledNotification {
+interface ReminderJobData {
   scheduleId: string;
-  cronJob: cron.ScheduledTask;
+  minutes: number;
+  retryCount?: number;
 }
 
 export class NotificationService {
-  private static scheduledNotifications: Map<string, ScheduledNotification[]> = new Map();
+  private static agenda: Agenda;
+  private static readonly JOB_NAME = 'send-reading-reminder';
   private static readonly REMINDER_TIMES = [30, 5] as const;
+  private static readonly MAX_RETRIES = 3;
+  private static readonly RETRY_DELAY = 2 * 60 * 1000; // 2 minutes
 
   static async init() {
-    console.log('Notification service initialized');
-    // Optional: You could add any startup logic here
+    try {
+      this.agenda = new Agenda({
+        db: {
+          address: process.env.MONGODB_URL as string,
+          collection: 'agendaJobs',
+        },
+        processEvery: '1 minute',
+        defaultConcurrency: 5, // Limit concurrent job processing
+        maxConcurrency: 20,
+      });
+
+      this.setupJobProcessor();
+      this.setupEventHandlers();
+
+      await this.agenda.start();
+
+      // Clean up old jobs periodically
+      await this.setupCleanupJob();
+
+      console.log('Notification service initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize notification service:', error);
+      throw error;
+    }
+  }
+  private static setupJobProcessor() {
+    this.agenda.define<ReminderJobData>(
+      this.JOB_NAME,
+      { priority: 10, concurrency: 10 },
+      async (job: Job<ReminderJobData>) => {
+        const { scheduleId, minutes, retryCount = 0 } = job.attrs.data;
+
+        try {
+          const schedule = await Schedule.findById(scheduleId)
+            .populate<{ userId: IUser }>('userId')
+            .lean();
+
+          if (!schedule) {
+            console.log(`Schedule ${scheduleId} not found, removing associated jobs`);
+            await this.cancelNotifications(scheduleId);
+            return;
+          }
+
+          if (!schedule.isActive) {
+            console.log(`Schedule ${scheduleId} is inactive, skipping notification`);
+            return;
+          }
+
+          // Check if it's too late to send the notification
+          const now = new Date();
+          const scheduleTime = new Date(schedule.startTime);
+          if (scheduleTime.getTime() - now.getTime() < minutes * 60000) {
+            console.log(`Too late to send ${minutes}min reminder for schedule ${scheduleId}`);
+            return;
+          }
+
+          await sendMail(EmailSubject.VerifyEmail, 'reading-reminder', {
+            user: schedule.userId,
+            title: schedule.title,
+            minutes: minutes,
+            startTime: schedule.startTime.toLocaleTimeString('en-NG', { timeZone: 'Africa/Lagos' }),
+            duration: schedule.duration,
+          });
+
+          console.log(`Reminder sent for schedule ${scheduleId} (${minutes} minutes)`);
+        } catch (error) {
+          console.error(`Failed to process reminder (attempt ${retryCount + 1}):`, error);
+
+          if (retryCount < this.MAX_RETRIES) {
+            // Schedule retry
+            await this.agenda.schedule(new Date(Date.now() + this.RETRY_DELAY), this.JOB_NAME, {
+              ...job.attrs.data,
+              retryCount: retryCount + 1,
+            });
+          }
+
+          throw error;
+        }
+      }
+    );
+  }
+  private static setupEventHandlers() {
+    this.agenda.on('fail', (err: Error, job: Job) => {
+      console.error(`Job ${job.attrs.name} failed:`, err);
+      // Implement error reporting (e.g., to Sentry)
+    });
+
+    this.agenda.on('success', (job: Job) => {
+      console.log(`Job ${job.attrs.name} completed successfully`);
+    });
+  }
+
+  private static async setupCleanupJob() {
+    this.agenda.define('cleanup-old-jobs', async () => {
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      await this.agenda.cancel({
+        lastFinishedAt: { $lt: thirtyDaysAgo },
+      });
+    });
+
+    await this.agenda.every('24 hours', 'cleanup-old-jobs');
   }
 
   static async scheduleNotifications(scheduleId: string) {
     try {
-      // First, cancel any existing notifications for this schedule
-      await this.cancelNotifications(scheduleId);
-
-      const schedule = await Schedule.findById(scheduleId)
-        .populate<{ userId: IUser }>('userId')
-        .lean();
-
+      const schedule = await Schedule.findById(scheduleId);
       if (!schedule || !schedule.isActive) {
         console.log(`Schedule ${scheduleId} not found or inactive`);
         return;
       }
 
+      // Cancel any existing notifications for this schedule
+      await this.cancelNotifications(scheduleId);
+
       // Schedule one-time notifications
-      await this.scheduleOneTimeNotifications(schedule as unknown as ISchedule);
+      await this.scheduleOneTimeNotifications(schedule);
 
       // Handle recurring schedules
       if (schedule.isRecurring && schedule.recurringDays?.length) {
-        await this.scheduleRecurringNotifications(schedule as unknown as ISchedule);
+        await this.scheduleRecurringNotifications(schedule);
       }
     } catch (error) {
       console.error(`Failed to schedule notifications for ${scheduleId}:`, error);
@@ -45,8 +145,6 @@ export class NotificationService {
   }
 
   private static async scheduleOneTimeNotifications(schedule: ISchedule) {
-    const scheduledJobs: ScheduledNotification[] = [];
-
     for (const minutes of this.REMINDER_TIMES) {
       const reminderTime = new Date(schedule.startTime.getTime() - minutes * 60000);
 
@@ -56,113 +154,85 @@ export class NotificationService {
         continue;
       }
 
-      // Create cron job
-      const cronExpression = this.createCronExpression(reminderTime);
-      const job = cron.schedule(
-        cronExpression,
-        async () => {
-          try {
-            await this.sendReminderEmail(schedule, minutes);
-            // Remove the job after it's executed
-            job.stop();
-          } catch (error) {
-            console.error(`Error sending reminder for schedule ${schedule._id}:`, error);
-          }
-        },
-        {
-          scheduled: true,
-          timezone: 'Africa/Lagos',
-        }
-      );
-
-      scheduledJobs.push({
-        scheduleId: schedule._id!.toString(),
-        cronJob: job,
+      await this.agenda.schedule(reminderTime, this.JOB_NAME, {
+        scheduleId: schedule._id,
+        minutes,
       });
     }
-
-    // Store scheduled jobs
-    this.scheduledNotifications.set(schedule._id!.toString(), scheduledJobs);
   }
 
   private static async scheduleRecurringNotifications(schedule: ISchedule) {
-    const scheduledJobs: ScheduledNotification[] = [];
-
     for (const dayOfWeek of schedule.recurringDays!) {
+      const nextOccurrence = this.calculateNextOccurrence(schedule.startTime, dayOfWeek);
+
+      if (!nextOccurrence) {
+        console.log(`Invalid next occurrence for schedule ${schedule._id} day ${dayOfWeek}`);
+        continue;
+      }
+
       for (const minutes of this.REMINDER_TIMES) {
-        // Calculate the cron expression for recurring reminders
-        const cronExpression = this.createRecurringCronExpression(
-          schedule.startTime,
-          dayOfWeek,
-          minutes
-        );
+        const reminderTime = new Date(nextOccurrence.getTime() - minutes * 60000);
+        const jobName = `${this.JOB_NAME}-${schedule._id}-${dayOfWeek}-${minutes}`;
 
-        const job = cron.schedule(
-          cronExpression,
-          async () => {
-            try {
-              // Verify the schedule is still active and hasn't been deleted
-              const currentSchedule = await Schedule.findById(schedule._id);
-              if (!currentSchedule || !currentSchedule.isActive) {
-                job.stop();
-                return;
-              }
-
-              await this.sendReminderEmail(schedule, minutes);
-            } catch (error) {
-              console.error(
-                `Error sending recurring reminder for schedule ${schedule._id}:`,
-                error
-              );
-            }
+        await this.agenda.every(
+          '1 week',
+          jobName,
+          {
+            scheduleId: schedule._id,
+            minutes,
           },
           {
-            scheduled: true,
-            timezone: 'Africa/Lagos',
+
+            skipImmediate: true,
+            startDate: reminderTime,
           }
         );
-
-        scheduledJobs.push({
-          scheduleId: schedule._id!.toString(),
-          cronJob: job,
-        });
       }
     }
-
-    // Store or update scheduled jobs for this schedule
-    this.scheduledNotifications.set(schedule._id!.toString(), scheduledJobs);
   }
 
-  private static async sendReminderEmail(schedule: ISchedule, minutes: number) {
-    const user = await User.findById(schedule.userId);
-    if (!user) {
-      console.error(`User not found for schedule ${schedule._id}`);
-      return;
+  static updateNotifications(scheduleId: string) {
+    throw new Error('not yet implemented');
+  }
+
+  private static calculateNextOccurrence(startTime: Date, dayOfWeek: number): Date | null {
+    if (dayOfWeek < 0 || dayOfWeek > 6) {
+      console.error(`Invalid day of week: ${dayOfWeek}`);
+      return null;
     }
 
-    sendMail(EmailSubject.StudySessionReminder, 'reading-reminder', {
-      user: user,
-      title: schedule.title,
-      minutes: minutes,
-      startTime: schedule.startTime.toLocaleTimeString('en-NG', { timeZone: 'Africa/Lagos' }),
-      duration: schedule.duration,
-    });
-
-    console.log(`Reminder sent for schedule ${schedule._id} (${minutes} minutes)`);
+    const result = new Date(startTime);
+    result.setDate(result.getDate() + ((7 + dayOfWeek - result.getDay()) % 7));
+    return result;
   }
 
   static async cancelNotifications(scheduleId: string) {
-    const scheduledJobs = this.scheduledNotifications.get(scheduleId);
-
-    if (scheduledJobs) {
-      console.log(`Cancelling ${scheduledJobs.length} notifications for schedule ${scheduleId}`);
-
-      scheduledJobs.forEach(job => {
-        job.cronJob.stop();
+    try {
+      const jobs = await this.agenda.jobs({
+        'data.scheduleId': scheduleId,
       });
 
-      // Remove the entry from the map
-      this.scheduledNotifications.delete(scheduleId);
+      console.log(`Cancelling ${jobs.length} notifications for schedule ${scheduleId}`);
+
+      await this.agenda.cancel({
+        'data.scheduleId': scheduleId,
+      });
+    } catch (error) {
+      console.error(`Failed to cancel notifications for ${scheduleId}:`, error);
+      throw error;
+    }
+  }
+
+  static async shutdown() {
+    try {
+      if (this.agenda) {
+        console.log('Shutting down notification service...');
+        await this.agenda.stop();
+        console.log('Notification service shut down successfully');
+      }
+    } catch (error) {
+      console.error('Error shutting down notification service:', error);
+      throw error;
     }
   }
 
@@ -184,6 +254,7 @@ export class NotificationService {
     }
   }
 
+  // Add method to handle study session completion
   static async markScheduleComplete(scheduleId: string) {
     try {
       const schedule = await Schedule.findById(scheduleId);
@@ -197,40 +268,11 @@ export class NotificationService {
         await schedule.save();
         await this.cancelNotifications(scheduleId);
       }
+
+      // Could add logic here to track completion statistics
     } catch (error) {
       console.error(`Failed to mark schedule ${scheduleId} as complete:`, error);
       throw error;
     }
-  }
-
-  // Helper method to create a one-time cron expression
-  private static createCronExpression(reminderTime: Date): string {
-    return `${reminderTime.getMinutes()} ${reminderTime.getHours()} ${reminderTime.getDate()} ${
-      reminderTime.getMonth() + 1
-    } *`;
-  }
-
-  // Helper method to create a recurring cron expression
-  private static createRecurringCronExpression(
-    startTime: Date,
-    dayOfWeek: number,
-    minutesBefore: number
-  ): string {
-    const reminderTime = new Date(startTime.getTime() - minutesBefore * 60000);
-    return `${reminderTime.getMinutes()} ${reminderTime.getHours()} * * ${dayOfWeek}`;
-  }
-
-  static async shutdown() {
-    // Stop all scheduled jobs
-    this.scheduledNotifications.forEach(jobs => {
-      jobs.forEach(job => {
-        job.cronJob.stop();
-      });
-    });
-
-    // Clear the map
-    this.scheduledNotifications.clear();
-
-    console.log('Notification service shut down successfully');
   }
 }
