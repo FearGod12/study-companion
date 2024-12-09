@@ -6,16 +6,20 @@ import swaggerUi from 'swagger-ui-express';
 import { errorHandler } from './middlewares/errorHandler.js';
 import swaggerSpec from './swagger/swaggerConfig.js';
 import { makeResponse } from './utils/makeResponse.js';
-import router from './routes/users.js';
-import scheduleRouter from './routes/schedule.js';
 import studySessionRouter from './routes/reading-session.js';
+import scheduleRouter from './routes/schedule.js';
+import router from './routes/users.js';
 const app = express();
 // Trust proxy for services like Render
 app.set('trust proxy', 1);
 // CORS Configuration
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://studycompanion.vercel.app'], // Specify trusted origins
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: [
+        'http://localhost:5173',
+        'https://studycompanion.vercel.app',
+        'https://studycompanion.onrender.com',
+    ], // Specify trusted origins
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
 }));
 app.options('*', cors()); // Handle preflight requests globally
