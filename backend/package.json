@@ -24,6 +24,7 @@
     "@types/nodemailer": "^6.4.16",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.6",
+    "@types/ws": "^8.5.13",
     "nodemon": "^3.1.7",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
@@ -48,6 +49,8 @@
     "nodemailer": "^6.9.15",
     "redis": "^4.7.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^11.0.3",
+    "ws": "^8.18.0"
   }
 }
