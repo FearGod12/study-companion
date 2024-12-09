@@ -7,7 +7,7 @@ import PropTypes from "prop-types";
 
 
 const NextArrow = (props) => {
-  const { className, style, onClick } = props;
+  const { className = "", style = {}, onClick = () => {} } = props;
   return (
     <div
       className={className}
@@ -18,13 +18,13 @@ const NextArrow = (props) => {
 };
 
 NextArrow.propTypes = {
-  className: PropTypes.string.isRequired,
-  style: PropTypes.object.isRequired,
-  onClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  style: PropTypes.object,
+  onClick: PropTypes.func,
 };
 
 const PrevArrow = (props) => {
-  const { className, style, onClick } = props;
+  const { className = "", style = {}, onClick = () => {}} = props;
   return (
     <div
       className={className}
@@ -35,9 +35,9 @@ const PrevArrow = (props) => {
 };
 
 PrevArrow.propTypes = {
-  className: PropTypes.string.isRequired,
-  style: PropTypes.object.isRequired,
-  onClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  style: PropTypes.object,
+  onClick: PropTypes.func,
 };
 
 const Carousel = () => {
@@ -56,7 +56,7 @@ const Carousel = () => {
     lazyLoad: true,
     slidesToShow: 3,
     slidesToScroll: 1,
-    autoplay: false,
+    autoplay: true,
     autoplaySpeed: 2000,
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />,
@@ -114,13 +114,13 @@ const Carousel = () => {
       </Slider>
       <div className="text-center flex justify-center gap-4 mt-10">
         <button
-          className="px-4 py-2 rounded bg-white text-secondary font-bold hover:bg-secondary bg-white hover:text-white hover:border-white hover:border rounded-lg"
+          className="px-4 py-2 text-secondary font-bold hover:bg-secondary bg-white hover:text-white hover:border-white hover:border rounded-lg"
           onClick={previous}
         >
           Previous
         </button>
         <button
-          className="px-4 py-2 rounded bg-white text-secondary font-bold hover:bg-secondary bg-white hover:text-white hover:border-white hover:border rounded-lg"
+          className="px-4 py-2 text-secondary font-bold hover:bg-secondary bg-white hover:text-white hover:border-white hover:border rounded-lg"
           onClick={next}
         >
           Next

@@ -57,7 +57,7 @@ const router = createBrowserRouter(
                 {
                     path: "dashboard",
                     element: (
-                        <Suspense fallback={<div className="container max-w-none h-screen"><Loading/></div>}>
+                        <Suspense fallback={<div className="container max-w-none h-screen w-screen flex items-center justify-center"><Loading/></div>}>
                             <Dashboard />
                         </Suspense>
                     ),

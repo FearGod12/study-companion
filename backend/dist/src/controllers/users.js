@@ -61,8 +61,8 @@ export class UserController {
             if (error) {
                 return res.status(400).json(makeResponse(false, error.details[0].message, null));
             }
-            const { token, expiresAt } = await userService.login(email, password);
-            res.json(makeResponse(true, 'User logged in successfully', { access_Token: token, expiresAt }));
+            const access_Token = await userService.login(email, password);
+            res.json(makeResponse(true, 'User logged in successfully', { access_Token }));
         }
         catch (error) {
             next(error);

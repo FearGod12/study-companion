@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { getUserData, loginUser } from "../services/api";
 import { toast } from "react-toastify";
 import { AuthContext } from "./AuthContext";
-
+import Loading from "../components/common/Loading";
 
 
 const AuthProvider = ({ children }) => {
@@ -52,56 +52,13 @@ const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={{ user, loading, error, login, fetchUserData }}>
-            {loading ? <div>Loading...</div> : children}
+            {loading ? <div className="container max-w-none h-screen w-screen flex items-center justify-center" ><Loading/>.</div> : children}
         </AuthContext.Provider>
     );
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Fetch user data
-  const fetchUserData = async () => {
-    setLoading(true);
-    try {
-      const data = await getUserData();
-      console.log('Fetched user data:', data);
-      setUser(data.data);
-    } catch (err) {
-      console.error('Error fetching user data:', err);
-      setError(err.message || 'Failed to fetch user data.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const refreshUserData = () => {
-    fetchUserData();
-  };
-
-  useEffect(() => {
-    const token = localStorage.getItem('access_Token');
-    if (token) {
-      fetchUserData();
-    }
-  }, []);
-
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        error,
-        fetchUserData,
-        refreshUserData,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
 };
 
 AuthProvider.propTypes = {
-  children: PropTypes.node.isRequired,
+    children: PropTypes.node.isRequired,
 };
 
 export default AuthProvider;

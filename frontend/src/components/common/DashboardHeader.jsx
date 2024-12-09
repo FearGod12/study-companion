@@ -23,7 +23,7 @@ const DashboardHeader = () => {
         <div className="flex justify-between items-center h-full px-6 py-4">
             <div>
                 {/* Logo */}
-                <div className="mb-4 ml-8">
+                <div className="mb-4 mt-6">
                     <DarkLogo />
                 </div>
                 <h1 className="lg:text-xl md:text-xl text-sm text-gray-800">
@@ -36,7 +36,7 @@ const DashboardHeader = () => {
 
             <div className="flex items-center gap-6">
                 <Link to="/schedule">
-                    <div className="bg-secondary p-2 rounded">
+                    <div className="bg-secondary p-2 rounded size-6 lg:size-8 flex items-center">
                         <FaPlus color="white" />
                     </div>
                 </Link>
@@ -44,7 +44,7 @@ const DashboardHeader = () => {
                 <button onClick={handleLogout}>
                     <FaArrowRightFromBracket
                         color="#960057"
-                        className="cursor-pointer size-6 hover:text-gray-700 transition-colors"
+                        className="cursor-pointer size-5 lg:size-6 hover:text-gray-700 transition-colors"
                     />
                 </button>
             </div>
