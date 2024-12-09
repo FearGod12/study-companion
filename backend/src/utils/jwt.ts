@@ -13,21 +13,15 @@ export interface Payload {
  * @param user - The user payload containing id, email
  * @returns The generated JWT token.
  */
-export const generateToken = (user: Payload): { token: string; expiresAt: Date } => {
-  const expiresIn = '24h';
-  const expiresInMs = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-  const expiresAt = new Date(Date.now() + expiresInMs);
-
-  const token = jwt.sign(
+export const generateToken = (user: Payload): string => {
+  return jwt.sign(
     {
       _id: user._id,
       email: user.email,
     },
     SECRET,
-    { expiresIn }
+    { expiresIn: '24h' },
   );
-
-  return { token, expiresAt };
 };
 
 /**
