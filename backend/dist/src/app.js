@@ -14,8 +14,8 @@ const app = express();
 app.set('trust proxy', 1);
 // CORS Configuration
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://your-production-domain.com'], // Specify trusted origins
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: ['http://localhost:5173', 'https://studycompanion.vercel.app'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
 }));
 app.options('*', cors()); // Handle preflight requests globally
