@@ -1,8 +1,8 @@
-import Profile from "../../common/Profile";
-import Subscription from "../../common/Subscription";
-import TaskList from "../../common/TaskList";
-import CustomCalendar from "../../common/CustomCalendar";
-import DashboardHeader from "../../common/DashboardHeader";
+import Profile from "../../dashboard/Profile";
+import Subscription from "../../dashboard/Subscription";
+import TaskList from "../../dashboard/TaskList";
+import CustomCalendar from "../../dashboard/CustomCalendar";
+import DashboardHeader from "../../dashboard/DashboardHeader";
 
 const Dashboard = () => {
     return (

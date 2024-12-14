@@ -11,11 +11,12 @@ import  AuthProvider  from "./context/AuthProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Suspense, lazy } from "react";
-import ReadingMode from "./components/Pages/Main/ReadingMode";
+import Study from "./components/Pages/Main/Study";
 import ErrorBoundary from "./components/ErrorBoundary";
 import PasswordReset from "./components/auth/PasswordReset";
 import PrivateRoute from "./components/Pages/Authentification/PrivateRoute";
 import Loading from "./components/common/Loading";
+import StudySessionsData from "./components/Pages/Main/StudySessionsData";
 
 const Dashboard = lazy(() => import("./components/Pages/Main/Dashboard"));
 
@@ -70,13 +71,21 @@ const router = createBrowserRouter(
                         </PrivateRoute>
                     ),
                 },
+                {
+                    path: "sessions",
+                    element: (
+                        <PrivateRoute>
+                            <StudySessionsData />
+                        </PrivateRoute>
+                    ),
+                },
             ],
         },
         {
-            path: "/reading-mode",
+            path: "/study/:id",
             element: (
                 <PrivateRoute>
-                    <ReadingMode />
+                    <Study />
                 </PrivateRoute>
             ),
         },

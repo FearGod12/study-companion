@@ -1,5 +1,4 @@
-import { RiDeleteBin6Line } from "react-icons/ri";
-import { FaArrowLeft, FaArrowRight, FaRegEdit } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useState } from "react";
 import useSchedules from "../../hooks/useSchedule";
 
@@ -10,8 +9,6 @@ const TaskList = () => {
         formatTitle,
         formatDate,
         formatTime,
-        handleDeleteSchedule,
-        setEditingSchedule,
     } = useSchedules();
 
     // State for Pagination
@@ -40,7 +37,7 @@ const TaskList = () => {
       
             <div className="w-full px-2">
                     {loading ? (
-                        <p className="mt-8">Loading...</p>
+                        <p className="text-center">Loading...</p>
                     ) : currentSchedules.length > 0 ? (
                         <ul className="space-y-4 overflow-auto">
                             {currentSchedules.map((schedule) => (
@@ -60,7 +57,7 @@ const TaskList = () => {
                             ))}
                         </ul>
                     ) : (
-                        <p>No tasks found.</p>
+                        <p className="text-center">No tasks found.</p>
                     )}
 
                     {/* Pagination Controls */}
