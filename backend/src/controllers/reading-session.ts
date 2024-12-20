@@ -1,10 +1,10 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
+import mongoose from 'mongoose';
 import { ReadingSession } from '../models/reading-session.js';
 import { Schedule } from '../models/schedule.js';
 import { NotificationService } from '../services/notifications.js';
-import { makeResponse } from '../utils/makeResponse.js';
 import { CustomError } from '../utils/customError.js';
-import mongoose from 'mongoose';
+import { makeResponse } from '../utils/makeResponse.js';
 
 export class ReadingSessionController {
   // Start a reading session
@@ -20,8 +20,7 @@ export class ReadingSessionController {
       });
 
       if (!schedule) {
-        res.status(404).json({ error: 'Schedule not found' });
-        return;
+        throw new CustomError(404, 'Schedule not found');
       }
 
       // Check for any active sessions
@@ -41,7 +40,7 @@ export class ReadingSessionController {
 
         // check if the active session should have ended
         const activeSessionEndTime = new Date(
-          activeSession.startTime.getTime() + activeSession.duration * 60000
+          activeSession.startTime.getTime() + activeSession.duration * 60000,
         );
 
         if (activeSessionEndTime < new Date()) {
@@ -83,7 +82,7 @@ export class ReadingSessionController {
         {
           lastCheckIn: new Date(),
         },
-        { new: true }
+        { new: true },
       );
 
       if (!session) {
@@ -100,6 +99,7 @@ export class ReadingSessionController {
   // End a reading session
   static async endSession(req: any, res: Response, next: NextFunction): Promise<void> {
     try {
+      console.log('end session');
       const { scheduleId } = req.params;
       const schedule = await Schedule.findOne({
         _id: scheduleId,
@@ -107,24 +107,21 @@ export class ReadingSessionController {
         isActive: true,
       });
       if (!schedule) {
-        res.status(404).json({ error: 'Schedule not found' });
-        return;
+        throw new CustomError(404, 'Schedule not found');
       }
 
       const session = await ReadingSession.findOne({
         userId: req.user._id,
+        status: 'active',
         scheduleId,
       });
 
       if (!session) {
-        res.status(404).json({ error: 'No active session found' });
-        return;
+       throw new CustomError(404, 'No active session found');
       }
       if (session.status !== 'active') {
-        res.status(409).json({ error: 'Session is not active' });
-        return;
+        throw new CustomError(400, 'Session not active');
       }
-
       const endTime = new Date();
       const duration = Math.floor((endTime.getTime() - session.startTime.getTime()) / 60000); // Convert to minutes
 
@@ -165,7 +162,7 @@ export class ReadingSessionController {
             totalItems: total,
             itemsPerPage: limit,
           },
-        })
+        }),
       );
     } catch (error) {
       next(error);
@@ -239,7 +236,7 @@ export class ReadingSessionController {
         const prevDate = new Date(previousDate);
         const currentDate = new Date(day._id);
         const dayDifference = Math.floor(
-          (currentDate.getTime() - prevDate.getTime()) / (1000 * 3600 * 24)
+          (currentDate.getTime() - prevDate.getTime()) / (1000 * 3600 * 24),
         );
 
         if (dayDifference === 1) {
