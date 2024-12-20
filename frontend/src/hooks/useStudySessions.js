@@ -56,7 +56,6 @@ const useStudySessions = (initialSessionData = null) => {
       console.log('end data', response)
       setLoading(false);
       toast.success("Session ended successfully!");
-      navigate("/dashboard");
       return response.data; 
     } catch (error) {
       setLoading(false);
@@ -64,7 +63,7 @@ const useStudySessions = (initialSessionData = null) => {
       console.error('Error details:', errorMessage);
       toast.error(errorMessage);
     }
-  }, [navigate]);
+  }, []);
   
   // Timer decrement
   useEffect(() => {
