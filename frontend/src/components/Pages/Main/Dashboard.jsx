@@ -3,6 +3,7 @@ import Subscription from "../../dashboard/Subscription";
 import TaskList from "../../dashboard/TaskList";
 import CustomCalendar from "../../dashboard/CustomCalendar";
 import DashboardHeader from "../../dashboard/DashboardHeader";
+import StudyStatistics from "../../common/StudyStatistics";
 
 const Dashboard = () => {
     return (
@@ -30,7 +31,7 @@ const Dashboard = () => {
                         <CustomCalendar />
                     </div>
                     <div className="lg:w-3/6 md:w-3/6 w-full rounded-lg bg-secondary flex items-center justify-center lg:ml-2 md:ml-2">
-                        <Subscription />
+                        <StudyStatistics />
                     </div>
                 </div>
             </div>

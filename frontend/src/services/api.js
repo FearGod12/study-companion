@@ -234,3 +234,17 @@ export const getStudyStatistics = async () => {
     );
   }
 };
+
+export const getpremiumService = async () => {
+  try {
+    const response = await apiClient.get("/premium/go-premium");
+    if (response.data?.success) {
+      return { success: true, url: response.data.data.subscription_url };
+    } else {
+      throw new Error("Failed to generate subscription URL.");
+    }
+  } catch (error) {
+    throw new Error(handleApiError(error, "Failed to fetch subscription URL."));
+  }
+};
+

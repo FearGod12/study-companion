@@ -14,9 +14,9 @@ const DashboardHeader = () => {
     toast.success("Logged out successfully.");
   };
 
-  if (loading) {
+  if (loading || !user) {
     return null;
-  }
+}
 
   return (
     <div className="flex justify-between items-center h-full px-6 py-4">

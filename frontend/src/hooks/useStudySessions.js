@@ -67,20 +67,23 @@ const useStudySessions = (initialSessionData = null) => {
   
   // Timer decrement
   useEffect(() => {
+    let interval;
     if (timeLeft > 0) {
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         setTimeLeft((prev) => Math.max(prev - 1, 0));
       }, 1000);
-      return () => clearInterval(interval);
     }
+    return () => clearInterval(interval);
   }, [timeLeft]);
+  
 
   // Background changer
   const changeBackground = useCallback((newBgImage) => {
     setBgImage(newBgImage);
   }, []);
 
-  const fetchStudySessions = useCallback(
+ // Fetch study sessions
+ const fetchStudySessions = useCallback(
   async (page = 1, limit = 10) => {
     setLoading(true);
     setError(null);
@@ -89,8 +92,10 @@ const useStudySessions = (initialSessionData = null) => {
       setSessions(response.data.sessions || []);
       setTotalPages(response.data.totalPages || 1);
     } catch (error) {
-      setError(error.message || "Failed to fetch study sessions.");
-      toast.error(error.message || "Failed to fetch study sessions.");
+      const errorMessage = (error.response?.data?.message || error.message || "An error occurred.");
+
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -98,6 +103,7 @@ const useStudySessions = (initialSessionData = null) => {
   []
 );
 
+// Fetch study statistics
 const fetchStudyStatistics = useCallback(async () => {
   setLoading(true);
   setError(null);
@@ -105,16 +111,19 @@ const fetchStudyStatistics = useCallback(async () => {
     const response = await getStudyStatistics();
     setStatistics(response.data);
   } catch (error) {
-    setError(error.message || "Failed to fetch statistics.");
-    toast.error(error.message || "Failed to fetch statistics.");
+    const errorMessage = (error.response?.data?.message || error.message || "An error occurred.");
+
+    setError(errorMessage);
+    toast.error(errorMessage);
   } finally {
     setLoading(false);
   }
 }, []);
 
+
 useEffect(() => {
   fetchStudySessions(currentPage);
-}, [currentPage, fetchStudySessions]);
+}, [currentPage]);
 
   return {
     sessions,

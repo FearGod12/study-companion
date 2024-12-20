@@ -18,12 +18,13 @@ const StudySessionsData = () => {
   useEffect(() => {
     fetchStudyStatistics();
   }, [fetchStudyStatistics]);
-
+console.log(statistics)
   if (loading)
     return (
-      <p className="container max-w-none h-screen w-screen flex items-center justify-center">
-        <Loading />
-      </p>
+      <div className="container max-w-none h-screen w-screen flex items-center justify-center">
+  <Loading />
+</div>
+
     );
   if (error) return <p className="container max-w-none h-screen w-screen flex items-center justify-center">Error: {error}</p>;
 
