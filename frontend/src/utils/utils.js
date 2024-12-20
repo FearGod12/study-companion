@@ -4,7 +4,7 @@ export const isTokenExpired = () => {
     const token = localStorage.getItem("access_Token");
     if (token) {
         const decoded = jwtDecode(token);
-        const expirationTime = decoded.exp * 1000; // Convert expiration time to milliseconds
+        const expirationTime = decoded.exp * 1000; 
         const currentTime = Date.now();
 
         if (expirationTime < currentTime) {

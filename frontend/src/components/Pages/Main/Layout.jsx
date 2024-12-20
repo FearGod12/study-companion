@@ -4,7 +4,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import Loading from "../../common/Loading";
 
 const Layout = () => {
-  const { loading, user } = useAuth();
+  const { loading } = useAuth();
 
   if (loading) {
     return (
@@ -14,25 +14,15 @@ const Layout = () => {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="flex justify-center items-center h-screen w-full">
-        <p className="text-center text-wrap">
-          User not authenticated. Refresh page.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex min-h-screen font-inria-sans w-full h-full">
       {/* Side Menu */}
-      <div className="flex-initial h-screen bg-secondary z-10">
+      <div className="flex-initial lg:w-64 md:w-48 w-16">
         <SideMenu />
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 h-full">
+      <div className="flex-1 h-full p-4 bg-gray-200">
         <Outlet />
       </div>
     </div>

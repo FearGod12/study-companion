@@ -6,9 +6,9 @@ import DashboardHeader from "../../dashboard/DashboardHeader";
 
 const Dashboard = () => {
     return (
-        <div className="h-screen flex font-inria-sans w-screen">
+        <div className="h-screen flex font-inria-sans">
             {/* Main Content Area */}
-            <div className="flex-1 p-4 bg-gray-200 flex flex-col h-full w-screen overflow-x-hidden">
+            <div className="flex-1 flex flex-col h-full  overflow-x-hidden">
                 {/* Header Section */}
                 <div className="rounded-lg bg-gray-100 ">
                     <DashboardHeader />
@@ -19,7 +19,7 @@ const Dashboard = () => {
                     <div className="flex-1 lg:mr-4 md:mr-2 mb-4 lg:mb-0 md:mb-0 h-full rounded-lg bg-gray-100 flex items-center">
                         <Profile />
                     </div>
-                    <div className="lg:w-2/6 md:w-2/6 rounded-lg bg-gray-100 flex items-center justify-center py-4">
+                    <div className="lg:w-2/5 md:w-1/2 rounded-lg bg-gray-100 flex items-center justify-center py-4">
                         <TaskList />
                     </div>
                 </div>

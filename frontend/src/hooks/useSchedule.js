@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
-import { createSchedule, retrieveSchedules, deleteSchedule, updateSchedule, startReadingSession, endReadingSession} from '../services/api';
+import { useState, useEffect} from 'react';
+import { createSchedule, retrieveSchedules, deleteSchedule, updateSchedule} from '../services/api';
 import { toast } from 'react-toastify';
-import { useNavigate } from "react-router-dom";
 
 const useSchedules = () => {
   const [schedules, setSchedules] = useState([]);
@@ -15,7 +14,6 @@ const useSchedules = () => {
   });
   const [editingSchedule, setEditingSchedule] = useState(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   // Search, Filtering, and Batch Operations
   const [searchQuery, setSearchQuery] = useState('');
@@ -161,7 +159,6 @@ const useSchedules = () => {
         startTime: createdSchedule.startTime.split('T')[1]?.split('.')[0],
       };
       setSchedules(prevSchedules => [...prevSchedules, formattedSchedule]);
-      console.log('schedule created', createdSchedule)
       toast.success('Schedule created successfully!');
     } catch (error) {
       toast.error('Failed to create schedule: ' + (error.response?.data?.message || error.message));
@@ -182,7 +179,6 @@ const useSchedules = () => {
     );
       toast.success('Schedule updated successfully!');
     } catch (error) {
-      console.log(error.message);
       toast.error('Failed to update schedule: ' + (error.response?.data?.message || error.message));
     }
   };
@@ -197,47 +193,6 @@ const useSchedules = () => {
     }
   };
 
-  const handleStartSession = async (scheduleId) => {
-    try {
-      const response = await startReadingSession(scheduleId);
-      if (response.status === 200 || response.status === 201) {
-        const sessionData = response.data?.data;
-        console.log('start session', sessionData); // Make sure sessionData is correct
-        
-        if (sessionData) {
-          navigate(`/study/${sessionData.scheduleId}`, { state: sessionData });
-          console.log('start session', sessionData)
-          toast.success('Session started successfully!');
-        } else {
-          console.log('start session', sessionData)
-          toast.error('Session started, but no session data was returned.');
-        }
-      } else {
-        
-        toast.error(response.data?.message || 'Unexpected response from server.');
-      }
-    } catch (error) {
-      
-      console.error('Error starting session:', error);
-      toast.error(error.response?.data?.message || 'Failed to start session.');
-    }
-  };
-  
-const handleEndSession = async scheduleId => {
-  try {
-    const response = await endReadingSession(scheduleId);
-    if (response.status === 200) {
-      toast.success('Session ended successfully!');
-    } else {
-      toast.error(response.data?.message || 'Unexpected response from server.');
-    }
-  } catch (error) {
-    console.error('Error ending session:', error);
-    toast.error(error.response?.data?.message || 'Failed to end session.');
-  }
-};
-
-  
 
   return {
     schedules: filteredSchedules,
@@ -263,8 +218,6 @@ const handleEndSession = async scheduleId => {
     handleDeleteSchedule,
     handleRecurringDayChange,
     handleRecurringDayChangeEdit,
-    handleStartSession,
-    handleEndSession,
   };
 };
 

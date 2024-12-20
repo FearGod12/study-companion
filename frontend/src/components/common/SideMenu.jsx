@@ -1,89 +1,75 @@
-import { FaCalendar, FaBars } from "react-icons/fa6";
+import { FaCalendar, FaBook } from "react-icons/fa";
 import { RiDashboardLine } from "react-icons/ri";
 import { Link, useLocation } from "react-router-dom";
-import { FaBook, FaTimesCircle } from "react-icons/fa";
-import useToggle from "../../hooks/useToggle";
+import LightLogo from "./LightLogo";
+import PropTypes from "prop-types";
 
 const SideMenu = () => {
   const location = useLocation();
-  const [isMenuOpen, toggleMenu] = useToggle();
 
-  const isActive = (path) => location.pathname === path;
+  const MenuItem = ({ to, icon, label }) => {
+    const isActive = location.pathname === to;
+
+    return (
+      <Link to={to}>
+        <li
+          className={`flex items-center gap-3 p-4 rounded-l-full transition-all duration-300 ${
+            isActive ? "bg-gray-200 text-secondary" : "text-gray-100"
+          } hover:bg-gray-200 hover:text-secondary relative group`}
+        >
+          {icon}
+          <span className="absolute left-1/2 transform -translate-x-1/4 bottom-full mb-2 w-max px-2 py-1 text-sm text-gray-100 bg-gray-900 rounded opacity-0 group-hover:opacity-100">
+            {label}
+          </span>
+          <span className="hidden md:block">{label}</span>
+        </li>
+      </Link>
+    );
+  };
+
+  MenuItem .propTypes = {
+    to: PropTypes.string.isRequired, 
+    icon: PropTypes.element.isRequired, 
+    label: PropTypes.string.isRequired,
+    activePath: PropTypes.string.isRequired,
+  };
 
   return (
     <>
       {/* Menu Container */}
-      {isMenuOpen && (
-        <div
-          className={`h-screen lg:w-48 md:w-48 w-16 bg-secondary fixed transition-all duration-300`}
-        >
-          {/* Logo and Close Icon */}
-          <div className="flex items-center px-4 py-4">
-            <button onClick={toggleMenu} className="text-gray-100">
-              <FaTimesCircle size={23} />
-            </button>
+      <div className="h-full bg-secondary">
+        {/* Menu Items */}
+        <div>
+          {" "}
+          {/* Logo */}
+          <div className="px-4 pt-4 flex size-20 md:size-32 lg:size-32">
+            <LightLogo />
           </div>
-
-          {/* Menu Items */}
-          <div className="flex flex-col mt-6">
-            <ul className="flex flex-col gap-4">
-              {/* Dashboard Tab */}
-              <Link to="/dashboard">
-                <li
-                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition ease-in-out duration-300 ${
-                    isActive("/dashboard")
-                      ? "bg-gray-100 text-secondary shadow"
-                      : "text-gray-100"
-                  } hover:bg-gray-100 hover:text-secondary hover:shadow`}
-                >
-                  <RiDashboardLine size={20} />
-                  <span className="hidden md:block">Dashboard</span>
-                </li>
-              </Link>
-
-              {/* Schedule Tab */}
-              <Link to="/schedule">
-                <li
-                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition ease-in-out duration-300 ${
-                    isActive("/schedule")
-                      ? "bg-gray-100 text-secondary shadow"
-                      : "text-gray-100"
-                  } hover:bg-gray-100 hover:text-secondary hover:shadow`}
-                >
-                  <FaCalendar size={20} />
-                  <span className="hidden md:block">Schedule</span>
-                </li>
-              </Link>
-
-              {/* Study History Tab */}
-              <Link to="/sessions">
-                <li
-                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition ease-in-out duration-300 ${
-                    isActive("/sessions")
-                      ? "bg-gray-100 text-secondary shadow"
-                      : "text-gray-100"
-                  } hover:bg-gray-100 hover:text-secondary hover:shadow`}
-                >
-                  <FaBook size={20} />
-                  <span className="hidden md:block">Sessions</span>
-                </li>
-              </Link>
-            </ul>
-          </div>
+          <ul className="flex flex-col gap-8 ml-4">
+            <MenuItem
+              to="/dashboard"
+              icon={<RiDashboardLine size={20} />}
+              label="Dashboard"
+              activePath="/dashboard"
+            />
+            <MenuItem
+              to="/schedule"
+              icon={<FaCalendar size={20} />}
+              label="Schedule"
+              activePath="/schedule"
+            />
+            <MenuItem
+              to="/sessions"
+              icon={<FaBook size={20} />}
+              label="Sessions"
+              activePath="/sessions"
+            />
+          </ul>
         </div>
-      )}
-
-      {/* Floating Menu Icon (when menu is closed) */}
-      {!isMenuOpen && (
-        <button
-          onClick={toggleMenu}
-          className="fixed top-6 left-6 text-secondary p-2 rounded-md bg-gray-100"
-        >
-          <FaBars size={20} />
-        </button>
-      )}
+      </div>
     </>
   );
 };
+
 
 export default SideMenu;

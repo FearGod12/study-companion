@@ -1,8 +1,11 @@
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 import useSchedules from "../../../hooks/useSchedule";
+import useStudySessions from "../../../hooks/useStudySessions";
+import Button from "../../common/Button";
 
 const Schedule = () => {
+  
   const {
     schedules,
     newSchedule,
@@ -23,14 +26,16 @@ const Schedule = () => {
     handleDeleteSchedule,
     handleRecurringDayChange,
     handleRecurringDayChangeEdit,
-    handleStartSession,
   } = useSchedules();
 
+  const { handleStartSession } = useStudySessions();
+
+
   return (
-    <div className="container max-w-none bg-gray-200 w-screen lg:h-screen md:h-screen">
-      {/* Main Content */}
-      <div className="flex flex-col lg:flex-row md:flex-row gap-8 h-screen py-6">
-        {/* Add/Edit Form */}
+    <div className="container max-w-none bg-gray-200 lg:h-screen md:h-screen">
+      <div className="flex flex-col lg:flex-row md:flex-row gap-8 h-screen">
+    
+        {/* Add/Edit Schedule Form */}
         <section className="lg:flex-initial lg:w-3/5 md:w-3/5 px-6 flex-1 font-ink-free bg-gray-100 rounded py-8">
           <h2 className="text-xl font-semibold mb-6 mt-8">
             {editingSchedule ? "Edit Schedule" : "Add New Schedule"}
@@ -73,9 +78,7 @@ const Schedule = () => {
             <input
               type="text"
               placeholder="Title"
-              value={
-                editingSchedule ? editingSchedule.title : newSchedule.title
-              }
+              value={editingSchedule ? editingSchedule.title : newSchedule.title}
               onChange={(e) =>
                 editingSchedule
                   ? setEditingSchedule((prev) => ({
@@ -91,11 +94,7 @@ const Schedule = () => {
             />
             <input
               type="date"
-              value={
-                editingSchedule
-                  ? editingSchedule.startDate
-                  : newSchedule.startDate
-              }
+              value={editingSchedule ? editingSchedule.startDate : newSchedule.startDate}
               onChange={(e) =>
                 editingSchedule
                   ? setEditingSchedule((prev) => ({
@@ -111,11 +110,7 @@ const Schedule = () => {
             />
             <input
               type="time"
-              value={
-                editingSchedule
-                  ? editingSchedule.startTime
-                  : newSchedule.startTime
-              }
+              value={editingSchedule ? editingSchedule.startTime : newSchedule.startTime}
               onChange={(e) =>
                 editingSchedule
                   ? setEditingSchedule((prev) => ({
@@ -127,18 +122,14 @@ const Schedule = () => {
                       startTime: e.target.value,
                     }))
               }
-              className="p-2 rounded-lg w-ful"
+              className="p-2 rounded-lg w-full"
             />
             <div className="space-y-2">
               <label>Duration (in minutes)</label>
               <input
                 type="number"
                 placeholder="Duration (in minutes)"
-                value={
-                  editingSchedule
-                    ? editingSchedule.duration
-                    : newSchedule.duration
-                }
+                value={editingSchedule ? editingSchedule.duration : newSchedule.duration}
                 onChange={(e) =>
                   editingSchedule
                     ? setEditingSchedule((prev) => ({
@@ -157,11 +148,7 @@ const Schedule = () => {
               <label className="flex gap-2 ml-2">
                 <input
                   type="checkbox"
-                  checked={
-                    editingSchedule
-                      ? editingSchedule.isRecurring
-                      : newSchedule.isRecurring
-                  }
+                  checked={editingSchedule ? editingSchedule.isRecurring : newSchedule.isRecurring}
                   onChange={(e) =>
                     editingSchedule
                       ? setEditingSchedule((prev) => ({
@@ -176,8 +163,7 @@ const Schedule = () => {
                 />
                 Recurring
               </label>
-              {((editingSchedule && editingSchedule.isRecurring) ||
-                newSchedule.isRecurring) && (
+              {((editingSchedule && editingSchedule.isRecurring) || newSchedule.isRecurring) && (
                 <div className="space-x-4">
                   {daysOfWeek.map((day) => (
                     <label key={day.id}>
@@ -244,40 +230,45 @@ const Schedule = () => {
                   className="flex justify-between items-center p-4 rounded-lg bg-secondary text-gray-100"
                 >
                   <div>
-                    <div>
-                      <h3 className="text-lg font-semibold">
-                        {formatTitle(schedule.title)}
-                      </h3>
-                      <p className="text-sm">
-                        {formatDate(schedule.startDate)} -{" "}
-                        {formatTime(schedule.startTime)}
-                      </p>
-                      <p>{schedule.duration} minutes</p>
+                    <h3 className="text-lg font-semibold">
+                      {formatTitle(schedule.title)}
+                    </h3>
+                    <p className="text-sm">
+                      {formatDate(schedule.startDate)} - {formatTime(schedule.startTime)}
+                    </p>
+                    <p>{schedule.duration} minutes</p>
+                    <Button
+                      onClick={() => handleStartSession(schedule._id)}
+                      className="text-gray-100 border mt-2"
+                       text = 'Start Session'
+                    
+                    />
                     </div>
-                    <div>
-                      <button
-                        onClick={() => handleStartSession(schedule._id)}
-                        className="text-gray-100 hover:text-green-300"
-                      >
-                        Start Session
-                      </button>
-                    </div>
-                  </div>
 
-                  <div className="flex gap-2 items-center">
+                    <div className="flex gap-2 items-center">
+                    {/* Edit button with tooltip */}
                     <button
                       onClick={() => setEditingSchedule(schedule)}
-                      className="text-gray-100 hover:text-blue-300"
+                      className="text-gray-100 hover:text-blue-300 relative group"
                     >
                       <FaRegEdit />
+                      <span className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-max px-2 py-1 text-xs text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100">
+                        Edit
+                      </span>
                     </button>
+
+                    {/* Delete button with tooltip */}
                     <button
                       onClick={() => handleDeleteSchedule(schedule._id)}
-                      className="text-gray-100 hover:text-red-200"
+                      className="text-gray-100 hover:text-red-200 relative group"
                     >
                       <RiDeleteBin6Line />
-                    </button>
+                      <span className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-max px-2 py-1 text-xs text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100">
+                        Delete
+                      </span>
+                      </button>
                   </div>
+                 
                 </li>
               ))}
             </ul>

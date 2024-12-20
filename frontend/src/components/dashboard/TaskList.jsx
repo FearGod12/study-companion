@@ -11,11 +11,9 @@ const TaskList = () => {
         formatTime,
     } = useSchedules();
 
-    // State for Pagination
     const [currentPage, setCurrentPage] = useState(0);
     const tasksPerPage = 2;
 
-    // Pagination logic: slicing the schedules to only show 3 at a time
     const currentSchedules = schedules.slice(
         currentPage * tasksPerPage,
         (currentPage + 1) * tasksPerPage

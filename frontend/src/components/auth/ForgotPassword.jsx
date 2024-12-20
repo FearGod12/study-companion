@@ -11,17 +11,14 @@ const ForgotPassword = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
-    // Form initial values
     const initialValues = { email: "" };
 
-    // Validation schema using Yup
     const validationSchema = Yup.object().shape({
         email: Yup.string()
             .email("Invalid email address.")
             .required("Email is required."),
     });
 
-    // Handle form submission
   const handleSubmit = async (values, { resetForm }) => {
       setIsSubmitting(true);
 

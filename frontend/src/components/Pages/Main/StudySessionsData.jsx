@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import useStudySessions from "../../../hooks/useStudySessions";
 import Loading from "../../common/Loading";
+import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 
 const StudySessionsData = () => {
   const {
@@ -14,7 +15,6 @@ const StudySessionsData = () => {
     setCurrentPage,
   } = useStudySessions();
 
-  // Fetch statistics on mount
   useEffect(() => {
     fetchStudyStatistics();
   }, [fetchStudyStatistics]);
@@ -91,7 +91,7 @@ const StudySessionsData = () => {
             currentPage === 1 ? "bg-gray-300" : "bg-secondary text-gray-100"
           }`}
         >
-          Previous
+          <FaArrowLeftLong/>
         </button>
         <span>
           Page {currentPage} of {totalPages}
@@ -107,7 +107,7 @@ const StudySessionsData = () => {
               : "bg-secondary text-gray-100"
           }`}
         >
-          Next
+          <FaArrowRightLong/>
         </button>
       </div>
     </div>

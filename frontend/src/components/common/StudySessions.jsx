@@ -16,8 +16,8 @@ const StudySessions = () => {
     try {
       const response = await axios.get(`/study-sessions?page=${page}&limit=${limit}`);
       if (response.status === 200) {
-        setSessions(response.data.data.sessions); // Assuming sessions are in response.data.data.sessions
-        setTotalPages(response.data.data.totalPages); // Assuming totalPages is provided
+        setSessions(response.data.data.sessions); 
+        setTotalPages(response.data.data.totalPages);
       } else {
         setError("Failed to fetch study sessions.");
       }
@@ -29,12 +29,11 @@ const StudySessions = () => {
     }
   };
 
-  // Fetch sessions when the component mounts or the page changes
   useEffect(() => {
     fetchSessions(currentPage);
   }, [currentPage]);
 
-  // Handle page changes
+
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prevPage) => prevPage + 1);
