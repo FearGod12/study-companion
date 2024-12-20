@@ -13,6 +13,7 @@ export interface IUser extends Document {
   address: string;
   avatar: string;
   category: string;
+  premium: boolean;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -67,6 +68,10 @@ const UserSchema = new Schema<IUser>(
     avatar: {
       type: String,
     },
+    premium: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
@@ -75,7 +80,7 @@ const UserSchema = new Schema<IUser>(
         return bcrypt.compare(candidatePassword, this.password);
       },
     },
-  },
+  }
 );
 
 UserSchema.pre('save', async function (next) {

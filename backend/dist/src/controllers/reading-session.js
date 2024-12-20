@@ -104,7 +104,6 @@ export class ReadingSessionController {
             if (session.status !== 'active') {
                 throw new CustomError(400, 'Session not active');
             }
-            console.log(session);
             const endTime = new Date();
             const duration = Math.floor((endTime.getTime() - session.startTime.getTime()) / 60000); // Convert to minutes
             session.endTime = endTime;

@@ -9,6 +9,7 @@ import { makeResponse } from './utils/makeResponse.js';
 import router from './routes/users.js';
 import scheduleRouter from './routes/schedule.js';
 import studySessionRouter from './routes/reading-session.js';
+import premiumRouter from './routes/premium.js';
 const app = express();
 // Trust proxy for services like Render
 app.set('trust proxy', 1);
@@ -43,6 +44,7 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/', router);
 app.use('/schedules', scheduleRouter);
 app.use('/study-sessions', studySessionRouter);
+app.use('/premium', premiumRouter);
 // Health Check
 app.get('/api', async (_req, res, next) => {
     try {
