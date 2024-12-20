@@ -1,9 +1,9 @@
+import mongoose from 'mongoose';
 import { ReadingSession } from '../models/reading-session.js';
 import { Schedule } from '../models/schedule.js';
 import { NotificationService } from '../services/notifications.js';
-import { makeResponse } from '../utils/makeResponse.js';
 import { CustomError } from '../utils/customError.js';
-import mongoose from 'mongoose';
+import { makeResponse } from '../utils/makeResponse.js';
 export class ReadingSessionController {
     // Start a reading session
     static async startSession(req, res, next) {
@@ -16,8 +16,7 @@ export class ReadingSessionController {
                 isActive: true,
             });
             if (!schedule) {
-                res.status(404).json({ error: 'Schedule not found' });
-                return;
+                throw new CustomError(404, 'Schedule not found');
             }
             // Check for any active sessions
             const activeSession = await ReadingSession.findOne({
@@ -84,6 +83,7 @@ export class ReadingSessionController {
     // End a reading session
     static async endSession(req, res, next) {
         try {
+            console.log('end session');
             const { scheduleId } = req.params;
             const schedule = await Schedule.findOne({
                 _id: scheduleId,
@@ -91,20 +91,18 @@ export class ReadingSessionController {
                 isActive: true,
             });
             if (!schedule) {
-                res.status(404).json({ error: 'Schedule not found' });
-                return;
+                throw new CustomError(404, 'Schedule not found');
             }
             const session = await ReadingSession.findOne({
                 userId: req.user._id,
+                status: 'active',
                 scheduleId,
             });
             if (!session) {
-                res.status(404).json({ error: 'No active session found' });
-                return;
+                throw new CustomError(404, 'No active session found');
             }
             if (session.status !== 'active') {
-                res.status(409).json({ error: 'Session is not active' });
-                return;
+                throw new CustomError(400, 'Session not active');
             }
             const endTime = new Date();
             const duration = Math.floor((endTime.getTime() - session.startTime.getTime()) / 60000); // Convert to minutes

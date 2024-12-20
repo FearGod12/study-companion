@@ -110,7 +110,7 @@ scheduleSchema.index({ status: 1, startTime: 1 });
 
 // Pre-save middleware to validate startTime is in the future
 scheduleSchema.pre('save', function (next) {
-  if (this.startTime && this.startTime <= new Date()) {
+  if (this.isNew && this.startTime && this.startTime <= new Date()) {
     next(new CustomError(400, 'Start time must be in the future'));
   }
   next();
