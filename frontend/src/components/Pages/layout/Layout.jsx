@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
-import SideMenu from "../../common/SideMenu";
 import { useAuth } from "../../../hooks/useAuth";
 import Loading from "../../common/Loading";
+import SideMenu from "../../MenuBar/SideMenu";
 
 const Layout = () => {
   const { loading } = useAuth();

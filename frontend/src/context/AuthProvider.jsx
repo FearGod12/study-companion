@@ -15,7 +15,6 @@ const AuthProvider = ({ children }) => {
     try {
       const { data } = await loginUser(email, password);
       const { userData } = data.data;
-
       setUser(userData);
       toast.success("Logged in successfully!");
     } catch (err) {
@@ -32,6 +31,7 @@ const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error("Failed to fetch user data:", err);
       setUser(null);
+      
     } finally {
       setLoading(false);
     }

@@ -28,6 +28,10 @@ const useStudySessions = (initialSessionData = null) => {
     return 0;
   });
   const [bgImage, setBgImage] = useState(null);
+  // Modal States
+  const [isStartSessionModalOpen, setIsStartSessionModalOpen] = useState(false);
+  const [currentAction, setCurrentAction] = useState(null); 
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
 
   // Start session
   const handleStartSession = useCallback(
@@ -51,11 +55,10 @@ const useStudySessions = (initialSessionData = null) => {
   const handleEndSession = useCallback(async (scheduleId) => {
     try {
       setLoading(true);
-      console.log('Requesting to end session for Schedule ID:', scheduleId);
       const response = await endStudySession(scheduleId);
-      console.log('end data', response)
       setLoading(false);
       toast.success("Session ended successfully!");
+      navigate('/dashboard')
       return response.data; 
     } catch (error) {
       setLoading(false);
@@ -82,8 +85,8 @@ const useStudySessions = (initialSessionData = null) => {
     setBgImage(newBgImage);
   }, []);
 
- // Fetch study sessions
- const fetchStudySessions = useCallback(
+  // Fetch study sessions
+  const fetchStudySessions = useCallback(
   async (page = 1, limit = 10) => {
     setLoading(true);
     setError(null);
@@ -101,29 +104,47 @@ const useStudySessions = (initialSessionData = null) => {
     }
   },
   []
-);
+  );
 
-// Fetch study statistics
-const fetchStudyStatistics = useCallback(async () => {
-  setLoading(true);
-  setError(null);
-  try {
-    const response = await getStudyStatistics();
-    setStatistics(response.data);
-  } catch (error) {
-    const errorMessage = (error.response?.data?.message || error.message || "An error occurred.");
+  // Fetch study statistics
+  const fetchStudyStatistics = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await getStudyStatistics();
+      setStatistics(response.data);
+    } catch (error) {
+      const errorMessage = (error.response?.data?.message || error.message || "An error occurred.");
 
-    setError(errorMessage);
-    toast.error(errorMessage);
-  } finally {
-    setLoading(false);
-  }
-}, []);
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
+  useEffect(() => {
+    fetchStudySessions(currentPage);
+  }, [currentPage]);
 
-useEffect(() => {
-  fetchStudySessions(currentPage);
-}, [currentPage]);
+  const openStartModal = (schedule) => {
+    setSelectedSchedule(schedule);
+    setCurrentAction('start-session');
+    setIsStartSessionModalOpen(true);
+  };
+
+  const handleConfirmStart = () => {
+    if (selectedSchedule) {
+      handleStartSession(selectedSchedule._id);
+    }
+    setIsStartSessionModalOpen(false);
+  };
+
+  const handleCancelStart = () => {
+    setIsStartSessionModalOpen(false);
+    setSelectedSchedule(null);
+  };
+
 
   return {
     sessions,
@@ -141,6 +162,10 @@ useEffect(() => {
     handleStartSession,
     handleEndSession,
     changeBackground,
+    isStartSessionModalOpen,
+    openStartModal,
+    handleConfirmStart,
+    handleCancelStart
   };
 };
 

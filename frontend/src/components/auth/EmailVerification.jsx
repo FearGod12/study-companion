@@ -27,18 +27,13 @@ const EmailVerification = () => {
         setSubmitting(true);
          toast.dismiss();
 
-
-
-        // The token (OTP) is entered by the user, so it should be in values.otp
-        const token = values.otp; // This will hold the OTP entered by the user
-
+        const token = values.otp; 
         try {
-            // Call verifyEmail function, passing email and token (OTP entered by the user)
             const response = await verifyEmail(email, token);
 
             if (response.data?.success) {
                 toast.success("Email verified successfully!");
-                navigate("/login"); // Redirect to login after successful verification
+                navigate("/login"); 
             }
         } catch (error) {
             console.error(
@@ -59,7 +54,6 @@ const EmailVerification = () => {
         toast.dismiss();
 
         try {
-            // Replace with your OTP resend API endpoint
             const response = await axios.post("/user/resend-otp", { email });
             if (response.data?.success) {
                toast.success("A new OTP has been sent to your email.");
@@ -79,7 +73,7 @@ const EmailVerification = () => {
             <div className="bg-white lg:w-2/5 w-1/2 h-1/2 shadow-lg rounded flex flex-col justify-center items-center gap-2">
                 <DarkLogo />
                 <p className="text-sm -mt-2 pb-2 font-ink-free">
-                    We've sent a 6-digit code to{" "}
+                    We&apos;ve sent a 6-digit code to{" "}
                     <span className="font-bold">{email}</span>
                 </p>
                 <p className="text-sm font-bold mt-2 pb-2 font-inria-sans">

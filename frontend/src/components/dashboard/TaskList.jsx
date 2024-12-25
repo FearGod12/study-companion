@@ -1,4 +1,3 @@
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useState } from "react";
 import useSchedules from "../../hooks/useSchedule";
 
@@ -11,25 +10,13 @@ const TaskList = () => {
         formatTime,
     } = useSchedules();
 
-    const [currentPage, setCurrentPage] = useState(0);
-    const tasksPerPage = 2;
+    const [currentPage] = useState(0);
+    const tasksPerPage = 3;
 
     const currentSchedules = schedules.slice(
         currentPage * tasksPerPage,
         (currentPage + 1) * tasksPerPage
     );
-
-    const goToNextPage = () => {
-        if ((currentPage + 1) * tasksPerPage < schedules.length) {
-            setCurrentPage(currentPage + 1);
-        }
-    };
-
-    const goToPreviousPage = () => {
-        if (currentPage > 0) {
-            setCurrentPage(currentPage - 1);
-        }
-    };
 
     return (
       
@@ -48,33 +35,14 @@ const TaskList = () => {
                                         <p className="text-sm">
                                             {formatDate(schedule.startDate)} - {formatTime(schedule.startTime)} </p>
                                             <p>{schedule.duration} minutes</p>
-                                            
-                                        
                                     </div>
                                 </li>
                             ))}
                         </ul>
                     ) : (
-                        <p className="text-center">No tasks found.</p>
+                        <p className="text-center">No session found.</p>
                     )}
 
-                    {/* Pagination Controls */}
-                    <div className="flex justify-between mt-4">
-                        <button
-                            onClick={goToPreviousPage}
-                            disabled={currentPage === 0}
-                            className="px-2 py-2 bg-secondary text-white rounded disabled:opacity-50"
-                        >
-                           <FaArrowLeft/>
-                        </button>
-                        <button
-                            onClick={goToNextPage}
-                            disabled={(currentPage + 1) * tasksPerPage >= schedules.length}
-                            className="px-2 py-2 bg-secondary text-white rounded disabled:opacity-50"
-                        >
-                           <FaArrowRight/>
-                        </button>
-                    </div>
             </div>
        
     );
