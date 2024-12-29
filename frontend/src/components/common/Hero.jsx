@@ -8,7 +8,7 @@ const Hero = () => {
                 Study Campanion
             </h1>
             <p className="w-64 font-ink-free lg:text-left md:text-left text-center">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Plan your study sessions, stay focused, and achieve your academic goals with ease.
             </p>
             <Link to="/welcome">
                 <Button

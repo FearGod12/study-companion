@@ -1,5 +1,6 @@
 import { Component } from "react";
 import PropTypes from "prop-types";
+import Button from "./common/Button";
 
 class ErrorBoundary extends Component {
     constructor(props) {
@@ -18,12 +19,12 @@ class ErrorBoundary extends Component {
     render() {
         if (this.state.hasError) {
             return (
-                <div style={{ padding: "20px", textAlign: "center" }}>
-                    <h1>Something went wrong.</h1>
-                    <p>{this.state.error?.toString()}</p>
-                    <button onClick={() => window.location.reload()}>
-                        Refresh Page
-                    </button>
+                <div className="h-screen w-screen flex flex-col items-center justify-center">
+                    <h1 className="text-lg font-bold">Something went wrong.</h1>
+                    <p className="font-semibold mt-2">{this.state.error?.toString()}</p>
+                    <Button onClick={() => window.location.reload()} className="mt-4 text-gray-100"
+                    text= 'Refresh Page'
+                    />
                 </div>
             );
         }

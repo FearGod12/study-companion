@@ -15,6 +15,11 @@ const useSchedules = () => {
   const [editingSchedule, setEditingSchedule] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Modal States
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentAction, setCurrentAction] = useState(null); // 'edit' or 'delete'
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
+
   // Search, Filtering, and Batch Operations
   const [searchQuery, setSearchQuery] = useState('');
   const [filterOptions, setFilterOptions] = useState({
@@ -88,11 +93,20 @@ const useSchedules = () => {
     });
   };
 
-  const formatTime = timeStr => {
+  const formatTime = (timeStr) => {
     const [hours, minutes] = timeStr.split(':').map(Number);
-    const period = hours >= 12 ? 'pm' : 'am';
-    const hour = hours % 12 || 12;
-    return `${hour}:${minutes.toString().padStart(2, '0')} ${period}`;
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    
+    const localTime = date.toLocaleString('en-US', { timeZone: timeZone }); // Use user's time zone
+    const localDate = new Date(localTime);
+    
+    const formattedHours = localDate.getHours();
+    const formattedMinutes = localDate.getMinutes();
+    const period = formattedHours >= 12 ? 'PM' : 'AM';
+    const hour = formattedHours % 12 || 12;
+  
+    return `${hour}:${formattedMinutes.toString().padStart(2, '0')} ${period}`;
   };
 
   const formatTimeToHHMMSS = time => {
@@ -102,7 +116,6 @@ const useSchedules = () => {
     const parts = time.split(':');
     return parts.length === 2 ? `${time}:00` : time;
   };
-  
 
   const handleRecurringDayChange = dayId => {
     setNewSchedule(prevSchedule => {
@@ -163,18 +176,17 @@ const useSchedules = () => {
         ...updatedSchedule,
         startDate: updatedSchedule.startDate.split('T')[0],
         startTime: updatedSchedule.startTime.split('T')[1]?.split('.')[0],
-    };
-    setSchedules(prevSchedules =>
+      };
+      setSchedules(prevSchedules =>
         prevSchedules.map(schedule => (schedule._id === id ? formattedSchedule : schedule))
-    );
+      );
       toast.success('Schedule updated successfully!');
     } catch (error) {
-      console.log(error.message);
       toast.error('Failed to update schedule: ' + (error.response?.data?.message || error.message));
     }
   };
 
-  const handleDeleteSchedule = async id => {
+  const handleDeleteSchedule = async (id) => {
     try {
       await deleteSchedule(id);
       setSchedules(prevSchedules => prevSchedules.filter(schedule => schedule._id !== id));
@@ -184,6 +196,39 @@ const useSchedules = () => {
     }
   };
 
+  // Modal Functions
+  const openEditModal = (schedule) => {
+    setSelectedSchedule(schedule);
+    setCurrentAction('edit');
+    setIsModalOpen(true);
+  };
+
+  const openDeleteModal = (schedule) => {
+    setSelectedSchedule(schedule);
+    setCurrentAction('delete');
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmEdit = () => {
+    if (selectedSchedule) {
+      setEditingSchedule(selectedSchedule);
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedSchedule) {
+      handleDeleteSchedule(selectedSchedule._id);
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    setSelectedSchedule(null);
+  };
+
+  
   return {
     schedules: filteredSchedules,
     newSchedule,
@@ -208,8 +253,15 @@ const useSchedules = () => {
     handleDeleteSchedule,
     handleRecurringDayChange,
     handleRecurringDayChangeEdit,
+    // Modal states and handlers
+    isModalOpen,
+    currentAction,
+    openEditModal,
+    openDeleteModal,
+    handleConfirmEdit,
+    handleConfirmDelete,
+    handleCancel,
   };
 };
 
 export default useSchedules;
-

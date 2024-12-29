@@ -5,19 +5,20 @@ import SignUpPage from "./components/Pages/Authentification/SignUpPage";
 import LoginPage from "./components/Pages/Authentification/LoginPage";
 import VerifyEmailPage from "./components/Pages/Authentification/VerifyEmailPage";
 import ForgotPassword from "./components/auth/ForgotPassword";
-import Layout from "./components/Pages/Main/Layout";
-import Schedule from "./components/Pages/Main/Schedule";
+import Layout from "./components/Pages/layout/Layout";
+import Schedule from "./components/Pages/layout/Schedule";
 import  AuthProvider  from "./context/AuthProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Suspense, lazy } from "react";
-import ReadingMode from "./components/Pages/Main/ReadingMode";
 import ErrorBoundary from "./components/ErrorBoundary";
 import PasswordReset from "./components/auth/PasswordReset";
 import PrivateRoute from "./components/Pages/Authentification/PrivateRoute";
 import Loading from "./components/common/Loading";
+import StudySessionsData from "./components/Pages/layout/StudySessionsData";
+import Study from "./components/StudyComponents/Study";
 
-const Dashboard = lazy(() => import("./components/Pages/Main/Dashboard"));
+const Dashboard = lazy(() => import("./components/Pages/layout/Dashboard"));
 
 
 const router = createBrowserRouter(
@@ -70,13 +71,21 @@ const router = createBrowserRouter(
                         </PrivateRoute>
                     ),
                 },
+                {
+                    path: "sessions",
+                    element: (
+                        <PrivateRoute>
+                            <StudySessionsData />
+                        </PrivateRoute>
+                    ),
+                },
             ],
         },
         {
-            path: "/reading-mode",
+            path: "/study/:id",
             element: (
                 <PrivateRoute>
-                    <ReadingMode />
+                    <Study />
                 </PrivateRoute>
             ),
         },

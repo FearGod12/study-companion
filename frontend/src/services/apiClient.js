@@ -2,10 +2,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { isTokenExpired } from "../utils/utils";
 
-// Base URL from environment variables
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-// Create Axios instance
 const apiClient = axios.create({
     baseURL: BASE_URL,
     headers: {
@@ -13,7 +11,6 @@ const apiClient = axios.create({
     },
 });
 
-// Axios request interceptor
 apiClient.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("access_Token");
@@ -21,7 +18,7 @@ apiClient.interceptors.request.use(
         if (token && isTokenExpired(token)) {
             localStorage.removeItem("access_Token");
             toast.error("Session expired. Please log in again.");
-            window.location.href = "/login"; // Redirect to login
+            window.location.href = "/login"; 
             throw new axios.Cancel("Token expired.");
         }
 
@@ -35,7 +32,6 @@ apiClient.interceptors.request.use(
     }
 );
 
-// Axios response interceptor
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
