@@ -7,7 +7,7 @@ import VerifyEmailPage from "./components/Pages/Authentification/VerifyEmailPage
 import ForgotPassword from "./components/auth/ForgotPassword";
 import Layout from "./components/Pages/layout/Layout";
 import Schedule from "./components/Pages/layout/Schedule";
-import  AuthProvider  from "./context/AuthProvider";
+import AuthProvider from "./context/AuthProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Suspense, lazy } from "react";
@@ -17,9 +17,10 @@ import PrivateRoute from "./components/Pages/Authentification/PrivateRoute";
 import Loading from "./components/common/Loading";
 import StudySessionsData from "./components/Pages/layout/StudySessionsData";
 import Study from "./components/StudyComponents/Study";
+import { WebSocketProvider } from "./context/WebSocketProvider";
+import { useAuth } from "./hooks/useAuth";
 
 const Dashboard = lazy(() => import("./components/Pages/layout/Dashboard"));
-
 
 const router = createBrowserRouter(
     [
@@ -98,14 +99,24 @@ const router = createBrowserRouter(
     }
 );
 
+const AppContent = () => {
+    const { user } = useAuth();
+
+    return (
+        <WebSocketProvider userId={user?._id}>
+            <ToastContainer />
+            <RouterProvider router={router} />
+        </WebSocketProvider>
+    );
+};
+
 const App = () => {
     return (
         <ErrorBoundary>
-        <AuthProvider>
-            <ToastContainer />
-            <RouterProvider router={router} />
-        </AuthProvider>
-    </ErrorBoundary>
+            <AuthProvider>
+                <AppContent />
+            </AuthProvider>
+        </ErrorBoundary>
     );
 };
 

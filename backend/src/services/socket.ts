@@ -1,6 +1,6 @@
 import { Server as HttpServer } from 'http';
-import { WebSocketServer, WebSocket } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
+import { WebSocket, WebSocketServer } from 'ws';
 
 interface CheckInEvent {
   id: string;
@@ -17,6 +17,7 @@ export class StudySessionWebSocketManager {
   constructor(server: HttpServer) {
     this.wss = new WebSocketServer({ server });
     this.setupWebSocketServer();
+    console.log('socket server started');
   }
 
   private setupWebSocketServer() {
@@ -89,8 +90,8 @@ export class StudySessionWebSocketManager {
       3 * 60 * 1000, // Minimum 3 minutes between check-ins
       Math.min(
         baseInterval * (sessionDuration / 30), // Proportional to session length
-        15 * 60 * 1000 // Maximum 15 minutes between check-ins
-      )
+        15 * 60 * 1000, // Maximum 15 minutes between check-ins
+      ),
     );
 
     // Add some randomness to make check-ins unpredictable

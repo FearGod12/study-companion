@@ -1,15 +1,19 @@
+import { createServer } from 'http';
 import app from './app.js';
 import { NotificationService } from './services/notifications.js';
+import { StudySessionWebSocketManager } from './services/socket.js';
 
 async function startServer() {
   try {
     const PORT = process.env.PORT || 3000;
+    const server = createServer(app);
+    const wsManager = new StudySessionWebSocketManager(server);
 
     // Initialize notification service
     await NotificationService.init();
 
     // Start Express server
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
 

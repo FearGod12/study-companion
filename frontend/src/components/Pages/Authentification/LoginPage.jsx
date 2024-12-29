@@ -1,7 +1,7 @@
 import Login from "../../auth/Login";
 import LoginBackground from "../../../assets/Image/img-3.png";
-import Button from "../../common/Button";
-import { Link } from "react-router-dom"; // Import Link for navigation
+// import Button from "../../common/Button";
+// import { Link } from "react-router-dom"; // Import Link for navigation
 
 const LoginPage = () => {
     return (
