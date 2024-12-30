@@ -3,19 +3,26 @@ import mongoose from 'mongoose';
 import { ReadingSession } from '../models/reading-session.js';
 import { Schedule } from '../models/schedule.js';
 import { NotificationService } from '../services/notifications.js';
+import { StudySessionWebSocketManager } from '../services/socket.js';
 import { CustomError } from '../utils/customError.js';
 import { makeResponse } from '../utils/makeResponse.js';
 
 export class ReadingSessionController {
-  // Start a reading session
+  private static wsManager: StudySessionWebSocketManager;
+
+  static initialize(wsManager: StudySessionWebSocketManager) {
+    ReadingSessionController.wsManager = wsManager;
+  }
+
   static async startSession(req: any, res: Response, next: NextFunction): Promise<void> {
     try {
       const { scheduleId } = req.params;
+      const userId = req.user._id;
 
       // Verify schedule exists and belongs to user
       const schedule = await Schedule.findOne({
         _id: scheduleId,
-        userId: req.user._id,
+        userId: userId,
         isActive: true,
       });
 
@@ -25,20 +32,27 @@ export class ReadingSessionController {
 
       // Check for any active sessions
       const activeSession = await ReadingSession.findOne({
-        userId: req.user._id,
+        userId: userId,
         status: 'active',
       });
 
       if (activeSession) {
-        // check if the active session is for the same schedule
         if (activeSession.scheduleId.toString() === scheduleId) {
-          res
-            .status(200)
-            .json(makeResponse(true, 'existing study session retrieved', activeSession));
-          return;
+          // If there's an active WebSocket session, include the remaining check-ins
+          const wsSession = ReadingSessionController.wsManager.isSessionActive(userId.toString());
+          if (wsSession) {
+            res.status(200).json(
+              makeResponse(true, 'existing study session retrieved', {
+                ...activeSession.toObject(),
+                lastCheckIn: ReadingSessionController.wsManager.getLastCheckInTime(
+                  userId.toString(),
+                ),
+              }),
+            );
+            return;
+          }
         }
 
-        // check if the active session should have ended
         const activeSessionEndTime = new Date(
           activeSession.startTime.getTime() + activeSession.duration * 60000,
         );
@@ -48,12 +62,14 @@ export class ReadingSessionController {
           await schedule.save();
           activeSession.status = 'completed';
           await activeSession.save();
+          ReadingSessionController.wsManager.stopCheckInInterval(userId.toString());
         } else {
           throw new CustomError(409, 'Another session is currently active');
         }
       }
+
       const session = new ReadingSession({
-        userId: req.user._id,
+        userId: userId,
         scheduleId,
         startTime: new Date(),
         lastCheckIn: new Date(),
@@ -61,21 +77,97 @@ export class ReadingSessionController {
       });
 
       await session.save();
-      // cancel all scheduled notifications for this schedule
+
+      // Start socket session with 3 random check-ins
+      const socket = ReadingSessionController.wsManager;
+      socket.handleStartSession(userId.toString(), {
+        duration: schedule.duration,
+      });
+
+      // Cancel all scheduled notifications for this schedule
       NotificationService.cancelNotifications(scheduleId);
+
+      // Schedule automatic session end
+      setTimeout(async () => {
+        try {
+          const activeSession = await ReadingSession.findOne({
+            _id: session._id,
+            status: 'active',
+          });
+
+          if (activeSession) {
+            activeSession.status = 'completed';
+            await activeSession.save();
+
+            schedule.isActive = false;
+            await schedule.save();
+
+            // Stop WebSocket check-ins when session expires
+            ReadingSessionController.wsManager.stopCheckInInterval(userId.toString());
+          }
+        } catch (error) {
+          console.error('Error auto-ending session:', error);
+        }
+      }, schedule.duration * 60000);
+
       res.status(201).json(makeResponse(true, 'study session started successfully', session));
     } catch (error: unknown) {
       next(error);
     }
   }
+  static async endSession(req: any, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { scheduleId } = req.params;
+      const userId = req.user._id;
 
-  // Check-in for an active session
+      const schedule = await Schedule.findOne({
+        _id: scheduleId,
+        userId: userId,
+        isActive: true,
+      });
+
+      if (!schedule) {
+        throw new CustomError(404, 'Schedule not found');
+      }
+
+      const session = await ReadingSession.findOne({
+        userId: userId,
+        status: 'active',
+        scheduleId,
+      });
+
+      if (!session) {
+        throw new CustomError(404, 'No active session found');
+      }
+
+      const endTime = new Date();
+      const duration = Math.floor((endTime.getTime() - session.startTime.getTime()) / 60000);
+
+      session.endTime = endTime;
+      session.duration = duration;
+      session.status = 'completed';
+      await session.save();
+
+      schedule.isActive = false;
+      await schedule.save();
+
+      // Stop WebSocket check-ins and emit session ended event
+      ReadingSessionController.wsManager.stopCheckInInterval(userId.toString());
+
+      res.json(makeResponse(true, 'session ended successfully', session));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async checkIn(req: any, res: Response, next: NextFunction): Promise<void> {
     try {
       const { scheduleId } = req.params;
+      const userId = req.user._id;
+
       const session = await ReadingSession.findOneAndUpdate(
         {
-          userId: req.user._id,
+          userId: userId,
           status: 'active',
           scheduleId,
         },
@@ -86,54 +178,24 @@ export class ReadingSessionController {
       );
 
       if (!session) {
-        res.status(404).json({ error: 'No active session found' });
-        return;
+        throw new CustomError(404, 'No active session found');
       }
 
-      res.json(makeResponse(true, 'checkin recorded', session));
+      // Get the remaining check-ins from the WebSocket manager
+      const wsActive = ReadingSessionController.wsManager.isSessionActive(userId.toString());
+      const lastCheckIn = ReadingSessionController.wsManager.getLastCheckInTime(userId.toString());
+
+      if (!wsActive) {
+        throw new CustomError(400, 'WebSocket session not active');
+      }
+
+      res.json(
+        makeResponse(true, 'checkin recorded', {
+          ...session.toObject(),
+          lastCheckIn,
+        }),
+      );
     } catch (error: unknown) {
-      next(error);
-    }
-  }
-
-  // End a reading session
-  static async endSession(req: any, res: Response, next: NextFunction): Promise<void> {
-    try {
-      console.log('end session');
-      const { scheduleId } = req.params;
-      const schedule = await Schedule.findOne({
-        _id: scheduleId,
-        userId: req.user._id,
-        isActive: true,
-      });
-      if (!schedule) {
-        throw new CustomError(404, 'Schedule not found');
-      }
-
-      const session = await ReadingSession.findOne({
-        userId: req.user._id,
-        status: 'active',
-        scheduleId,
-      });
-
-      if (!session) {
-       throw new CustomError(404, 'No active session found');
-      }
-      if (session.status !== 'active') {
-        throw new CustomError(400, 'Session not active');
-      }
-      const endTime = new Date();
-      const duration = Math.floor((endTime.getTime() - session.startTime.getTime()) / 60000); // Convert to minutes
-
-      session.endTime = endTime;
-      session.duration = duration;
-      session.status = 'completed';
-      await session.save();
-      schedule.isActive = false;
-      await schedule.save();
-
-      res.json(makeResponse(true, 'session ended successfully', session));
-    } catch (error) {
       next(error);
     }
   }

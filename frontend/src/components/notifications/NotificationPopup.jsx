@@ -1,7 +1,25 @@
 import { X } from 'lucide-react';
 import PropTypes from 'prop-types';
+import { useEffect, useState } from 'react';
 
-export const NotificationPopup = ({ message, onRespond }) => {
+export const NotificationPopup = ({ message, onRespond, timeout = 120 }) => {
+  const [timeLeft, setTimeLeft] = useState(timeout);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          onRespond(false); // Auto-respond with false when time runs out
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [onRespond]);
+
   return (
     <div className="fixed bottom-4 right-4 z-50 w-96 p-4 bg-white shadow-lg rounded-lg animate-in fade-in slide-in-from-bottom-5">
       <div className="flex items-start justify-between">
@@ -14,6 +32,17 @@ export const NotificationPopup = ({ message, onRespond }) => {
         </button>
       </div>
       <p className="mt-2 text-gray-700">{message}</p>
+      <div className="mt-2">
+        <div className="w-full bg-gray-200 h-1 rounded-full overflow-hidden">
+          <div
+            className="bg-blue-500 h-full transition-all duration-1000 ease-linear"
+            style={{ width: `${(timeLeft / timeout) * 100}%` }}
+          />
+        </div>
+        <p className="text-xs text-gray-500 mt-1">
+          {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')} remaining
+        </p>
+      </div>
       <div className="mt-4 flex justify-end space-x-2">
         <button
           onClick={() => onRespond(true)}
@@ -29,4 +58,5 @@ export const NotificationPopup = ({ message, onRespond }) => {
 NotificationPopup.propTypes = {
   message: PropTypes.string.isRequired,
   onRespond: PropTypes.func.isRequired,
+  timeout: PropTypes.number,
 };

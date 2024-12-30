@@ -18,7 +18,6 @@ import Loading from "./components/common/Loading";
 import StudySessionsData from "./components/Pages/layout/StudySessionsData";
 import Study from "./components/StudyComponents/Study";
 import { WebSocketProvider } from "./context/WebSocketProvider";
-import { useAuth } from "./hooks/useAuth";
 
 const Dashboard = lazy(() => import("./components/Pages/layout/Dashboard"));
 
@@ -100,10 +99,9 @@ const router = createBrowserRouter(
 );
 
 const AppContent = () => {
-    const { user } = useAuth();
 
     return (
-        <WebSocketProvider userId={user?._id}>
+        <WebSocketProvider>
             <ToastContainer />
             <RouterProvider router={router} />
         </WebSocketProvider>

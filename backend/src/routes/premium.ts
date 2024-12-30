@@ -41,4 +41,5 @@ const premiumRouter = express.Router();
  */
 premiumRouter.get('/go-premium', isAuthenticated, PremiumController.subscribe);
 
+
 export default premiumRouter;
