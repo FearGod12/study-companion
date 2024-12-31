@@ -124,33 +124,31 @@ const PasswordReset = () => {
                                 />
                             </div>
 
-                            
-                                {/* Email Field */}
-                                <div className="flex flex-col w-full">
-                                    <label
-                                        htmlFor="email"
-                                        className="font-ink-free flex"
-                                    >
-                                        <AiOutlineMail className="mr-2" />
-                                        Email
-                                    </label>
-                                    <div className="relative">
-                                        <Field
-                                            type="email"
-                                            id="email"
-                                            name="email"
-                                            placeholder="Enter your email"
-                                            className="border py-2 px-4 rounded w-full text-sm focus:outline-none focus:ring focus:ring-secondary"
-                                            aria-label="Enter your email"
-                                        />
-                                        <ErrorMessage
-                                            name="email"
-                                            component="div"
-                                            className="text-red-500 text-sm mt-1"
-                                        />
-                                    </div>
-                                    </div>
-
+                            {/* Email Field */}
+                            <div className="flex flex-col w-full">
+                                <label
+                                    htmlFor="email"
+                                    className="font-ink-free flex"
+                                >
+                                    <AiOutlineMail className="mr-2" />
+                                    Email
+                                </label>
+                                <div className="relative">
+                                    <Field
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        placeholder="Enter your email"
+                                        className="border py-2 px-4 rounded w-full text-sm focus:outline-none focus:ring focus:ring-secondary"
+                                        aria-label="Enter your email"
+                                    />
+                                    <ErrorMessage
+                                        name="email"
+                                        component="div"
+                                        className="text-red-500 text-sm mt-1"
+                                    />
+                                </div>
+                            </div>
 
                             {/* Password Field */}
                             <div className="flex flex-col w-full">
@@ -218,7 +216,7 @@ const PasswordReset = () => {
                                         placeholder="Confirm your password"
                                         className="border py-2 px-4 rounded w-full text-sm focus:outline-none focus:ring focus:ring-secondary"
                                     />
-                                     <button
+                                    <button
                                         type="button"
                                         onClick={() =>
                                             setShowPassword((prev) => ({
@@ -243,7 +241,6 @@ const PasswordReset = () => {
                                 />
                             </div>
 
-                               
                             {/* Submit Button */}
                             <Button
                                 text={
@@ -254,6 +251,7 @@ const PasswordReset = () => {
                                 type="submit"
                                 className="text-white hover:bg-white hover:text-secondary hover:border-secondary hover:border mt-4"
                                 disabled={!isValid || isSubmitting}
+                                loading={isSubmitting}
                             />
                         </Form>
                     )}

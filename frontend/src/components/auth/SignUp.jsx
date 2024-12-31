@@ -145,7 +145,10 @@ const SignUp = () => {
 
                     {/* Email */}
                     <div className="flex flex-col">
-                        <label htmlFor="email" className="font-ink-free flex items-center">
+                        <label
+                            htmlFor="email"
+                            className="font-ink-free flex items-center"
+                        >
                             <AiOutlineMail className="mr-2" />
                             Email
                         </label>
@@ -310,7 +313,10 @@ const SignUp = () => {
 
                     {/* Address */}
                     <div className="flex flex-col">
-                        <label htmlFor="address" className="font-ink-free flex items-center">
+                        <label
+                            htmlFor="address"
+                            className="font-ink-free flex items-center"
+                        >
                             <FaMapMarkerAlt className="mr-2" />
                             Address
                         </label>
@@ -334,6 +340,7 @@ const SignUp = () => {
                         type="submit"
                         className="mt-6 text-white hover:bg-white hover:text-secondary hover:border-secondary hover:border"
                         disabled={!isValid || isSubmitting}
+                        loading={isSubmitting}
                     />
 
                     <div className="mt-8 text-sm text-center">

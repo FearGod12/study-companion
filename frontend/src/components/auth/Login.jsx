@@ -1,7 +1,7 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Button from "../common/Button";
-import { useState} from "react";
+import { useState } from "react";
 import { AiOutlineMail, AiOutlineLock } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import { HiEye, HiEyeOff } from "react-icons/hi";
@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
-    
+
     const initialValues = {
         email: "",
         password: "",
@@ -21,14 +21,15 @@ const Login = () => {
         email: Yup.string()
             .email("Invalid email address.")
             .required("Email is required."),
+
         password: Yup.string()
             .min(6, "Password must be at least 6 characters long.")
             .required("Password is required."),
     });
 
-    const handleSubmit = async (values, { resetForm, setSubmitting }) => {
-         setSubmitting(true);
-         toast.dismiss();
+    const handleSubmit = async (values, { setSubmitting }) => {
+        setSubmitting(true);
+        toast.dismiss();
 
         try {
             const response = await loginUser(values.email, values.password);
@@ -36,12 +37,14 @@ const Login = () => {
             navigate("/dashboard");
         } catch (error) {
             console.error("Login Error:", error.response || error.message);
-            toast.error(
-                error.response?.data?.message || "Failed to login. Please try again."
-            );
+            const errorMessage =
+                error.response?.status === 401
+                    ? "Incorrect email or password."
+                    : error.response?.data?.message ||
+                      "Failed to login. Please try again.";
+            toast.error(errorMessage);
         } finally {
             setSubmitting(false);
-            resetForm(); 
         }
     };
 
@@ -124,10 +127,11 @@ const Login = () => {
                     <Button
                         text={isSubmitting ? "Logging in..." : "Login"}
                         type="submit"
-                        className={`mt-4 text-white hover:bg-white hover:text-secondary hover:border-secondary hover:border  ${
+                        className={`mt-4 text-white hover:bg-white hover:text-secondary hover:border-secondary hover:border ${
                             isSubmitting || !isValid ? "opacity-50" : ""
                         }`}
                         disabled={!isValid || isSubmitting}
+                        loading={isSubmitting}
                     />
 
                     <div className="mt-8 text-sm text-center">

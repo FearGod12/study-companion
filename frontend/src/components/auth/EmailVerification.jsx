@@ -85,7 +85,13 @@ const EmailVerification = () => {
                     validationSchema={validationSchema}
                     onSubmit={handleSubmit}
                 >
-                    {({ values, errors, touched, isSubmitting, setFieldValue }) => (
+                    {({
+                        values,
+                        errors,
+                        touched,
+                        isSubmitting,
+                        setFieldValue,
+                    }) => (
                         <Form className="flex flex-col items-center gap-4">
                             {/* OTP Input Fields */}
                             <div className="flex gap-1">
@@ -98,24 +104,43 @@ const EmailVerification = () => {
                                         value={values.otp[index] || ""}
                                         onChange={(e) => {
                                             const newOtp = values.otp.split("");
-                                            newOtp[index] = e.target.value.replace(/\D/, ""); // Allow only digits
-                                            setFieldValue("otp", newOtp.join(""));
+                                            newOtp[index] =
+                                                e.target.value.replace(
+                                                    /\D/,
+                                                    ""
+                                                ); // Allow only digits
+                                            setFieldValue(
+                                                "otp",
+                                                newOtp.join("")
+                                            );
 
                                             // Focus next field if value is entered
                                             if (e.target.value && index < 5) {
                                                 document
-                                                    .getElementById(`otp-${index + 1}`)
+                                                    .getElementById(
+                                                        `otp-${index + 1}`
+                                                    )
                                                     ?.focus();
                                             }
                                         }}
                                         onKeyDown={(e) => {
                                             // Handle backspace navigation
-                                            if (e.key === "Backspace" && !values.otp[index] && index > 0) {
-                                                document.getElementById(`otp-${index - 1}`)?.focus();
+                                            if (
+                                                e.key === "Backspace" &&
+                                                !values.otp[index] &&
+                                                index > 0
+                                            ) {
+                                                document
+                                                    .getElementById(
+                                                        `otp-${index - 1}`
+                                                    )
+                                                    ?.focus();
                                             }
                                         }}
                                         className={`border rounded-xl w-10 h-12 text-center ${
-                                            errors.otp && touched.otp ? "border-red-500" : "border-secondary"
+                                            errors.otp && touched.otp
+                                                ? "border-red-500"
+                                                : "border-secondary"
                                         }`}
                                         maxLength="1"
                                     />
@@ -123,21 +148,28 @@ const EmailVerification = () => {
                             </div>
 
                             {errors.otp && touched.otp && (
-                                <p className="text-red-500 text-sm mt-1">{errors.otp}</p>
+                                <p className="text-red-500 text-sm mt-1">
+                                    {errors.otp}
+                                </p>
                             )}
 
                             <Button
-                                text={isSubmitting ? "Verifying..." : "Continue"}
+                                text={
+                                    isSubmitting ? "Verifying..." : "Continue"
+                                }
                                 type="submit"
                                 className="bg-secondary text-white border border-white hover:bg-white hover:text-secondary hover:border-secondary"
                                 disabled={isSubmitting}
+                                loading={isSubmitting}
                             />
 
                             <p
                                 className="text-sm pt-3 font-ink-free cursor-pointer"
                                 onClick={!isResending ? handleResendOtp : null}
                             >
-                                {isResending ? "Resending OTP..." : "Resend OTP"}
+                                {isResending
+                                    ? "Resending OTP..."
+                                    : "Resend OTP"}
                             </p>
                         </Form>
                     )}

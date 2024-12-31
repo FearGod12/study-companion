@@ -108,6 +108,7 @@ const ForgotPassword = () => {
                                 type="submit"
                                 className="text-white hover:bg-white hover:text-secondary hover:border-secondary hover:border mt-4"
                                 disabled={!isValid || isSubmitting}
+                                loading={isSubmitting}
                             />
 
                             {/* Instructions */}
