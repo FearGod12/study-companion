@@ -36,7 +36,7 @@ export class StudySessionWebSocketManager {
   constructor(server: HttpServer) {
     this.io = new SocketIOServer(server, {
       cors: {
-        origin: process.env.CLIENT_URL || 'http://localhost:5173',
+        origin: process.env.SOCKET_CLIENT_URL || 'http://localhost:5173',
         methods: ['GET', 'POST'],
         credentials: true,
       },
