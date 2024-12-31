@@ -10,28 +10,16 @@ const handleApiError = (
   let message = defaultMessage;
 
   if (!navigator.onLine) {
-    message =
-      "No internet connection. Please check your connection and try again.";
+      message =
+          "No internet connection. Please check your connection and try again.";
   } else if (error.response) {
-    const status = error.response.status;
-
-    const errorMessages = {
-      400: "Bad request. Please check your input.",
-      401: "Unauthorized. Please log in.",
-      403: "Forbidden. You do not have permission to perform this action.",
-      404: "Resource not found.",
-      429: "Too many requests. Please try again later.",
-      500: "Internal server error. Please try again later.",
-      503: "Service unavailable. Please try again later.",
-    };
-
-    message =
-      errorMessages[status] || error.response.data?.message || defaultMessage;
+      message = error.response?.data?.message || defaultMessage;
   } else if (error.request) {
-    message = "The server did not respond. Please try again later.";
+      message = "The server did not respond. Please try again later.";
   } else {
-    message = error.message || defaultMessage;
+      message = error.message || defaultMessage;
   }
+
 
   if (showToast) toast.error(message);
   console.error("API Error:", {

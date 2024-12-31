@@ -18,7 +18,7 @@ const Pro = () => {
         </div>
         <Button
           text={loading ? "Loading..." : "Upgrade"}
-          className="lg:mt-4 lg:mb-4 md:mt-4 md:mb-4 bg-white text-secondary transition ease-in-out duration-500 hover:scale-105 transform sm:rotate-90 lg:rotate-0 md:rotate-0 -translate-x-16 lg:translate-x-0 md:translate-x-0 mt-24"
+          className="lg:mt-4 lg:mb-4 md:mt-4 md:mb-4 bg-white text-secondary transition ease-in-out duration-500 hover:scale-105 transform rotate-90 lg:rotate-0 md:rotate-0 -translate-x-16 lg:translate-x-0 md:translate-x-0 mt-24"
           onClick={fetchPremium}
           disabled={loading}
         />
