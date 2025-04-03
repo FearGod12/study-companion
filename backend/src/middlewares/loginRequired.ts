@@ -1,8 +1,8 @@
 // responsible for decoding the token to be sent and fetching the user from database then attach it to the request object
 import { NextFunction, Request, Response } from 'express';
-import User from '../models/users.js';
 import { CustomError } from '../utils/customError.js';
 import { Payload, verifyToken } from '../utils/jwt.js';
+import prisma from '../config/prisma.js';
 
 /**
  * Middleware function to check if a user is logged in.
@@ -31,8 +31,12 @@ const isAuthenticated = async (req: Request, _res: Response, next: NextFunction)
     if (!payload) {
       throw new CustomError(401, 'Invalid Authorization Token');
     }
-
-    const user = await User.findById(payload._id);
+    // const user = await User.findById(payload.id);
+    const user = await prisma.user.findUnique({
+      where: {
+        id: payload.id,
+      },
+    });
     if (!user) {
       throw new CustomError(401, 'Invalid Authorization Token');
     }

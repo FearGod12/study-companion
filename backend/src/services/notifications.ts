@@ -1,50 +1,33 @@
-import mongoose from 'mongoose';
+import { PrismaClient, Schedule, User, Category, RecurringDay } from '@prisma/client';
 import cron from 'node-cron';
-import { ISchedule, Schedule } from '../models/schedule.js';
-import User, { IUser } from '../models/users.js';
 import { EmailSubject, sendMail } from '../utils/sendMail.js';
+import { NIGERIA_TIMEZONE, formatTimeInNigeria, addMinutesInNigeria } from '../utils/timezone.js';
 
-// Mongoose Schema for Scheduled Notifications
-const ScheduledNotificationSchema = new mongoose.Schema({
-  scheduleId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Schedule',
-    required: true,
-  },
-  minutesBefore: {
-    type: Number,
-    required: true,
-  },
-  scheduledFor: {
-    type: Date,
-    required: true,
-  },
-  isExecuted: {
-    type: Boolean,
-    default: false,
-  },
-  cronJobId: {
-    type: String,
-    required: true,
-  },
-  isRecurring: {
-    type: Boolean,
-    default: false,
-  },
-  recurringDayOfWeek: {
-    type: Number,
-    required: false,
-  },
-});
-
-
-const ScheduledNotification = mongoose.model('ScheduledNotification', ScheduledNotificationSchema);
+// Interface for our scheduled notification in Prisma
+interface ScheduledNotification {
+  id: string;
+  scheduleId: string;
+  minutesBefore: number;
+  scheduledFor: Date;
+  isExecuted: boolean;
+  cronJobId: string;
+  isRecurring: boolean;
+  recurringDayOfWeek?: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 // Interface for Scheduled Notification Jobs
 interface ScheduledNotificationJob {
   scheduleId: string;
   cronJob: cron.ScheduledTask;
 }
+
+// Extended Schedule type with user and recurringDays
+type ScheduleWithRelations = Schedule & {
+  user: User;
+  recurringDays: RecurringDay[];
+};
 
 export class NotificationService {
   // In-memory storage of currently active cron jobs
@@ -54,31 +37,47 @@ export class NotificationService {
   private static readonly REMINDER_TIMES = [30, 5] as const;
 
   // Timezone for scheduling
-  private static readonly TIMEZONE = 'Africa/Lagos';
+  private static readonly TIMEZONE = NIGERIA_TIMEZONE;
+
+  private static prisma: PrismaClient;
 
   /**
-   * Initialize the notification service
-   * Recovers and re-schedules any pending notifications
+   * Initialize the notification service with the Prisma client
+   * @param prismaClient - The Prisma client instance
    */
-  static async init() {
+  static init(prismaClient: PrismaClient) {
+    this.prisma = prismaClient;
     console.log('Notification service initialized');
+    this.recoverPendingNotifications();
+  }
 
+  /**
+   * Recover and re-schedule any pending notifications
+   */
+  private static async recoverPendingNotifications() {
     try {
       // Find all active schedules
-      const activeSchedules = await Schedule.find({ isActive: true });
+      const activeSchedules = await this.prisma.schedule.findMany({
+        where: { isActive: true },
+      });
 
       // Find pending scheduled notifications
-      const pendingNotifications = await ScheduledNotification.find({
-        isExecuted: false,
-        scheduledFor: { $gt: new Date() },
-      }).populate('scheduleId');
+      const pendingNotifications = await this.prisma.scheduledNotification.findMany({
+        where: {
+          isExecuted: false,
+          scheduledFor: { gt: new Date() },
+        },
+        include: {
+          schedule: true,
+        },
+      });
 
       // Re-schedule notifications for each pending notification
       for (const notification of pendingNotifications) {
-        const schedule = notification.scheduleId as unknown as ISchedule;
+        const schedule = notification.schedule;
 
         if (schedule && schedule.isActive) {
-          await this.scheduleNotifications(schedule._id!.toString());
+          await this.scheduleNotifications(schedule.id);
         }
       }
     } catch (error) {
@@ -95,9 +94,13 @@ export class NotificationService {
       // First, cancel any existing notifications for this schedule
       await this.cancelNotifications(scheduleId);
 
-      const schedule = await Schedule.findById(scheduleId)
-        .populate<{ userId: IUser }>('userId')
-        .lean();
+      const schedule = await this.prisma.schedule.findUnique({
+        where: { id: scheduleId },
+        include: {
+          user: true,
+          recurringDays: true,
+        },
+      });
 
       if (!schedule || !schedule.isActive) {
         console.log(`Schedule ${scheduleId} not found or inactive`);
@@ -105,11 +108,15 @@ export class NotificationService {
       }
 
       // Schedule one-time notifications
-      await this.scheduleOneTimeNotifications(schedule as unknown as ISchedule);
+      await this.scheduleOneTimeNotifications(schedule as ScheduleWithRelations);
 
       // Handle recurring schedules
-      if (schedule.isRecurring && schedule.recurringDays?.length) {
-        await this.scheduleRecurringNotifications(schedule as unknown as ISchedule);
+      if (schedule.isRecurring && schedule.recurringDays && schedule.recurringDays.length > 0) {
+        const recurringDaysArray = schedule.recurringDays.map(day => day.dayOfWeek);
+        await this.scheduleRecurringNotifications(
+          schedule as ScheduleWithRelations,
+          recurringDaysArray
+        );
       }
     } catch (error) {
       console.error(`Failed to schedule notifications for ${scheduleId}:`, error);
@@ -121,15 +128,15 @@ export class NotificationService {
    * Schedule one-time notifications for a schedule
    * @param schedule - Schedule to create notifications for
    */
-  private static async scheduleOneTimeNotifications(schedule: ISchedule) {
+  private static async scheduleOneTimeNotifications(schedule: ScheduleWithRelations) {
     const scheduledJobs: ScheduledNotificationJob[] = [];
 
     for (const minutes of this.REMINDER_TIMES) {
-      const reminderTime = new Date(schedule.startTime.getTime() - minutes * 60000);
+      const reminderTime = addMinutesInNigeria(schedule.startTime, -minutes);
 
       // Don't schedule if the reminder time is in the past
       if (reminderTime.getTime() <= Date.now()) {
-        console.log(`Skipping ${minutes}min reminder for past schedule ${schedule._id}`);
+        console.log(`Skipping ${minutes}min reminder for past schedule ${schedule.id}`);
         continue;
       }
 
@@ -142,19 +149,19 @@ export class NotificationService {
             await this.sendReminderEmail(schedule, minutes);
 
             // Mark the notification as executed in the database
-            await ScheduledNotification.findOneAndUpdate(
-              {
-                scheduleId: schedule._id,
+            await this.prisma.scheduledNotification.updateMany({
+              where: {
+                scheduleId: schedule.id,
                 minutesBefore: minutes,
                 isRecurring: false,
               },
-              { isExecuted: true }
-            );
+              data: { isExecuted: true },
+            });
 
             // Remove the job after it's executed
             job.stop();
           } catch (error) {
-            console.error(`Error sending reminder for schedule ${schedule._id}:`, error);
+            console.error(`Error sending reminder for schedule ${schedule.id}:`, error);
           }
         },
         {
@@ -164,36 +171,42 @@ export class NotificationService {
       );
 
       // Generate a unique identifier for the job
-      const cronJobId = `${schedule._id}_${minutes}_${Date.now()}`;
+      const cronJobId = `${schedule.id}_${minutes}_${Date.now()}`;
 
       // Persist the scheduled notification in the database
-      await ScheduledNotification.create({
-        scheduleId: schedule._id,
-        minutesBefore: minutes,
-        scheduledFor: reminderTime,
-        isExecuted: false,
-        cronJobId: cronJobId,
-        isRecurring: false,
+      await this.prisma.scheduledNotification.create({
+        data: {
+          scheduleId: schedule.id,
+          minutesBefore: minutes,
+          scheduledFor: reminderTime,
+          isExecuted: false,
+          cronJobId: cronJobId,
+          isRecurring: false,
+        },
       });
 
       scheduledJobs.push({
-        scheduleId: schedule._id!.toString(),
+        scheduleId: schedule.id,
         cronJob: job,
       });
     }
 
     // Store scheduled jobs
-    this.scheduledNotifications.set(schedule._id!.toString(), scheduledJobs);
+    this.scheduledNotifications.set(schedule.id, scheduledJobs);
   }
 
   /**
    * Schedule recurring notifications for a schedule
    * @param schedule - Recurring schedule to create notifications for
+   * @param recurringDays - Array of days (0-6) for recurring schedule
    */
-  private static async scheduleRecurringNotifications(schedule: ISchedule) {
+  private static async scheduleRecurringNotifications(
+    schedule: ScheduleWithRelations,
+    recurringDays: number[]
+  ) {
     const scheduledJobs: ScheduledNotificationJob[] = [];
 
-    for (const dayOfWeek of schedule.recurringDays!) {
+    for (const dayOfWeek of recurringDays) {
       for (const minutes of this.REMINDER_TIMES) {
         // Calculate the cron expression for recurring reminders
         const cronExpression = this.createRecurringCronExpression(
@@ -207,7 +220,10 @@ export class NotificationService {
           async () => {
             try {
               // Verify the schedule is still active and hasn't been deleted
-              const currentSchedule = await Schedule.findById(schedule._id);
+              const currentSchedule = await this.prisma.schedule.findUnique({
+                where: { id: schedule.id },
+              });
+
               if (!currentSchedule || !currentSchedule.isActive) {
                 job.stop();
                 return;
@@ -215,10 +231,7 @@ export class NotificationService {
 
               await this.sendReminderEmail(schedule, minutes);
             } catch (error) {
-              console.error(
-                `Error sending recurring reminder for schedule ${schedule._id}:`,
-                error
-              );
+              console.error(`Error sending recurring reminder for schedule ${schedule.id}:`, error);
             }
           },
           {
@@ -228,28 +241,31 @@ export class NotificationService {
         );
 
         // Generate a unique identifier for the job
-        const cronJobId = `${schedule._id}_${dayOfWeek}_${minutes}_${Date.now()}`;
+        const cronJobId = `${schedule.id}_${dayOfWeek}_${minutes}_${Date.now()}`;
 
         // Persist the scheduled notification in the database
-        await ScheduledNotification.create({
-          scheduleId: schedule._id,
-          minutesBefore: minutes,
-          scheduledFor: this.calculateNextRun(schedule.startTime, dayOfWeek, minutes),
-          isExecuted: false,
-          cronJobId: cronJobId,
-          isRecurring: true,
-          recurringDayOfWeek: dayOfWeek,
+        await this.prisma.scheduledNotification.create({
+          data: {
+            scheduleId: schedule.id,
+            minutesBefore: minutes,
+            scheduledFor: this.calculateNextRun(schedule.startTime, dayOfWeek, minutes),
+            isExecuted: false,
+            cronJobId: cronJobId,
+            isRecurring: true,
+            recurringDayOfWeek: dayOfWeek,
+          },
         });
 
         scheduledJobs.push({
-          scheduleId: schedule._id!.toString(),
+          scheduleId: schedule.id,
           cronJob: job,
         });
       }
     }
 
     // Store or update scheduled jobs for this schedule
-    this.scheduledNotifications.set(schedule._id!.toString(), scheduledJobs);
+    const existingJobs = this.scheduledNotifications.get(schedule.id) || [];
+    this.scheduledNotifications.set(schedule.id, [...existingJobs, ...scheduledJobs]);
   }
 
   /**
@@ -257,10 +273,10 @@ export class NotificationService {
    * @param schedule - Schedule to send reminder for
    * @param minutes - Minutes before the schedule to send reminder
    */
-  private static async sendReminderEmail(schedule: ISchedule, minutes: number) {
-    const user = await User.findById(schedule.userId);
+  private static async sendReminderEmail(schedule: ScheduleWithRelations, minutes: number) {
+    const user = schedule.user;
     if (!user) {
-      console.error(`User not found for schedule ${schedule._id}`);
+      console.error(`User not found for schedule ${schedule.id}`);
       return;
     }
 
@@ -268,11 +284,11 @@ export class NotificationService {
       user: user,
       title: schedule.title,
       minutes: minutes,
-      startTime: schedule.startTime.toLocaleTimeString('en-NG', { timeZone: this.TIMEZONE }),
+      startTime: formatTimeInNigeria(schedule.startTime),
       duration: schedule.duration,
     });
 
-    console.log(`Reminder sent for schedule ${schedule._id} (${minutes} minutes)`);
+    console.log(`Reminder sent for schedule ${schedule.id} (${minutes} minutes)`);
   }
 
   /**
@@ -293,9 +309,11 @@ export class NotificationService {
       this.scheduledNotifications.delete(scheduleId);
 
       // Remove scheduled notifications from database
-      await ScheduledNotification.deleteMany({
-        scheduleId: scheduleId,
-        isExecuted: false,
+      await this.prisma.scheduledNotification.deleteMany({
+        where: {
+          scheduleId: scheduleId,
+          isExecuted: false,
+        },
       });
     }
   }
@@ -309,7 +327,10 @@ export class NotificationService {
       // Cancel existing notifications
       await this.cancelNotifications(scheduleId);
 
-      const schedule = await Schedule.findById(scheduleId);
+      const schedule = await this.prisma.schedule.findUnique({
+        where: { id: scheduleId },
+      });
+
       if (!schedule || !schedule.isActive) {
         return;
       }
@@ -328,15 +349,21 @@ export class NotificationService {
    */
   static async markScheduleComplete(scheduleId: string) {
     try {
-      const schedule = await Schedule.findById(scheduleId);
+      const schedule = await this.prisma.schedule.findUnique({
+        where: { id: scheduleId },
+      });
+
       if (!schedule) {
         return;
       }
 
       // If it's a one-time schedule, mark it inactive
       if (!schedule.isRecurring) {
-        schedule.isActive = false;
-        await schedule.save();
+        await this.prisma.schedule.update({
+          where: { id: scheduleId },
+          data: { isActive: false },
+        });
+
         await this.cancelNotifications(scheduleId);
       }
     } catch (error) {
@@ -368,7 +395,7 @@ export class NotificationService {
     dayOfWeek: number,
     minutesBefore: number
   ): string {
-    const reminderTime = new Date(startTime.getTime() - minutesBefore * 60000);
+    const reminderTime = addMinutesInNigeria(startTime, -minutesBefore);
     return `${reminderTime.getMinutes()} ${reminderTime.getHours()} * * ${dayOfWeek}`;
   }
 
@@ -380,7 +407,7 @@ export class NotificationService {
    * @returns Date of next scheduled run
    */
   private static calculateNextRun(startTime: Date, dayOfWeek: number, minutesBefore: number): Date {
-    const reminderTime = new Date(startTime.getTime() - minutesBefore * 60000);
+    const reminderTime = addMinutesInNigeria(startTime, -minutesBefore);
     const nextRun = new Date();
 
     // Set to next occurrence of the specific day of week

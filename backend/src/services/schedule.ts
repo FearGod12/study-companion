@@ -1,110 +1,192 @@
-import { ISchedule, Schedule } from '../models/schedule.js';
+import { PrismaClient, Schedule, User, Category, RecurringDay } from '@prisma/client';
 import { NotificationService } from './notifications.js';
 import { CustomError } from '../utils/customError.js';
+import { scheduleValidationSchema, ScheduleInput } from '../validators/schedule.js';
+import { combineDateAndTime, addMinutesInNigeria, NIGERIA_TIMEZONE } from '../utils/timezone.js';
+
+const prisma = new PrismaClient();
 
 export class ScheduleService {
-  static async createSchedule(userId: string, scheduleData: Partial<ISchedule>) {
-    // Combine startDate and startTime into a single DateTime
-    const combinedStartTime = new Date(`${scheduleData.startDate}T${scheduleData.startTime}+01:00`);
-
+  static async createSchedule(userId: string, scheduleData: ScheduleInput) {
     // Check for overlapping schedules
-    const overlapping = await this.checkOverlappingSchedules(
-      userId,
-      combinedStartTime,
-      scheduleData.duration!
-    );
+    const startTime = combineDateAndTime(scheduleData.startDate, scheduleData.startTime);
+    const endTime = addMinutesInNigeria(startTime.toJSDate(), scheduleData.duration);
 
-    if (overlapping) {
-      throw new CustomError(400, 'This schedule overlaps with another study session');
+    const overlappingSchedule = await prisma.schedule.findFirst({
+      where: {
+        userId,
+        isActive: true,
+        startTime: {
+          lte: startTime.toJSDate(),
+        },
+        endTime: {
+          gte: startTime.toJSDate(),
+        },
+      },
+    });
+
+    if (overlappingSchedule) {
+      throw new CustomError(400, 'Schedule overlaps with an existing schedule');
     }
 
-    const schedule = new Schedule({
-      userId,
-      ...scheduleData,
-      startTime: combinedStartTime,
-      endTime: new Date(combinedStartTime.getTime() + scheduleData.duration! * 60000),
-    });
-    await schedule.validate();
-    await schedule.save();
+    // Create schedule with recurring days in a transaction
+    const schedule = await prisma.$transaction(async tx => {
+      const newSchedule = await tx.schedule.create({
+        data: {
+          title: scheduleData.title,
+          startDate: new Date(scheduleData.startDate),
+          startTime: startTime.toJSDate(),
+          endTime: endTime,
+          duration: scheduleData.duration,
+          isRecurring: scheduleData.isRecurring,
+          isActive: scheduleData.isActive ?? true,
+          status: scheduleData.status ?? 'SCHEDULED',
+          checkInInterval: scheduleData.checkInInterval ?? 15,
+          reminderTimes: scheduleData.reminderTimes ?? [30, 5],
+          userId,
+          recurringDays:
+            scheduleData.isRecurring && scheduleData.recurringDays?.length
+              ? {
+                  create: scheduleData.recurringDays.map((dayOfWeek: number) => ({
+                    dayOfWeek,
+                  })),
+                }
+              : undefined,
+        },
+      });
 
-    await NotificationService.scheduleNotifications(schedule._id!.toString());
+      return newSchedule;
+    });
+
+    await NotificationService.scheduleNotifications(schedule.id);
     return schedule;
   }
-  static async updateSchedule(
-    userId: string,
-    scheduleId: string,
-    updates: Partial<ISchedule> & { startDate?: string; startTime?: string }
-  ): Promise<ISchedule | null> {
-    const existingSchedule = await Schedule.findOne({ _id: scheduleId, userId });
-    if (!existingSchedule) {
-      throw new CustomError(404, 'Schedule not found');
+
+  static async updateSchedule(userId: string, scheduleId: string, updates: Partial<ScheduleInput>) {
+    const { error, value: validatedData } = scheduleValidationSchema.validate(updates, {
+      abortEarly: false,
+    });
+    if (error) {
+      throw new CustomError(400, error.details[0].message);
     }
 
-    // Combine startDate and startTime if either is provided
-    let combinedStartTime: Date | undefined;
-    let date: string | undefined;
-    if (updates.startDate || updates.startTime) {
-      date = updates.startDate || existingSchedule.startTime.toISOString().split('T')[0];
-      const time = updates.startTime || existingSchedule.startTime.toTimeString().split(' ')[0];
-      combinedStartTime = new Date(`${date}T${time}`);
+    // Check for overlapping schedules
+    if (validatedData.startDate && validatedData.startTime) {
+      const startTime = combineDateAndTime(validatedData.startDate, validatedData.startTime);
+      const endTime = addMinutesInNigeria(startTime.toJSDate(), validatedData.duration || 0);
+
+      const overlappingSchedule = await prisma.schedule.findFirst({
+        where: {
+          id: { not: scheduleId },
+          userId,
+          startTime: {
+            lte: startTime.toJSDate(),
+          },
+          endTime: {
+            gte: startTime.toJSDate(),
+          },
+        },
+      });
+
+      if (overlappingSchedule) {
+        throw new CustomError(400, 'Schedule overlaps with an existing schedule');
+      }
     }
 
-    // If updating time, check for overlaps
-    if (combinedStartTime) {
-      const duration = updates.duration || existingSchedule.duration;
+    // Update schedule and recurring days in a transaction
+    const schedule = await prisma.$transaction(async tx => {
+      const updateData: any = { ...validatedData };
 
-      const overlapping = await this.checkOverlappingSchedules(
-        userId,
-        combinedStartTime,
-        duration,
-        scheduleId
-      );
+      if (validatedData.startDate && validatedData.startTime) {
+        const startTime = combineDateAndTime(validatedData.startDate, validatedData.startTime);
+        const endTime = addMinutesInNigeria(startTime.toJSDate(), validatedData.duration || 0);
 
-      if (overlapping) {
-        throw new CustomError(400, 'This update would cause overlap with another study session');
+        updateData.startDate = new Date(validatedData.startDate);
+        updateData.startTime = startTime.toJSDate();
+        updateData.endTime = endTime;
       }
 
-      // Remove startDate and startTime, replace with startTime
-      delete updates.startDate;
-      updates.startDate = date as any;
-      updates.startTime = combinedStartTime as any;
-    }
+      // Handle recurring days update
+      if (validatedData.recurringDays !== undefined) {
+        // Delete existing recurring days
+        await tx.recurringDay.deleteMany({
+          where: { scheduleId },
+        });
 
-    const schedule = await Schedule.findOneAndUpdate({ _id: scheduleId, userId }, updates, {
-      new: true,
-      runValidators: true,
+        // Create new recurring days if schedule is recurring
+        if (validatedData.isRecurring && validatedData.recurringDays?.length) {
+          updateData.recurringDays = {
+            create: validatedData.recurringDays.map((dayOfWeek: number) => ({
+              dayOfWeek,
+            })),
+          };
+        }
+      }
+
+      const updatedSchedule = await tx.schedule.update({
+        where: { id: scheduleId },
+        data: updateData,
+      });
+
+      return updatedSchedule;
     });
 
     if (schedule) {
-      // await NotificationService.updateNotifications(schedule._id!.toString());
+      await NotificationService.updateSchedule(schedule.id);
     }
 
-    return schedule;
+    return {
+      ...schedule,
+      startTime: this.convertToNigeriaTimezone(schedule.startTime),
+      endTime: this.convertToNigeriaTimezone(schedule.endTime),
+      startDate: schedule.startDate.toISOString().slice(0, 10),
+    };
   }
 
   static async deleteSchedule(userId: string, scheduleId: string): Promise<void> {
-    const schedule = await Schedule.findOneAndUpdate(
-      { _id: scheduleId, userId },
-      { isActive: false },
-      { new: true }
-    );
+    const schedule = await prisma.schedule.updateMany({
+      where: {
+        id: scheduleId,
+        userId,
+      },
+      data: { isActive: false },
+    });
 
-    if (!schedule) {
+    if (schedule.count === 0) {
       throw new CustomError(404, 'Schedule not found');
     }
 
-    await NotificationService.cancelNotifications(schedule._id!.toString());
+    await NotificationService.cancelNotifications(scheduleId);
   }
 
-  static async getSchedules(userId: string): Promise<ISchedule[]> {
+  // utitly function for converting A DATETIME TO USE NIGERIA TIMEZONE
+  static convertToNigeriaTimezone(date: Date): Date {
+    return new Date(date.getTime() + 1 * 60 * 60 * 1000);
+  }
+
+  static async getSchedules(userId: string) {
     const now = new Date();
     const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-    return Schedule.find({
-      userId,
-      isActive: true,
-      startTime: { $lte: thirtyDaysFromNow },
-    }).sort({ startTime: 1 });
+    const result = prisma.schedule.findMany({
+      where: {
+        userId,
+        isActive: true,
+        startTime: { lte: thirtyDaysFromNow },
+      },
+      include: {
+        recurringDays: true,
+      },
+      orderBy: {
+        startTime: 'asc',
+      },
+    });
+    return (await result).map((schedule: Schedule & { recurringDays: RecurringDay[] }) => ({
+      ...schedule,
+      startTime: this.convertToNigeriaTimezone(schedule.startTime),
+      endTime: this.convertToNigeriaTimezone(schedule.endTime),
+      startDate: schedule.startDate.toISOString().slice(0, 10), // Get only YYYY-MM-DD
+    }));
   }
 
   private static async checkOverlappingSchedules(
@@ -114,23 +196,22 @@ export class ScheduleService {
     excludeId?: string
   ): Promise<boolean> {
     const endTime = new Date(startTime.getTime() + duration * 60000);
-    const query: any = {
-      userId,
-      isActive: true,
-      $or: [
-        // New schedule starts within an existing schedule
-        {
-          startTime: { $lt: endTime },
-          endTime: { $gt: startTime },
-        },
-      ],
-    };
 
-    if (excludeId) {
-      query._id = { $ne: excludeId };
-    }
+    const overlapping = await prisma.schedule.findFirst({
+      where: {
+        userId,
+        isActive: true,
+        id: excludeId ? { not: excludeId } : undefined,
+        OR: [
+          // New schedule starts within an existing schedule
+          {
+            startTime: { lt: endTime },
+            endTime: { gt: startTime },
+          },
+        ],
+      },
+    });
 
-    const overlapping = await Schedule.findOne(query);
     return !!overlapping;
   }
 }

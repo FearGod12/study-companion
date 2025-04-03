@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import User from '../models/users.js';
+import { PrismaClient } from '@prisma/client';
 import { redisService } from '../services/redis.js';
 import { userService } from '../services/users.js';
 import { CustomError } from '../utils/customError.js';
@@ -12,6 +12,8 @@ import {
   UserValidator,
   VerifyEmailValidator,
 } from '../utils/validators/users.js';
+
+const prisma = new PrismaClient();
 
 export class UserController {
   static createUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -85,8 +87,8 @@ export class UserController {
       if (error) {
         return res.status(400).json(makeResponse(false, error.details[0].message, null));
       }
-      const access_Token = await userService.login(email, password);
-      res.json(makeResponse(true, 'User logged in successfully', { access_Token }));
+      const result = await userService.login(email, password);
+      res.json(makeResponse(true, 'User logged in successfully', result));
     } catch (error) {
       next(error);
     }
@@ -115,12 +117,14 @@ export class UserController {
       Object.keys(updateData).forEach(
         key => updateData[key] === undefined && delete updateData[key]
       );
+      console.log(updateData);
       const { error } = UpdateMeValidator.validate(updateData);
       if (error) {
         throw new CustomError(400, error.details[0].message);
       }
       const user = req.user;
-      const updatedUser = await userService.updateUser(user._id, updateData);
+      console.log('user', user);
+      const updatedUser = await userService.updateUser(user.id, updateData);
       res.json(makeResponse(true, 'User updated successfully', updatedUser));
     } catch (error) {
       next(error);
@@ -156,7 +160,17 @@ export class UserController {
       if (error) {
         return res.status(400).json({ message: error.details[0].message });
       }
-      const updatedUser = await user.updateOne(req.body);
+
+      const updatedUser = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          firstName: firstName || undefined,
+          lastName: lastName || undefined,
+          email: email || undefined,
+          address: address || undefined,
+        },
+      });
+
       res.json(makeResponse(true, 'User Account updated successfully', updatedUser));
     } catch (error) {
       next(error);
@@ -170,7 +184,7 @@ export class UserController {
   ): Promise<void> {
     try {
       const { email } = req.body;
-      const user = await User.findOne({ email });
+      const user = await prisma.user.findUnique({ where: { email } });
       if (!user) {
         throw new CustomError(404, 'User not found');
       }
@@ -209,10 +223,12 @@ export class UserController {
       if (error) {
         throw new CustomError(400, error.message);
       }
-      const user = await User.findOne({ email });
+
+      const user = await prisma.user.findUnique({ where: { email } });
       if (!user) {
         throw new CustomError(404, `User with email ${email} not found`);
       }
+
       const key = user.email + token;
       const data = await redisService.getData(key);
       if (!data) {
@@ -223,8 +239,12 @@ export class UserController {
         throw new CustomError(400, 'Passwords do not match');
       }
 
-      user.password = password;
-      await user.save();
+      // Hash password will happen in the service layer
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { password },
+      });
+
       redisService.deleteData(key);
 
       res.status(200).json(makeResponse(true, 'Password Reset Successful', null));

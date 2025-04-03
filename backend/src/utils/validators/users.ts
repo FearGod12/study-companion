@@ -5,7 +5,7 @@ export const UserValidator = Joi.object({
   lastName: Joi.string().required(),
   email: Joi.string().email().required(),
   phoneNumber: Joi.string(),
-  category: Joi.string().valid('O level', 'undergraduate', 'graduate').required(),
+  category: Joi.string().valid('OLEVEL', 'UNDERGRADUATE', 'GRADUATE').required(),
   password: Joi.string().min(6).required(),
   confirmPassword: Joi.string().required().valid(Joi.ref('password')),
   address: Joi.string().required(),
@@ -20,7 +20,7 @@ export const UpdateMeValidator = Joi.object({
   firstName: Joi.string(),
   lastName: Joi.string(),
   phoneNumber: Joi.string(),
-  category: Joi.string().valid('O level', 'undergraduate', 'graduate'),
+  category: Joi.string().valid('OLEVEL', 'UNDERGRADUATE', 'GRADUATE'),
   address: Joi.string(),
 });
 

@@ -4,7 +4,7 @@ import { CustomError } from '../utils/customError.js';
 const SECRET = process.env.SECRET_KEY || 'MY SUPER SECRETE KEY';
 
 export interface Payload {
-  _id: string;
+  id: string;
   email: string;
 }
 
@@ -16,11 +16,11 @@ export interface Payload {
 export const generateToken = (user: Payload): string => {
   return jwt.sign(
     {
-      _id: user._id,
+      id: user.id,
       email: user.email,
     },
     SECRET,
-    { expiresIn: '24h' },
+    { expiresIn: '24h' }
   );
 };
 

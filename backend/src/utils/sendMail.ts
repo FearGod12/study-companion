@@ -1,7 +1,7 @@
 import ejs from 'ejs';
 import fs from 'fs/promises';
 import nodemailer, { Transporter } from 'nodemailer';
-import { IUser } from '../models/users.js';
+import { User } from '@prisma/client';
 
 export enum EmailSubject {
   ResetPassword = 'Reset Password',
@@ -13,7 +13,7 @@ export enum EmailSubject {
 }
 
 interface EmailData {
-  user: IUser;
+  user: User;
   token?: string;
   [key: string]: unknown;
 }
@@ -55,7 +55,7 @@ async function renderTemplate(templateName: string, data: any): Promise<string> 
 export async function sendMail(
   subject: EmailSubject,
   templateName: string,
-  data: EmailData,
+  data: EmailData
 ): Promise<void> {
   const transporter = createTransporter();
 
@@ -81,7 +81,7 @@ export async function sendErrorMail(
   subject: EmailSubject,
   templateName: string,
   error: Error,
-  req: any,
+  req: any
 ): Promise<void> {
   const transporter = createTransporter();
 

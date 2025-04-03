@@ -19,3 +19,4 @@ async function connectDB(url: string): Promise<typeof mongoose> {
 export const mongoDBConnection = await connectDB(url);
 
 export default mongoDBConnection;
+
