@@ -3,6 +3,9 @@ FROM node:20-slim AS builder
 
 WORKDIR /app
 
+# Install OpenSSL
+RUN apt-get update -y && apt-get install -y openssl
+
 # Copy package files and TypeScript config
 COPY backend/package*.json ./
 COPY backend/tsconfig.json ./
@@ -24,6 +27,9 @@ RUN npm run build
 FROM node:20-slim AS production
 
 WORKDIR /app
+
+# Install OpenSSL
+RUN apt-get update -y && apt-get install -y openssl
 
 # Copy package files and install ALL dependencies (including devDependencies)
 COPY backend/package*.json ./
