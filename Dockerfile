@@ -16,6 +16,7 @@ RUN npm ci
 
 # Copy source code
 COPY backend/src ./src
+COPY backend/swagger ./swagger
 
 # Generate Prisma client
 RUN npx prisma generate
@@ -43,6 +44,8 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Set environment variables
 ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOST=0.0.0.0
 
 # Expose the port the app runs on
 EXPOSE 3000

@@ -11,6 +11,7 @@ const prisma = new PrismaClient();
 async function startServer() {
   try {
     const PORT = process.env.PORT || 3000;
+    const HOST = process.env.HOST || '0.0.0.0';
     const server = createServer(app);
 
     // Connect to the database
@@ -27,8 +28,8 @@ async function startServer() {
     NotificationService.init(prisma);
 
     // Start Express server
-    server.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+    server.listen(PORT, HOST, () => {
+      console.log(`Server is running on ${HOST}:${PORT}`);
     });
 
     // Handle graceful shutdown
