@@ -171,11 +171,12 @@ export class PaystackWebhookController {
       throw new CustomError(400, 'Invalid customer data');
     }
 
+    console.log('handling charge event');
     // Find the user by email
     const user = await this.prisma.user.findUnique({
       where: { email: customer.email },
     });
-
+    console.log('user found');
     if (!user) {
       throw new CustomError(404, 'User not found');
     }
@@ -186,6 +187,7 @@ export class PaystackWebhookController {
         where: { id: user.id },
         data: { isPremium: true },
       });
+      console.log('user updated to premium');
 
       // Log the charge event
       await this.prisma.subscriptionEvent.create({
@@ -198,6 +200,7 @@ export class PaystackWebhookController {
           metadata: event.data,
         },
       });
+      console.log('subscription event created');
     }
     await this.prisma.transactions.create({
       data: {
@@ -207,7 +210,7 @@ export class PaystackWebhookController {
         reference: reference,
       },
     });
-
+    console.log('transaction created');
     return { success: true, message: 'Charge event processed successfully' };
   }
 
@@ -216,11 +219,9 @@ export class PaystackWebhookController {
    */
   public async handleWebhook(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log('Paystack webhook received');
 
       // Verify the webhook signature
       const signature = req.headers['x-paystack-signature'] as string;
-      console.log('Signature:', signature);
       if (!signature) {
         throw new CustomError(400, 'Missing Paystack signature');
       }
@@ -229,7 +230,6 @@ export class PaystackWebhookController {
       if (!isValid) {
         throw new CustomError(400, 'Invalid Paystack signature');
       }
-      console.log(req.body);
       const event = req.body;
 
       // Handle different event types
