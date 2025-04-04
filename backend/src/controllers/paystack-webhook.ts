@@ -216,8 +216,11 @@ export class PaystackWebhookController {
    */
   public async handleWebhook(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log('Paystack webhook received');
+
       // Verify the webhook signature
       const signature = req.headers['x-paystack-signature'] as string;
+      console.log('Signature:', signature);
       if (!signature) {
         throw new CustomError(400, 'Missing Paystack signature');
       }
@@ -226,7 +229,7 @@ export class PaystackWebhookController {
       if (!isValid) {
         throw new CustomError(400, 'Invalid Paystack signature');
       }
-
+      console.log(req.body);
       const event = req.body;
 
       // Handle different event types
