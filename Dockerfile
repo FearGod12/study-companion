@@ -24,10 +24,10 @@ FROM node:20-slim AS production
 
 WORKDIR /app
 
-# Copy package files and install production dependencies
+# Copy package files and install ALL dependencies (including devDependencies)
 COPY backend/package*.json ./
 COPY backend/prisma ./prisma/
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
