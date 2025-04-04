@@ -6,12 +6,13 @@ WORKDIR /app
 # Copy package files
 COPY backend/package*.json ./
 COPY backend/prisma ./prisma/
+COPY backend/tsconfig.json ./
 
 # Install dependencies
 RUN npm ci
 
 # Copy source code
-COPY backend/ ./
+COPY backend/src ./src
 
 # Generate Prisma client
 RUN npx prisma generate
@@ -27,6 +28,7 @@ WORKDIR /app
 # Copy package files and install ALL dependencies (including devDependencies)
 COPY backend/package*.json ./
 COPY backend/prisma ./prisma/
+COPY backend/tsconfig.json ./
 RUN npm ci
 
 # Copy built application from builder stage
