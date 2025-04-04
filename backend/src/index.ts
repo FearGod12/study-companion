@@ -26,9 +26,8 @@ async function startServer() {
 
     // Initialize notification service with Prisma
     NotificationService.init(prisma);
-
     // Start Express server
-    server.listen(PORT, HOST, () => {
+    server.listen(Number(PORT), HOST, () => {
       console.log(`Server is running on ${HOST}:${PORT}`);
     });
 
