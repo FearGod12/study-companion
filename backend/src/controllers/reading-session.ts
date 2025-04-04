@@ -29,9 +29,8 @@ export class ReadingSessionController {
         userId,
         scheduleId
       );
-      console.log('session', session);
 
-      
+
 
       res.status(201).json(makeResponse(true, 'study session started successfully', session));
     } catch (error: unknown) {

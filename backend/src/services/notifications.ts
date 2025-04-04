@@ -103,7 +103,6 @@ export class NotificationService {
       });
 
       if (!schedule || !schedule.isActive) {
-        console.log(`Schedule ${scheduleId} not found or inactive`);
         return;
       }
 

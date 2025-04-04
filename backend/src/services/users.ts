@@ -151,7 +151,7 @@ export class userService {
       const { password, ...userWithoutPassword } = updatedUser;
       return userWithoutPassword;
     } catch (error) {
-      console.log(error);
+      throw new CustomError(500, 'Failed to update user');
     }
   }
 

@@ -117,13 +117,11 @@ export class UserController {
       Object.keys(updateData).forEach(
         key => updateData[key] === undefined && delete updateData[key]
       );
-      console.log(updateData);
       const { error } = UpdateMeValidator.validate(updateData);
       if (error) {
         throw new CustomError(400, error.details[0].message);
       }
       const user = req.user;
-      console.log('user', user);
       const updatedUser = await userService.updateUser(user.id, updateData);
       res.json(makeResponse(true, 'User updated successfully', updatedUser));
     } catch (error) {
