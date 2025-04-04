@@ -63,7 +63,7 @@ export default router;
  *                   format: password
  *                 category:
  *                   type: string
- *                   enum: [O level, undergraduate, graduate]
+ *                   enum: [GRADUATE, UNDERGRADUATE, OLEVEL]
  *                 address:
  *                   type: string
  *       responses:
@@ -395,7 +395,7 @@ export default router;
  *               category:
  *                 type: string
  *                 description: User's educational category
- *                 enum: ['O level', 'undergraduate', 'graduate']
+ *                 enum: ['OLEVEL', 'UNDERGRADUATE', 'GRADUATE']
  *                 example: "undergraduate"
  *               address:
  *                 type: string
