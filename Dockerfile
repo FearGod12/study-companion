@@ -3,10 +3,10 @@ FROM node:20-slim AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files and TypeScript config
 COPY backend/package*.json ./
-COPY backend/prisma ./prisma/
 COPY backend/tsconfig.json ./
+COPY backend/prisma ./prisma/
 
 # Install dependencies
 RUN npm ci
@@ -27,8 +27,8 @@ WORKDIR /app
 
 # Copy package files and install ALL dependencies (including devDependencies)
 COPY backend/package*.json ./
-COPY backend/prisma ./prisma/
 COPY backend/tsconfig.json ./
+COPY backend/prisma ./prisma/
 RUN npm ci
 
 # Copy built application from builder stage
@@ -42,4 +42,4 @@ ENV NODE_ENV=production
 EXPOSE 3000
 
 # Start the application
-CMD ["npm", "start"]
+CMD ["node", "dist/index.js"]
