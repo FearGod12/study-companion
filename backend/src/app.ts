@@ -11,6 +11,7 @@ import router from './routes/users.js';
 import scheduleRouter from './routes/schedule.js';
 import studySessionRouter from './routes/reading-session.js';
 import premiumRouter from './routes/premium.js';
+import paystackWebhookRouter from './routes/paystack-webhook.js';
 
 const app = express();
 
@@ -56,15 +57,7 @@ app.use('/', router);
 app.use('/schedules', scheduleRouter);
 app.use('/study-sessions', studySessionRouter);
 app.use('/premium', premiumRouter);
-
-// Health Check
-app.get('/api', async (_req, res, next) => {
-  try {
-    res.send('Study Companion API is up and running');
-  } catch (error) {
-    next(error);
-  }
-});
+app.use('/webhook/paystack', paystackWebhookRouter);
 
 // Health Check
 app.get('/health', (req: Request, res: Response) => {

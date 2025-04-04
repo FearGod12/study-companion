@@ -10,11 +10,6 @@ const prisma = new PrismaClient();
 
 async function startServer() {
   try {
-    // Log environment variables for debugging
-    console.log('Environment variables:');
-    console.log(`PORT: ${process.env.PORT}`);
-    console.log(`HOST: ${process.env.HOST}`);
-    console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
 
     const PORT = process.env.PORT || 3000;
     const HOST = process.env.HOST || '0.0.0.0';
@@ -36,7 +31,6 @@ async function startServer() {
     // Start Express server
     server.listen(Number(PORT), HOST, () => {
       console.log(`Server is running on ${HOST}:${PORT}`);
-      console.log(`Server is ready to accept connections`);
     });
 
     // Handle graceful shutdown

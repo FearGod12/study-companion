@@ -25,6 +25,10 @@ const options: swaggerJSDoc.Options = {
         name: 'Premium',
         description: 'Premium subscription operations',
       },
+      {
+        name: 'Webhooks',
+        description: 'Webhook endpoints for third-party services',
+      },
     ],
     components: {
       securitySchemes: {

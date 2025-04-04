@@ -28,6 +28,7 @@ model User {
   // Relations
   schedules     Schedule[]
   readingSessions ReadingSession[]
+  subscriptionEvents SubscriptionEvent[]
 
   @@map("users")
 }
@@ -143,3 +144,32 @@ model RecurringDay {
   @@index([scheduleId])
   @@map("recurring_days")
 }
+
+model Transactions {
+  id String @id @default(uuid())
+  userId String
+  amount Decimal @db.Decimal(10, 2)
+  reference String?
+  invoiceCode String?
+  currency String
+  createdAt DateTime @default(now())
+}
+
+
+model SubscriptionEvent {
+  id             String   @id @default(uuid())
+  userId         String
+  eventType      String
+  status         String
+  amount         Float
+  currency       String
+  metadata       Json
+  createdAt      DateTime @default(now())
+
+  // Relations
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("subscription_events")
+}
+
