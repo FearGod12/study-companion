@@ -49,5 +49,11 @@ ENV HOST=0.0.0.0
 # Expose the port the app runs on
 EXPOSE 3000
 
-# Start the application
-CMD ["node", "dist/index.js"]
+# Create a startup script
+RUN echo '#!/bin/sh\n\
+echo "Starting application..."\n\
+node dist/index.js\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
+# Start the application using the script
+CMD ["/app/start.sh"]

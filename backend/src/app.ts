@@ -20,10 +20,10 @@ app.set('trust proxy', 1);
 // CORS Configuration
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'https://studycompanion.onrender.com'],
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
-  }),
+  })
 );
 app.options('*', cors()); // Handle preflight requests globally
 
@@ -64,6 +64,11 @@ app.get('/api', async (_req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+// Health Check
+app.get('/health', (req: Request, res: Response) => {
+  res.status(200).send(makeResponse(true, 'Service is healthy', { status: 'ok' }));
 });
 
 // Global Error Handler
