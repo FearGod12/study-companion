@@ -252,4 +252,17 @@ export class UserController {
       next(error);
     }
   }
+
+  static async getTransactions(req: any, res: Response, next: NextFunction) {
+    try {
+      const user = req.user;
+      const transactions = await prisma.transactions.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: 'desc' },
+      });
+      res.json(makeResponse(true, 'Transactions retrieved successfully', transactions));
+    } catch (error) {
+      next(error);
+    }
+  }
 }
