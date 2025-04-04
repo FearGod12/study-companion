@@ -13,6 +13,18 @@ const options: swaggerJSDoc.Options = {
         name: 'Users',
         description: 'User management operations',
       },
+      {
+        name: 'Schedules',
+        description: 'Schedule management operations',
+      },
+      {
+        name: 'Study Sessions',
+        description: 'Study session management operations',
+      },
+      {
+        name: 'Premium',
+        description: 'Premium subscription operations',
+      },
     ],
     components: {
       securitySchemes: {
@@ -24,7 +36,7 @@ const options: swaggerJSDoc.Options = {
       },
     },
   },
-  apis: ['./src/routes/*.ts', './src/models/*.ts'], // Update this path to match your project structure
+  apis: ['./dist/routes/*.js'], // Updated path to point to the compiled JavaScript files
 };
 
 const swaggerSpec = swaggerJSDoc(options);
