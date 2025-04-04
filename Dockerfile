@@ -16,7 +16,6 @@ RUN npm ci
 
 # Copy source code
 COPY backend/src ./src
-COPY backend/swagger ./swagger
 
 # Generate Prisma client
 RUN npx prisma generate
