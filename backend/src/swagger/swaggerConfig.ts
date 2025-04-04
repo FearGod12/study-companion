@@ -37,6 +37,13 @@ const options: swaggerJSDoc.Options = {
           scheme: 'bearer',
           bearerFormat: 'JWT',
         },
+        PaystackSignature: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'x-paystack-signature',
+          description:
+            'Paystack webhook signature for verifying the authenticity of webhook requests',
+        },
       },
     },
   },

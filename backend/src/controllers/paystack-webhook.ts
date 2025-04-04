@@ -73,8 +73,8 @@ export class PaystackWebhookController {
   /**
    * Handle subscription disable events from Paystack
    */
-  private async handleSubscriptionDisabledEvent(event: any) {
-    const { customer, subscription_code, amount, plan } = event.data;
+  private async handleSubscriptionDisabledEvent(event: any, data: any) {
+    const { customer, subscription_code, amount, plan } = data;
 
     if (!customer || !customer.email) {
       throw new CustomError(400, 'Invalid customer data');
@@ -99,11 +99,11 @@ export class PaystackWebhookController {
     await this.prisma.subscriptionEvent.create({
       data: {
         userId: user.id,
-        eventType: event.type,
+        eventType: event,
         status: 'disabled',
         amount: amount / 100, // Convert from kobo to naira
         currency: plan.currency || 'NGN',
-        metadata: event.data,
+        metadata: data,
       },
     });
 
@@ -113,8 +113,9 @@ export class PaystackWebhookController {
   /**
    * Handle invoice events from Paystack
    */
-  private async handleInvoiceEvent(event: any) {
-    const { customer, subscription, transaction, paid, invoice_code } = event.data;
+  private async handleInvoiceEvent(event: any, data: any) {
+    console.log('handling invoice event');
+    const { customer, subscription, transaction, paid, invoice_code } = data;
 
     if (!customer || !customer.email) {
       throw new CustomError(400, 'Invalid customer data');
@@ -141,11 +142,11 @@ export class PaystackWebhookController {
     await this.prisma.subscriptionEvent.create({
       data: {
         userId: user.id,
-        eventType: event.type,
+        eventType: event,
         status: subscription.status,
         amount: subscription.amount / 100, // Convert from kobo to naira
         currency: transaction.currency || 'NGN',
-        metadata: event.data,
+        metadata: data,
       },
     });
 
@@ -164,8 +165,8 @@ export class PaystackWebhookController {
   /**
    * Handle one-time charge events from Paystack
    */
-  private async handleChargeEvent(event: any) {
-    const { customer, amount, currency, reference } = event.data;
+  private async handleChargeEvent(event: any, data: any) {
+    const { customer, amount, currency, reference } = data;
 
     if (!customer || !customer.email) {
       throw new CustomError(400, 'Invalid customer data');
@@ -182,7 +183,7 @@ export class PaystackWebhookController {
     }
 
     // For successful charges, set the user as premium
-    if (event.data.status === 'success') {
+    if (data.status === 'success') {
       await this.prisma.user.update({
         where: { id: user.id },
         data: { isPremium: true },
@@ -193,11 +194,11 @@ export class PaystackWebhookController {
       await this.prisma.subscriptionEvent.create({
         data: {
           userId: user.id,
-          eventType: event.type,
+          eventType: event,
           status: 'success',
           amount: amount / 100, // Convert from kobo to naira
           currency: currency,
-          metadata: event.data,
+          metadata: data,
         },
       });
       console.log('subscription event created');
@@ -219,7 +220,6 @@ export class PaystackWebhookController {
    */
   public async handleWebhook(req: Request, res: Response, next: NextFunction) {
     try {
-
       // Verify the webhook signature
       const signature = req.headers['x-paystack-signature'] as string;
       if (!signature) {
@@ -230,21 +230,24 @@ export class PaystackWebhookController {
       if (!isValid) {
         throw new CustomError(400, 'Invalid Paystack signature');
       }
-      const event = req.body;
+      const { event, data } = req.body;
+
+      console.log(event);
+      console.log(data);
 
       // Handle different event types
-      switch (event.type) {
+      switch (event) {
         case 'charge.success':
-          await this.handleChargeEvent(event);
+          await this.handleChargeEvent(event, data);
           return res.sendStatus(200);
 
         case 'invoice.update':
         case 'invoice.payment_failed':
-          await this.handleInvoiceEvent(event);
+          await this.handleInvoiceEvent(event, data);
           return res.sendStatus(200);
 
         case 'subscription.disable':
-          await this.handleSubscriptionDisabledEvent(event);
+          await this.handleSubscriptionDisabledEvent(event, data);
           return res.sendStatus(200);
 
         default:
