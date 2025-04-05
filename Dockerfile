@@ -10,6 +10,7 @@ RUN apt-get update -y && apt-get install -y openssl
 COPY backend/package*.json ./
 COPY backend/tsconfig.json ./
 COPY backend/prisma ./prisma/
+COPY backend/templates ./templates/
 
 # Install dependencies
 RUN npm ci
