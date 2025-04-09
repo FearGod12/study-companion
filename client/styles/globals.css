@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+:root {
+  --accent: #960057;
+}
+
+@theme {
+  --color-accent: var(--accent);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Ink Free", "cursive"'
+}
+
+h1, h2, h3, h4 {
+  font-family: '"Inria Sans"', "sans-serif";
+}
+
+.group:hover .tooltip {
+  opacity: 1;
+  transform: translate(-50%, -10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
