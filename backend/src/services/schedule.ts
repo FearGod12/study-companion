@@ -1,8 +1,8 @@
-import { PrismaClient, Schedule, User, Category, RecurringDay } from '@prisma/client';
-import { NotificationService } from './notifications.js';
+import { PrismaClient } from '@prisma/client';
 import { CustomError } from '../utils/customError.js';
-import { scheduleValidationSchema, ScheduleInput } from '../validators/schedule.js';
-import { combineDateAndTime, addMinutesInNigeria, NIGERIA_TIMEZONE } from '../utils/timezone.js';
+import { addMinutesInNigeria, combineDateAndTime } from '../utils/timezone.js';
+import { ScheduleInput, scheduleValidationSchema } from '../validators/schedule.js';
+import { NotificationService } from './notifications.js';
 
 const prisma = new PrismaClient();
 
@@ -175,16 +175,18 @@ export class ScheduleService {
         startTime: { lte: thirtyDaysFromNow },
       },
       include: {
-        recurringDays: true,
+        recurringDays: {
+          select: { dayOfWeek: true },
+        },
       },
       orderBy: {
         startTime: 'asc',
       },
     });
-    return (await result).map((schedule: Schedule & { recurringDays: RecurringDay[] }) => ({
+    return (await result).map(schedule => ({
       ...schedule,
-      startTime: this.convertToNigeriaTimezone(schedule.startTime),
-      endTime: this.convertToNigeriaTimezone(schedule.endTime),
+      startTime: ScheduleService.convertToNigeriaTimezone(schedule.startTime),
+      endTime: ScheduleService.convertToNigeriaTimezone(schedule.endTime),
       startDate: schedule.startDate.toISOString().slice(0, 10), // Get only YYYY-MM-DD
     }));
   }
@@ -193,7 +195,7 @@ export class ScheduleService {
     userId: string,
     startTime: Date,
     duration: number,
-    excludeId?: string
+    excludeId?: string,
   ): Promise<boolean> {
     const endTime = new Date(startTime.getTime() + duration * 60000);
 

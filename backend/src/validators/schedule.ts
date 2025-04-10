@@ -1,5 +1,4 @@
 import Joi from 'joi';
-import { isDateInPast, NIGERIA_TIMEZONE } from '../utils/timezone.js';
 
 export const scheduleValidationSchema = Joi.object({
   title: Joi.string().required(),
@@ -19,12 +18,22 @@ export const scheduleValidationSchema = Joi.object({
     }),
   duration: Joi.number().integer().min(1).max(1440).required(),
   isRecurring: Joi.boolean().default(false),
-  recurringDays: Joi.array().items(Joi.number().min(0).max(6)).when('isRecurring', {
-    is: true,
-    then: Joi.required(),
-    otherwise: Joi.forbidden(),
-  }),
-  isActive: Joi.boolean().default(true),
+  recurringDays: Joi.array()
+    .items(Joi.number().min(0).max(6))
+    .when('isRecurring', {
+      is: true,
+      then: Joi.required(),
+      otherwise: Joi.forbidden().messages({
+        'any.unknown': 'recurringDays is not allowed when isRecurring is false'
+      })
+    })
+    .messages({
+      'array.includesRequiredUnknowns': 'Recurring days are required when isRecurring is true',
+      'number.base': 'Each recurring day must be a number between 0 (Sunday) and 6 (Saturday)',
+      'array.base': 'Recurring days must be an array of numbers',
+      'array.empty': 'Recurring days cannot be empty',
+      'array.includes': 'Recurring days must be between 0 (Sunday) and 6 (Saturday)',
+    }),  isActive: Joi.boolean().default(true),
   status: Joi.string()
     .valid('SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'MISSED')
     .default('SCHEDULED'),

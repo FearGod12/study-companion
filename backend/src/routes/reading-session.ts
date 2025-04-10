@@ -38,7 +38,7 @@ const studySessionRouter = express.Router();
  *                 data:
  *                   type: object
  *                   properties:
- *                     _id:
+ *                     id:
  *                       type: string
  *                       description: Unique identifier for the reading session
  *                       example: "61e8a7d8f6f6a76d88d9f8a2"
@@ -282,7 +282,7 @@ studySessionRouter.get('/statistics', isAuthenticated, ReadingSessionController.
  *     ReadingSession:
  *       type: object
  *       properties:
- *         _id:
+ *         id:
  *           type: string
  *           description: Unique identifier for the reading session
  *           example: "61e8a7d8f6f6a76d88d9f8a2"
