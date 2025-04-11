@@ -1,6 +1,6 @@
-import Loading from "@/components/common/Loading";
-import useStudySessions from "@/hooks/useStudySessions";
 import { useEffect } from "react";
+import useStudySessions from "../../../hooks/useStudySessions";
+import Loading from "../../common/Loading";
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 
 const StudySessionsData = () => {

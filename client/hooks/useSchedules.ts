@@ -1,57 +1,35 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
-import { FilterOptions, NewSchedule, Schedule } from "@/interfaces/interface";
+import { Schedule, NewSchedule } from "@/interfaces/interface";
 import { useScheduleStore } from "@/store/useScheduleStore";
 import { formatTitle, formatDate, formatTime } from "@/utils/formatting";
 import { prepareScheduleData } from "@/utils/scheduleUtils";
-
-// Helper function for updating recurring days
-const updateRecurringDays = (schedule: Schedule, dayId: number) => {
-  const isSelected = schedule.recurringDays.includes(dayId);
-  return {
-    ...schedule,
-    recurringDays: isSelected
-      ? schedule.recurringDays.filter((id) => id !== dayId)
-      : [...schedule.recurringDays, dayId],
-  };
-};
+import useStudySessions from "./useStudySessions";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const useSchedules = () => {
-  // Access Zustand store for global state
   const {
     schedules,
+    loading,
     retrieved,
+    newSchedule,
+    editingSchedule,
+    modalState,
     createSchedule,
+    retrieveSchedules,
     updateSchedule,
     deleteSchedule,
+    setNewSchedule,
+    setEditingSchedule,
+    setModalState,
+    closeModal,
   } = useScheduleStore();
-  const loading = useScheduleStore((state) => state.loading);
-  const retrieveSchedules = useScheduleStore((state) => state.retrieveSchedules);
 
-  // Local state for managing form, modal, and filters
-  const [newSchedule, setNewSchedule] = useState<NewSchedule>({
-    title: "",
-    startDate: "",
-    startTime: "",
-    duration: 0,
-    isRecurring: false,
-    recurringDays: [],
-  });
+  const { handleStartSession } = useStudySessions();
 
-  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
-  const modalState = useScheduleStore((state) => state.modalState);
-  const setModalState = useScheduleStore((state) => state.setModalState);
-  const closeModal = useScheduleStore((state) => state.closeModal);
-  
-
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
-    startDate: "",
-    endDate: "",
-    isRecurring: null,
-  });
+  const { isAuthenticated, hasHydrated } = useAuthStore();
 
   const daysOfWeek = useMemo(
     () => [
@@ -66,55 +44,22 @@ const useSchedules = () => {
     []
   );
 
-  const [locale, setLocale] = useState<string>("en-US");
-  const [timeZone, setTimeZone] = useState<string>(
-    Intl.DateTimeFormat().resolvedOptions().timeZone
-  );
+  const locale = Intl.DateTimeFormat().resolvedOptions().locale || "en-US";
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  // Fetch schedules
+  // Fetch schedules when user is authenticated
   useEffect(() => {
-    const fetchSchedules = async () => {
-      try {
-        if (!loading && !retrieved) { // Check the retrieved flag
-          await retrieveSchedules();
-        }
-      } catch (error) {
-        console.error("Error fetching schedules:", error);
-      }
-    };
+    if (hasHydrated && isAuthenticated && !loading && !retrieved) {
+      retrieveSchedules();
+    }
+  }, [hasHydrated, isAuthenticated, loading, retrieved, retrieveSchedules]);
   
-    fetchSchedules();
-  }, [loading, retrieved, retrieveSchedules]);
 
-  // Filtered and searched schedules
-  const filteredSchedules = useMemo(
-    () =>
-      schedules.filter((schedule) => {
-        const matchesSearch = searchQuery
-          ? schedule.title.toLowerCase().includes(searchQuery.toLowerCase())
-          : true;
-        const matchesStartDate = filterOptions.startDate
-          ? new Date(schedule.startDate) >= new Date(filterOptions.startDate)
-          : true;
-        const matchesEndDate = filterOptions.endDate
-          ? new Date(schedule.startDate) <= new Date(filterOptions.endDate)
-          : true;
-        const matchesRecurring =
-          filterOptions.isRecurring !== null
-            ? schedule.isRecurring === filterOptions.isRecurring
-            : true;
-        return (
-          matchesSearch && matchesStartDate && matchesEndDate && matchesRecurring
-        );
-      }),
-    [schedules, searchQuery, filterOptions]
-  );
-
-  // Handle creating, updating, and deleting schedules
+  // Handlers
   const handleCreateSchedule = async () => {
     try {
-      const scheduleData = prepareScheduleData(newSchedule);
-      await createSchedule(scheduleData);
+      const data = prepareScheduleData(newSchedule);
+      await createSchedule(data);
       setNewSchedule({
         title: "",
         startDate: "",
@@ -123,97 +68,104 @@ const useSchedules = () => {
         isRecurring: false,
         recurringDays: [],
       });
-    } catch (error: any) {
-      toast.error(
-        `Failed to create schedule: ${
-          error.response?.data?.message ?? "Unknown error"
-        }`
-      );
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Failed to create schedule: ${message}`);
     }
+    
   };
 
-  const handleUpdateSchedule = async (
-    id: string,
-    payload: Partial<Schedule>
-  ) => {
+  const handleUpdateSchedule = async (id: string, payload: Partial<Schedule>) => {
     try {
-      const scheduleData = prepareScheduleData(payload as NewSchedule);
-      await updateSchedule(id, scheduleData as Schedule);
-    } catch (error: any) {
-      toast.error(
-        `Failed to update schedule: ${
-          error.response?.data?.message ?? "Unknown error"
-        }`
-      );
+      const data = prepareScheduleData(payload as Schedule);
+      await updateSchedule(id, data);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Failed to update schedule: ${message}`);
     }
+    
   };
 
   const handleDeleteSchedule = async (id: string) => {
     try {
       await deleteSchedule(id);
-    } catch (error: any) {
-      toast.error(
-        `Failed to delete schedule: ${
-          error.response?.data?.message || "Unknown error"
-        }`
-      );
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Failed to delete schedule: ${message}`);
     }
+    
   };
 
-  // Modal handling logic
-  const openModal = (schedule: Schedule, action: "edit" | "delete") => {
+  const toggleRecurringDay = (dayId: number, isEditing: boolean) => {
+    const schedule = isEditing ? editingSchedule : newSchedule;
+    if (!schedule) return;
+
+    const isSelected = schedule.recurringDays.includes(dayId);
+    const updatedDays = isSelected
+      ? schedule.recurringDays.filter((id) => id !== dayId)
+      : [...schedule.recurringDays, dayId];
+
+    const updatedSchedule = { ...schedule, recurringDays: updatedDays };
+
+    isEditing ? setEditingSchedule(updatedSchedule) : setNewSchedule(updatedSchedule);
+  };
+
+  const openModal = (schedule: Schedule, action: "edit" | "delete" | "start") => {
     setModalState({ isOpen: true, action, schedule });
   };
 
   const handleConfirmAction = async () => {
     try {
-      if (modalState.action === "edit") {
-        setEditingSchedule(modalState.schedule);
+      const { action, schedule } = modalState;
+      if (!schedule) return;
+
+      if (action === "edit") {
+        setEditingSchedule(schedule);
         toast.success("Editing mode enabled!");
-      } else if (modalState.action === "delete") {
-        await handleDeleteSchedule(modalState.schedule!.id);
+      } else if (action === "delete") {
+        await handleDeleteSchedule(schedule.id);
+      } else if (action === "start") {
+        await handleStartSession(schedule);
       }
-    } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
       toast.error("An error occurred during the action.");
     }
     closeModal();
   };
 
-  const toggleRecurringDay = (dayId: number, isEditing: boolean) => {
-    if (isEditing && editingSchedule) {
-      setEditingSchedule(updateRecurringDays(editingSchedule, dayId));
-    } else {
-      setNewSchedule(updateRecurringDays(newSchedule, dayId));
-    }
-  };
-
   return {
-    schedules: filteredSchedules,
+    // State
+    schedules,
     newSchedule,
     editingSchedule,
+    modalState,
     loading,
     daysOfWeek,
+    locale,
+    timeZone,
+
+    // Formatters
     formatTitle,
     formatDate,
     formatTime,
-    locale,
-    timeZone,
-    searchQuery,
-    filterOptions,
+
+    // Setters
     setNewSchedule,
     setEditingSchedule,
-    setLocale,
-    setTimeZone,
-    setSearchQuery,
-    setFilterOptions,
+
+    // CRUD Handlers
     handleCreateSchedule,
     handleUpdateSchedule,
     handleDeleteSchedule,
+
+    // Recurrence
     toggleRecurringDay,
+
+    // Modal
     isModalOpen: modalState.isOpen,
     openModal,
     closeModal,
-    modalState,
     handleConfirmAction,
   };
 };

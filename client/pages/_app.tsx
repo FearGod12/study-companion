@@ -1,4 +1,3 @@
-// pages/_app.tsx
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import type { ReactElement, ReactNode } from "react";
@@ -7,8 +6,11 @@ import { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuthStore } from "@/store/useAuthStore";
+import Router from "next/router";
+import NProgress from "nprogress";
+import "nprogress/nprogress.css";  
 
-// 1. Add types to support getLayout
+
 type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode;
 };
@@ -22,9 +24,20 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 
   useEffect(() => {
     initializeAuth();
-  }, []);
 
-  // 2. Use getLayout if it exists, or render the page as-is
+    // NProgress router events for page load progress
+    Router.events.on("routeChangeStart", () => NProgress.start());  // Start the progress bar
+    Router.events.on("routeChangeComplete", () => NProgress.done());  // Finish the progress bar
+    Router.events.on("routeChangeError", () => NProgress.done());    // Finish the progress bar on error
+
+    // Cleanup the event listeners when the component is unmounted
+    return () => {
+      Router.events.off("routeChangeStart", () => NProgress.start());
+      Router.events.off("routeChangeComplete", () => NProgress.done());
+      Router.events.off("routeChangeError", () => NProgress.done());
+    };
+  }, [initializeAuth]);
+
   const getLayout = Component.getLayout ?? ((page) => page);
 
   return (

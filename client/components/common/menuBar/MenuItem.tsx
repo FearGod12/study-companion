@@ -18,7 +18,7 @@ const MenuItem = ({ to, icon, label }: MenuItemProps) => {
   return (
     <Link href={to}>
       <li
-        className={`flex items-center gap-3 p-4 rounded-l-full transition-all duration-300 cursor-pointer ${
+        className={`flex items-center gap-3 p-3 rounded-l-full transition-all duration-300 cursor-pointer ${
           isActive ? "bg-gray-200 text-accent" : "text-gray-100"
         } hover:bg-gray-200 hover:text-accent relative group`}
       >

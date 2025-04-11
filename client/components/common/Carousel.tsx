@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { carouselImages } from "@/services/carouselData";
+import { carouselImages } from "@/data/carousel";
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
 import Autoplay from "embla-carousel-autoplay";

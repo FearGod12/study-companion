@@ -52,7 +52,7 @@ const ScheduleForm: React.FC = () => {
     const setter = editingSchedule ? setEditingSchedule : setNewSchedule;
 
     setter({ ...updatedSchedule, [field]: value });
-  };
+  }
 
   const schedule = editingSchedule || newSchedule;
 
@@ -61,7 +61,7 @@ const ScheduleForm: React.FC = () => {
       <h2 className="text-xl font-semibold mb-6 mt-8">
         {editingSchedule ? "Edit Schedule" : "Add New Schedule"}
       </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 lg:max-w-lg md:max-w-md max-w-md">
         <input
           type="text"
           placeholder="Title"
@@ -91,6 +91,7 @@ const ScheduleForm: React.FC = () => {
             value={schedule.duration}
             onChange={(e) => handleChange("duration", Number(e.target.value))}
             className="p-2 rounded-lg w-full outline-2 outline-accent focus:ring ring-accent"
+            placeholder="0"
           />
         </div>
 

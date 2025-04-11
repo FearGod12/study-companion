@@ -23,8 +23,11 @@ const useUser = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
-    fetchUserData();
-  }, []);
+    if (!user && isAuthenticated) {
+      fetchUserData();
+    }
+  }, [user, isAuthenticated]);
+  
 
   useEffect(() => {
     const date = new Date();

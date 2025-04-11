@@ -101,7 +101,7 @@ const Login = () => {
               {/* Submit Button */}
               <Button
                 text={isSubmitting ? <Spinner /> : "Login"}
-                className={`text-gray-100 hover:bg-gray-100 hover:text-accent hover:border-accent hover:border ${
+                className={`text-gray-100 hover:bg-gray-100 hover:text-accent hover:border-accent hover:border px-12 py-3 ${
                   isSubmitting || !isValid ? "opacity-50" : ""
                 }`}
                 disabled={!isValid || isSubmitting}

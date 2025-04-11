@@ -23,14 +23,14 @@ const MemberRegistration = () => {
             <Link href="/auth/login">
               <Button
                 text="Login"
-                className="text-accent hover:border border-gray-100 bg-white hover:bg-accent hover:text-white"
+                className="text-accent hover:border border-gray-100 bg-white hover:bg-accent hover:text-white px-12 py-3"
               />
             </Link>
 
             <Link href="/auth">
               <Button
                 text="Sign up"
-                className="text-accent hover:border border-gray-100 bg-white hover:bg-accent hover:text-white"
+                className="text-accent hover:border border-gray-100 bg-white hover:bg-accent hover:text-white px-12 py-3"
               />
             </Link>
           </div>

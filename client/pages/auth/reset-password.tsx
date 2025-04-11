@@ -122,7 +122,7 @@ const PasswordReset = () => {
               {/* Submit Button */}
               <Button
                 text={isSubmitting ? <Spinner /> : "Reset Password"}
-                className={`mt-6 group bg-secondary text-white hover:bg-white hover:text-secondary hover:border-secondary hover:border ${
+                className={`mt-6 group bg-secondary text-white hover:bg-white hover:text-secondary hover:border-secondary hover:border px-12 py-3 ${
                   isSubmitting || !isValid
                     ? "opacity-50 cursor-not-allowed"
                     : ""

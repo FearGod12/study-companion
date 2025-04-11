@@ -14,7 +14,7 @@ import { withZodSchema } from "formik-validator-zod";
 import Link from "next/link";
 import { useEffect } from "react";
 
-// ✅ This handles scroll-to-error safely after form submission
+
 const ScrollToErrorOnSubmit = () => {
   const { submitCount } = useFormikContext();
 
@@ -208,7 +208,7 @@ const SignUp = () => {
           {/* Submit Button */}
           <Button
             text={isSubmitting ? "Registering..." : "Register"}
-            className="mt-6 group bg-accent text-white hover:bg-white hover:text-accent hover:border-accent hover:border"
+            className="mt-6 group bg-accent text-white hover:bg-white hover:text-accent hover:border-accent hover:border px-12 py-3"
             disabled={!isValid || isSubmitting}
             loading={isSubmitting}
           />

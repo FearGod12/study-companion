@@ -2,6 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { isTokenExpired } from "@/utils/utils";
 import { useAuthStore } from "@/store/useAuthStore";
+import Router from "next/router";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -24,7 +25,6 @@ apiClient.interceptors.request.use(
 
       config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
   },
   (error) => Promise.reject(error)
@@ -39,6 +39,7 @@ apiClient.interceptors.response.use(
     if (status === 401) {
       useAuthStore.getState().logoutUser();
       toast.error("Unauthorized. Please log in again.");
+      Router.push("/auth/login");
     }
 
     return Promise.reject(error);

@@ -16,7 +16,7 @@ const ScheduleList = () => {
     );
 
   return (
-    <ul className="space-y-4 overflow-auto h-3/4 scrollbar-hidden">
+    <ul className="space-y-4 overflow-auto max-h-full scrollbar-hidden">
       {schedules.map((schedule) => (
         <ScheduleItem
           key={schedule.id}

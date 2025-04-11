@@ -5,7 +5,7 @@ import { useAuthEmailVerify } from "@/hooks/useAuthEmailVerify";
 import { emailVerifySchema } from "@/validations/emailVerifySchema";
 import { withZodSchema } from "formik-validator-zod";
 import { EmailVerifyValues } from "@/interfaces/interface";
-import OtpInput from "./otpInput";
+import OtpInput from "../../components/common/OtpInput";
 import Spinner from "@/components/common/Spinner";
 
 const EmailVerification = () => {
@@ -34,7 +34,7 @@ const EmailVerification = () => {
 
               <Button
                 text={isSubmitting ? <Spinner /> : "Continue"}
-                className="bg-accent text-gray-100 hover:border hover:bg-gray-100 hover:text-accent hover:border-accent"
+                className="bg-accent text-gray-100 hover:border hover:bg-gray-100 hover:text-accent hover:border-accent px-12 py-3"
                 disabled={!isValid || isSubmitting}
                 loading={isSubmitting}
               />

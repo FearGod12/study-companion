@@ -1,12 +1,13 @@
 import { SessionStore } from "@/interfaces/interface";
 import {
   endStudySession,
-  getStudySessions,
-  getStudyStatistics,
+  fetchStudySessions,
+  fetchStudyStatistics,
   startStudySession,
-} from "@/services/scheduleService";
+} from "@/services/sessionService";
 import { create } from "zustand";
 import { toast } from "react-toastify";
+import { useAuthStore } from "./useAuthStore";
 
 const handleApiError = (error: unknown): string => {
   let errorMessage = "Unknown error occurred";
@@ -18,48 +19,58 @@ const handleApiError = (error: unknown): string => {
 };
 
 // Zustand store for schedules
-export const useScheduleStore = create<SessionStore>((set) => ({
+export const useSessionStore = create<SessionStore>((set) => ({
   studySessions: [],
   statistics: null,
+  currentSession: null,
   loading: false,
   error: null,
 
-  // Start Study Session
-  startSession: async (scheduleId) => {
-    set({ loading: true, error: null });
-    try {
-      await startStudySession(scheduleId);
-      set({ loading: false });
-      toast.success("Session Started!");
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      set({ error: errorMessage, loading: false });
+ // Start Study Session
+ startSession: async (scheduleId: string) => {
+  set({ loading: true, error: null }); 
+  try {
+    const response = await startStudySession(scheduleId);
+    console.log("Session Data:", response.data);  
+    set({ currentSession: response.data.data, loading: false });  
+    toast.success("Study session started successfully!"); 
+  } catch (error: unknown) {
+    const errorMessage = handleApiError(error); 
+    set({ error: errorMessage, loading: false }); 
+    if (error?.response?.status === 401 || errorMessage.includes("Unauthorized")) {
+      useAuthStore.getState().logoutUser();
     }
-  },
+  }
+},
 
-  // End Study Session
-  endSession: async (scheduleId) => {
-    set({ loading: true, error: null });
-    try {
-      await endStudySession(scheduleId);
-      set({ loading: false });
-      toast.success("Session ended successfully!");
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      set({ error: errorMessage, loading: false });
+// End Study Session
+endSession: async (scheduleId: string) => {
+  set({ loading: true, error: null });
+  try {
+    await endStudySession(scheduleId);  // Call API to end the session
+    set({ currentSession: null, loading: false });  // Reset the session
+    toast.success("Session ended successfully!");
+  } catch (error: unknown) {
+    const errorMessage = handleApiError(error);
+    set({ error: errorMessage, loading: false });
+    if (error?.response?.status === 401 || errorMessage.includes("Unauthorized")) {
+      useAuthStore.getState().logoutUser();
     }
-  },
-
+  }
+},
   // Get Study Sessions
   fetchSessions: async (page = 1, limit = 10) => {
     set({ loading: true, error: null });
     try {
-      const { data } = await getStudySessions(page, limit);
+      const { data } = await fetchStudySessions(page, limit);
       set({ studySessions: data, loading: false });
       toast.success("Session fetched successfully!");
     } catch (error: unknown) {
       const errorMessage = handleApiError(error);
       set({ error: errorMessage, loading: false });
+      if (error?.response?.status === 401 || errorMessage.includes("Unauthorized")) {
+        useAuthStore.getState().logoutUser();
+      }
     }
   },
 
@@ -67,12 +78,15 @@ export const useScheduleStore = create<SessionStore>((set) => ({
   fetchStatistics: async () => {
     set({ loading: true, error: null });
     try {
-      const { data } = await getStudyStatistics();
+      const { data } = await fetchStudyStatistics();
       set({ statistics: data, loading: false });
       toast.success("Statistics retrieved successfully!");
     } catch (error: unknown) {
       const errorMessage = handleApiError(error);
       set({ error: errorMessage, loading: false });
+      if (error?.response?.status === 401 || errorMessage.includes("Unauthorized")) {
+        useAuthStore.getState().logoutUser();
+      }
     }
   },
 }));

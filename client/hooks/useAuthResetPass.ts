@@ -29,7 +29,7 @@ export const useAuthResetPass = () => {
     try {
       await resetPassword(values.token, values.password, values.confirmPassword, values.email);
       toast.success("Password reset successful.");
-      setTimeout(() => router.push("/auth/login"), 3000);
+      router.push("/auth/login");
     } catch (error: unknown) {
         console.error("Password reset error:", error);
       

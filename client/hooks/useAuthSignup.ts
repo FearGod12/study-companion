@@ -32,11 +32,11 @@ export const useAuthSignup = () => {
     toast.dismiss();
 
     try {
-      await register(values); // Store handles error + toast
-      localStorage.setItem("emailForVerification", values.email); // persist for verifyEmail
+      await register(values);
+      localStorage.setItem("emailForVerification", values.email); 
       router.push("/auth/verify-email");
     } catch (error) {
-      console.error("Signup failed:", error); // No toast here
+      console.error("Signup failed:", error);
     } finally {
       setSubmitting(false);
     }

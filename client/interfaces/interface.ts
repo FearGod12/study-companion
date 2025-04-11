@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, Dispatch, JSX, SetStateAction } from "react";
+import { ButtonHTMLAttributes, Dispatch, JSX, ReactNode, SetStateAction } from "react";
 
 export type HttpMethod = "get" | "post" | "put" | "delete" | "patch";
 
@@ -51,6 +51,7 @@ export interface AuthStore {
   ) => Promise<void>;
 
   initializeAuth: () => Promise<void>;
+  hasHydrated: boolean;
 }
 
 export interface PasswordState {
@@ -137,24 +138,26 @@ export interface Schedule extends NewSchedule {
 }
 
 export interface ScheduleStore {
-  loading: boolean;
-  error: string | null;
   schedules: Schedule[];
+  loading: boolean;
   retrieved: boolean;
-  // Actions
-  createSchedule: (scheduleData: NewSchedule) => Promise<void>;
-  retrieveSchedules: () => Promise<void>;
-  updateSchedule: (id: string, payload: Schedule) => Promise<void>;
-  deleteSchedule: (id: string) => Promise<void>;
-   // Modal State
-   modalState: {
+  newSchedule: NewSchedule;
+  editingSchedule: Schedule | null;
+  modalState: {
     isOpen: boolean;
-    action: "edit" | "delete" | null;
+    action: "edit" | "delete" | "start" | null;
     schedule: Schedule | null;
   };
+  createSchedule: (schedule: NewSchedule) => Promise<void>;
+  retrieveSchedules: () => Promise<void>;
+  updateSchedule: (id: string, schedule: Schedule) => Promise<void>;
+  deleteSchedule: (id: string) => Promise<void>;
+  setNewSchedule: (schedule: NewSchedule) => void;
+  setEditingSchedule: (schedule: Schedule | null) => void;
   setModalState: (newState: ScheduleStore["modalState"]) => void;
   closeModal: () => void;
 }
+
 
 export interface Day {
   id: number;
@@ -173,17 +176,12 @@ export interface ScheduleFormProps {
   handleRecurringDayChangeEdit: (dayId: number) => void;
 }
 
-export interface FilterOptions {
-  startDate: string;
-  endDate: string;
-  isRecurring: boolean | null;
-}
-
 export interface SessionStore {
   loading: boolean;
   error: string | null;
-  studySessions: Schedule[];
-  statistics: unknown;
+  studySessions: StudySession[];
+  statistics: StudyStatistics | null;
+  currentSession: StudySessionData
 
   // Actions
   startSession: (id: string) => Promise<void>;
@@ -192,12 +190,40 @@ export interface SessionStore {
   fetchStatistics: () => Promise<void>;
 }
 
+export interface HeaderProps {
+  currentSession: StudySessionData;
+  showMenu: boolean;
+  setShowMenu: React.Dispatch<React.SetStateAction<boolean>>;
+  changeBackground: (bgImage: string) => void;
+  backgroundOptions: string[];
+  handleEndSession: (scheduleId: string) => void;
+  loading: boolean;
+}
+
+export interface MusicControlProps {
+  isMusicPlaying: boolean;
+  toggleMusic: () => void;
+}
+
+export interface NotesSectionProps {
+  notes: string;
+  saveNotes: (newNotes: string) => void;
+}
+
+export interface BackgroundSectionProps {
+  bgImage: string;
+  timeLeft: number;
+}
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   text: string | JSX.Element;
   className?: string;
   loading?: boolean;
 }
 
+export interface ProgressBarProps {
+  timeLeft: number;
+  currentSession:  StudySessionData;
+}
 export interface ScheduleFormProps {
   newSchedule: Schedule;
   editingSchedule: Schedule | null;
@@ -225,34 +251,34 @@ export type ScheduleWithId = Schedule & {
   id: string;
 };
 
-export interface GeneralProps {
-  schedules: Schedule[];
-  newSchedule: NewSchedule;
-  editingSchedule: Schedule | null;
-  loading: boolean;
-  daysOfWeek: Day[];
-  formatTitle: (title: string) => string;
-  formatDate: (dateStr: string) => string;
-  formatTime: (timeStr: string) => string;
-  locale: string;
-  timeZone: string;
-  searchQuery: string;
-  filterOptions: FilterOptions;
-  setNewSchedule: (schedule: NewSchedule) => void;
-  setEditingSchedule: (schedule: Schedule | null) => void;
-  setLocale: (locale: string) => void;
-  setTimeZone: (timeZone: string) => void;
-  setSearchQuery: (query: string) => void;
-  setFilterOptions: (filters: FilterOptions) => void;
-  handleCreateSchedule: () => Promise<void>;
-  handleUpdateSchedule: (
-    id: string,
-    payload: Partial<Schedule>
-  ) => Promise<void>;
-  handleDeleteSchedule: (id: string) => Promise<void>;
-  isModalOpen: boolean;
-  currentAction: "edit" | "delete" | null;
-  openModal: (schedule: Schedule, action: "edit" | "delete") => void;
-  handleConfirmAction: () => void;
-  handleCancel: () => void;
+export interface StudySession {
+  id: string;
+  title: string;
+  status: string;
+  startTime: string;
+  duration: number;
+}
+export interface StudyStatistics {
+  totalMinutesStudied: number;
+  totalSessionsCompleted: number;
+  longestSessionDuration: number;
+  averageSessionDuration: number;
+  currentStreak: number;
+  longestStreak: number;
+}
+
+export interface StatCardProps {
+  icon: ReactNode;
+  label: string;
+  value: string | number;
+  bgColor?: string;
+}
+
+export interface StudySessionData {
+  id: string;
+  startTime: string;
+  endTime: string;
+  lastCheckIn: string;
+  duration: number;
+  status: "active" | "completed" | "paused"; 
 }

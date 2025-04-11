@@ -14,9 +14,10 @@ export const formatDate = (dateStr: string, locale: string = "en-US"): string =>
     year: "numeric",
   });
 
-export const formatTime = (timeStr: string, locale: string = "en-US"): string =>
-  new Date(`1970-01-01T${timeStr}`).toLocaleTimeString(locale, {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
+export const formatTime = (dateTimeStr: string, locale = "en-US") => {
+    return new Date(dateTimeStr).toLocaleTimeString(locale, {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
