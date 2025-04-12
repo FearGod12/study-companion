@@ -1,4 +1,10 @@
-import { ButtonHTMLAttributes, Dispatch, JSX, ReactNode, SetStateAction } from "react";
+import {
+  ButtonHTMLAttributes,
+  Dispatch,
+  JSX,
+  ReactNode,
+  SetStateAction,
+} from "react";
 
 export type HttpMethod = "get" | "post" | "put" | "delete" | "patch";
 
@@ -153,11 +159,10 @@ export interface ScheduleStore {
   updateSchedule: (id: string, schedule: Schedule) => Promise<void>;
   deleteSchedule: (id: string) => Promise<void>;
   setNewSchedule: (schedule: NewSchedule) => void;
-  setEditingSchedule: (schedule: Schedule | null) => void;
+  setEditingSchedule: (schedule: Partial<Schedule>) => void;
   setModalState: (newState: ScheduleStore["modalState"]) => void;
   closeModal: () => void;
 }
-
 
 export interface Day {
   id: number;
@@ -181,7 +186,7 @@ export interface SessionStore {
   error: string | null;
   studySessions: StudySession[];
   statistics: StudyStatistics | null;
-  currentSession: StudySessionData
+  currentSession: StudySessionData;
 
   // Actions
   startSession: (id: string) => Promise<void>;
@@ -222,7 +227,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 export interface ProgressBarProps {
   timeLeft: number;
-  currentSession:  StudySessionData;
+  currentSession: StudySessionData;
 }
 export interface ScheduleFormProps {
   newSchedule: Schedule;
@@ -280,5 +285,12 @@ export interface StudySessionData {
   endTime: string;
   lastCheckIn: string;
   duration: number;
-  status: "active" | "completed" | "paused"; 
+  status: "active" | "completed" | "paused";
+}
+
+export interface PremiumStore {
+  isSubscribed: boolean;
+  loading: boolean;
+  error: string | null;
+  subscribeToPremium: () => Promise<any>; 
 }

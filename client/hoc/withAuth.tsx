@@ -13,7 +13,12 @@ const withAuth = <P extends object>(WrappedComponent: React.FC<P>) => {
       }
     }, [isAuthenticated, loading, router]);
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-accent"></div>
+      </div>
+    );
+    
 
     return isAuthenticated ? <WrappedComponent {...props} /> : null;
   };

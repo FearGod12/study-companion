@@ -1,7 +1,8 @@
 "use client";
 
 import LightLogo from "@/components/common/logo/LightLogo";
-import MenuItem from "@/components/common/menuBar/MenuItem";
+import MenuItem from "@/components/menuBar/MenuItem";
+import Pro from "@/components/menuBar/Pro";
 import { FaCalendar, FaBook } from "react-icons/fa";
 import { RiDashboardLine } from "react-icons/ri";
 
@@ -33,9 +34,9 @@ const SideBar = () => {
       </ul>
 
       {/* Pro Feature */}
-      {/* <div className="mt-4">
-    <Pro />
-  </div> */}
+      <div className="mt-4">
+        <Pro />
+      </div>
     </section>
   );
 };

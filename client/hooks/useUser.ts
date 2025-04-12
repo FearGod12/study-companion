@@ -1,5 +1,3 @@
-"use client";
-
 import { UpdateFormValues } from "@/interfaces/interface";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useUserStore } from "@/store/useUserStore";
@@ -23,11 +21,11 @@ const useUser = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
-    if (!user && isAuthenticated) {
+    // Fetch user data only if the user is authenticated
+    if (isAuthenticated && !user) {
       fetchUserData();
     }
-  }, [user, isAuthenticated]);
-  
+  }, [isAuthenticated, user, fetchUserData]);
 
   useEffect(() => {
     const date = new Date();
@@ -53,7 +51,7 @@ const useUser = () => {
   const handleFileUpload = async (file: File) => {
     try {
       await uploadAvatar(file);
-      await fetchUserData();
+      await fetchUserData();  // Refresh user data after avatar upload
       toast.success("Avatar upload successfully!");
     } catch (error: unknown) {
       toast.error("Failed to upload avatar.");

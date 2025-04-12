@@ -94,7 +94,6 @@ export const useAuthStore = create<AuthStore>()(
             isAuthenticated: true,
             loading: false,
           });
-          toast.success("User data fetched successfully!");
         } catch (error: unknown) {
           const errorMessage = handleApiError(error);
           set({ error: errorMessage, loading: false });

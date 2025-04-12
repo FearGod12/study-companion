@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Spinner from "@/components/common/Spinner";
 import useSchedules from "@/hooks/useSchedules";
-import { toast } from "react-toastify";
 
 const ScheduleForm: React.FC = () => {
   const {
@@ -16,10 +15,12 @@ const ScheduleForm: React.FC = () => {
   } = useSchedules();
 
   const [loading, setLoading] = useState(false);
+  const schedule = editingSchedule || newSchedule;
+  const recurringDays = schedule?.recurringDays || [];
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
+    setLoading(true); 
 
     try {
       if (editingSchedule) {
@@ -28,39 +29,33 @@ const ScheduleForm: React.FC = () => {
       } else {
         await handleCreateSchedule();
       }
-
-      setNewSchedule({
-        title: "",
-        startDate: "",
-        startTime: "",
-        duration: 0,
-        isRecurring: false,
-        recurringDays: [],
-      });
-      toast.success(
-        editingSchedule ? "Schedule updated successfully!" : "Schedule created successfully!"
-      );
     } catch (error) {
-      toast.error("Error handling schedule. Please try again.");
+      console.error("Error handling schedule. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (field: string, value: any) => {
-    const updatedSchedule = editingSchedule || newSchedule;
+  const handleChange = <K extends keyof typeof schedule>(
+    field: K,
+    value: typeof schedule[K]
+  ) => {
+    const updatedSchedule = { ...schedule, [field]: value };
+  
+    if (field === "isRecurring" && !value) {
+      updatedSchedule.recurringDays = []; // Clear recurringDays if isRecurring is false
+    }
+  
     const setter = editingSchedule ? setEditingSchedule : setNewSchedule;
-
-    setter({ ...updatedSchedule, [field]: value });
-  }
-
-  const schedule = editingSchedule || newSchedule;
+    setter(updatedSchedule);
+  };
 
   return (
     <section className="lg:flex-initial lg:w-3/5 md:w-3/5 px-6 flex-1 font-ink-free bg-gray-100 rounded py-8">
       <h2 className="text-xl font-semibold mb-6 mt-8">
         {editingSchedule ? "Edit Schedule" : "Add New Schedule"}
       </h2>
+
       <form onSubmit={handleSubmit} className="space-y-4 lg:max-w-lg md:max-w-md max-w-md">
         <input
           type="text"
@@ -94,8 +89,7 @@ const ScheduleForm: React.FC = () => {
             placeholder="0"
           />
         </div>
-
-        <div className="flex gap-4 flex-col">
+ <div className="flex gap-4 flex-col">
           <label className="flex gap-2 ml-2">
             <input
               type="checkbox"
@@ -104,18 +98,21 @@ const ScheduleForm: React.FC = () => {
             />
             Recurring
           </label>
+
           {schedule.isRecurring && (
             <div className="space-x-4">
               {daysOfWeek.map((day) => (
                 <label key={day.id}>
                   <input
                     type="checkbox"
-                    checked={schedule.recurringDays.includes(day.id)}
+                    checked={recurringDays.includes(day.id)}
+                    disabled={!schedule.isRecurring}
                     onChange={() =>
                       toggleRecurringDay(day.id, !!editingSchedule)
                     }
                   />
                   {day.label}
+                
                 </label>
               ))}
             </div>

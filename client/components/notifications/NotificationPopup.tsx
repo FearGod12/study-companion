@@ -1,23 +1,28 @@
 import { X } from 'lucide-react';
-import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
+interface NotificationPopupProps {
+  message: string; 
+  onRespond: (response: boolean) => void;
+  timeout?: number;
+}
 
-export const NotificationPopup = ({ message, onRespond, timeout = 120 }) => {
+export const NotificationPopup = ({ message, onRespond, timeout = 120 }: NotificationPopupProps) => {
   const [timeLeft, setTimeLeft] = useState(timeout);
 
   useEffect(() => {
+    // Start the countdown timer
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(timer);
-          onRespond(false); // Auto-respond with false when time runs out
+          clearInterval(timer); 
+          onRespond(false); 
           return 0;
         }
-        return prev - 1;
+        return prev - 1; 
       });
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => clearInterval(timer); 
   }, [onRespond]);
 
   return (
@@ -25,7 +30,7 @@ export const NotificationPopup = ({ message, onRespond, timeout = 120 }) => {
       <div className="flex items-start justify-between">
         <h2 className="text-lg font-semibold">Study Check-in</h2>
         <button
-          onClick={() => onRespond(false)}
+          onClick={() => onRespond(false)} 
           className="p-1 rounded-full hover:bg-gray-100"
         >
           <X className="h-5 w-5" />
@@ -36,7 +41,7 @@ export const NotificationPopup = ({ message, onRespond, timeout = 120 }) => {
         <div className="w-full bg-gray-200 h-1 rounded-full overflow-hidden">
           <div
             className="bg-blue-500 h-full transition-all duration-1000 ease-linear"
-            style={{ width: `${(timeLeft / timeout) * 100}%` }}
+            style={{ width: `${(timeLeft / timeout) * 100}%` }} 
           />
         </div>
         <p className="text-xs text-gray-500 mt-1">
@@ -45,7 +50,7 @@ export const NotificationPopup = ({ message, onRespond, timeout = 120 }) => {
       </div>
       <div className="mt-4 flex justify-end space-x-2">
         <button
-          onClick={() => onRespond(true)}
+          onClick={() => onRespond(true)} 
           className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600"
         >
           Yes, still studying!
@@ -53,10 +58,4 @@ export const NotificationPopup = ({ message, onRespond, timeout = 120 }) => {
       </div>
     </div>
   );
-};
-
-NotificationPopup.propTypes = {
-  message: PropTypes.string.isRequired,
-  onRespond: PropTypes.func.isRequired,
-  timeout: PropTypes.number,
 };

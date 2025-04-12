@@ -17,6 +17,7 @@
     "formik-validator-zod": "^2.2.0",
     "framer-motion": "^12.6.3",
     "jwt-decode": "^4.0.0",
+    "lucide-react": "^0.487.0",
     "next": "15.2.4",
     "nprogress": "^0.2.0",
     "react": "^19.0.0",
@@ -24,6 +25,7 @@
     "react-icons": "^5.5.0",
     "react-spinners": "^0.15.0",
     "react-toastify": "^11.0.5",
+    "socket.io-client": "^4.8.1",
     "zod": "^3.24.2",
     "zustand": "^5.0.3"
   },
@@ -31,6 +33,7 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nprogress": "^0.2.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

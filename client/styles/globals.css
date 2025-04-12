@@ -6,23 +6,47 @@
 
 @theme {
   --color-accent: var(--accent);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+}
+
+@font-face {
+  font-family: 'Inria Sans';
+  src: url('/fonts/InriaSans-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Ink Free';
+  src: url('/fonts/InkFree.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Ink Free", "cursive"'
+  font-family: 'Ink Free', cursive;
 }
 
 h1, h2, h3, h4 {
-  font-family: '"Inria Sans"', "sans-serif";
+  font-family: 'Inria Sans', sans-serif;
 }
 
 .group:hover .tooltip {
   opacity: 1;
   transform: translate(-50%, -10px);
   transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+}
+ 
+.scrollbar-hidden {
+  scrollbar-width: none;
 }
 

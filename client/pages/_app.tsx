@@ -8,8 +8,10 @@ import "react-toastify/dist/ReactToastify.css";
 import { useAuthStore } from "@/store/useAuthStore";
 import Router from "next/router";
 import NProgress from "nprogress";
-import "nprogress/nprogress.css";  
+import "nprogress/nprogress.css";
 
+import SocketInitializer from "@/components/SocketInitializer";
+import ErrorBoundary from "@/components/ErrorBoundary";  
 
 type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -25,12 +27,10 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   useEffect(() => {
     initializeAuth();
 
-    // NProgress router events for page load progress
-    Router.events.on("routeChangeStart", () => NProgress.start());  // Start the progress bar
-    Router.events.on("routeChangeComplete", () => NProgress.done());  // Finish the progress bar
-    Router.events.on("routeChangeError", () => NProgress.done());    // Finish the progress bar on error
+    Router.events.on("routeChangeStart", () => NProgress.start());
+    Router.events.on("routeChangeComplete", () => NProgress.done());
+    Router.events.on("routeChangeError", () => NProgress.done());
 
-    // Cleanup the event listeners when the component is unmounted
     return () => {
       Router.events.off("routeChangeStart", () => NProgress.start());
       Router.events.off("routeChangeComplete", () => NProgress.done());
@@ -41,8 +41,12 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page);
 
   return (
-    <>
+    <ErrorBoundary>
+      {/* Add socket connection handler */}
+      <SocketInitializer />
+
       {getLayout(<Component {...pageProps} />)}
+
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -55,6 +59,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         pauseOnHover
         theme="light"
       />
-    </>
+    </ErrorBoundary>
   );
 }

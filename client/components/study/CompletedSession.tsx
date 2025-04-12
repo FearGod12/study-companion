@@ -1,8 +1,8 @@
 import { useRouter } from "next/router";
-import Button from "../Button";
+import Button from "../common/Button";
 
 const CompletedSession = () => {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-950 text-gray-100">

@@ -3,6 +3,7 @@ import { useSessionStore } from "@/store/useSessionStore";
 import Loading from "@/components/common/Loading";
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 import Layout from "@/components/layout/main/layout";
+import withAuth from "@/hoc/withAuth";
 
 const Sessions = () => {
   const {
@@ -15,7 +16,7 @@ const Sessions = () => {
   } = useSessionStore();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const totalPages = 5; // Optional: Make this dynamic if backend supports it
+  const totalPages = 5; 
 
   useEffect(() => {
     fetchSessions(currentPage);
@@ -141,4 +142,4 @@ Sessions.getLayout = function getLayout(page: ReactElement) {
   return <Layout>{page}</Layout>;
 };
 
-export default Sessions;
+export default withAuth(Sessions);

@@ -17,9 +17,9 @@ const ScheduleList = () => {
 
   return (
     <ul className="space-y-4 overflow-auto max-h-full scrollbar-hidden">
-      {schedules.map((schedule) => (
+       {schedules.map((schedule, index) => (
         <ScheduleItem
-          key={schedule.id}
+          key={schedule.id || index} 
           schedule={schedule}
         />
       ))}

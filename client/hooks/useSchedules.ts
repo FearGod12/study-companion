@@ -53,7 +53,6 @@ const useSchedules = () => {
       retrieveSchedules();
     }
   }, [hasHydrated, isAuthenticated, loading, retrieved, retrieveSchedules]);
-  
 
   // Handlers
   const handleCreateSchedule = async () => {
@@ -72,19 +71,25 @@ const useSchedules = () => {
       const message = error instanceof Error ? error.message : "Unknown error";
       toast.error(`Failed to create schedule: ${message}`);
     }
-    
   };
 
-  const handleUpdateSchedule = async (id: string, payload: Partial<Schedule>) => {
+  const handleUpdateSchedule = async (
+    id: string,
+    payload: Partial<Schedule>
+  ) => {
     try {
       const data = prepareScheduleData(payload as Schedule);
-      await updateSchedule(id, data);
+  
+      const response = await updateSchedule(id, data);
+      console.log("Update response data:", response.data);
+      toast.success("Schedule updated successfully!");
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Unknown error";
       toast.error(`Failed to update schedule: ${message}`);
     }
-    
   };
+  
+  
 
   const handleDeleteSchedule = async (id: string) => {
     try {
@@ -93,24 +98,30 @@ const useSchedules = () => {
       const message = error instanceof Error ? error.message : "Unknown error";
       toast.error(`Failed to delete schedule: ${message}`);
     }
-    
   };
 
   const toggleRecurringDay = (dayId: number, isEditing: boolean) => {
     const schedule = isEditing ? editingSchedule : newSchedule;
     if (!schedule) return;
-
+ 
     const isSelected = schedule.recurringDays.includes(dayId);
     const updatedDays = isSelected
       ? schedule.recurringDays.filter((id) => id !== dayId)
       : [...schedule.recurringDays, dayId];
-
+ 
     const updatedSchedule = { ...schedule, recurringDays: updatedDays };
+ 
+    if (isEditing) {
+      setEditingSchedule(updatedSchedule as Schedule);
+    } else {
+      setNewSchedule(updatedSchedule as NewSchedule);
+    }
+ };
 
-    isEditing ? setEditingSchedule(updatedSchedule) : setNewSchedule(updatedSchedule);
-  };
-
-  const openModal = (schedule: Schedule, action: "edit" | "delete" | "start") => {
+  const openModal = (
+    schedule: Schedule,
+    action: "edit" | "delete" | "start"
+  ) => {
     setModalState({ isOpen: true, action, schedule });
   };
 
@@ -127,7 +138,7 @@ const useSchedules = () => {
       } else if (action === "start") {
         await handleStartSession(schedule);
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       toast.error("An error occurred during the action.");
     }

@@ -1,40 +1,42 @@
-import { Component } from "react";
-import PropTypes from "prop-types";
-import Button from "./common/Button";
+import React, { Component, ErrorInfo, ReactNode } from "react";
 
-class ErrorBoundary extends Component {
-    constructor(props) {
-        super(props);
-        this.state = { hasError: false, error: null };
-    }
-
-    static getDerivedStateFromError(error) {
-        return { hasError: true, error };
-    }
-
-    componentDidCatch(error, errorInfo) {
-        console.error("Error caught by ErrorBoundary:", error, errorInfo);
-    }
-
-    render() {
-        if (this.state.hasError) {
-            return (
-                <div className="h-screen w-screen flex flex-col items-center justify-center">
-                    <h1 className="text-lg font-bold">Something went wrong.</h1>
-                    <p className="font-semibold mt-2">{this.state.error?.toString()}</p>
-                    <Button onClick={() => window.location.reload()} className="mt-4 text-gray-100"
-                    text= 'Refresh Page'
-                    />
-                </div>
-            );
-        }
-
-        return this.props.children;
-    }
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+  errorInfo: ErrorInfo | null;
 }
 
-ErrorBoundary.propTypes = {
-    children: PropTypes.node.isRequired, 
-};
+interface ErrorBoundaryProps {
+  children: ReactNode; 
+}
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null, errorInfo: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error, errorInfo: null };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("Error caught by boundary: ", error, errorInfo);
+    this.setState({ error, errorInfo });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div>
+          <h1>Something went wrong.</h1>
+          <p>{this.state.error?.message}</p>
+        </div>
+      );
+    }
+
+    return this.props.children;  // Safely return children
+  }
+}
 
 export default ErrorBoundary;

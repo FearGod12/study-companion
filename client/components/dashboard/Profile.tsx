@@ -88,19 +88,13 @@ const Profile = () => {
               <button
                 onClick={() => {}} // handled via onChange
                 disabled={uploading}
-                className={`p-2 rounded-md w-full ${
-                  uploading
-                    ? "bg-gray-400 text-gray-600"
-                    : "bg-accent text-white hover:bg-pink-800"
-                }`}
+                className={`p-2 rounded-md w-full ${uploading ? "bg-gray-400 text-gray-600" : "bg-accent text-white hover:bg-pink-800"}`}
               >
                 {uploading ? <Spinner /> : "Update"}
               </button>
               <button
                 onClick={uploading ? undefined : toggleModal}
-                className={`mt-4 p-2 rounded-md bg-red-500 hover:bg-red-400 text-gray-100 absolute top-0 right-4 ${
-                  uploading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className={`mt-4 p-2 rounded-md bg-red-500 hover:bg-red-400 text-gray-100 absolute top-0 right-4 ${uploading ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <FaTimes />
               </button>

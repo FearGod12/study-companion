@@ -4,8 +4,11 @@ export const formatTimeToHHMMSS = (time: string): string => {
   return parts.length === 2 ? `${time}:00` : time; // Add seconds if missing
 };
 
-export const formatTitle = (title: string): string =>
-  title.charAt(0).toUpperCase() + title.slice(1).toLowerCase();
+export const formatTitle = (title?: string): string => {
+  if (!title) return "";
+  return title.charAt(0).toUpperCase() + title.slice(1).toLowerCase();
+};
+
 
 export const formatDate = (dateStr: string, locale: string = "en-US"): string =>
   new Date(dateStr).toLocaleDateString(locale, {

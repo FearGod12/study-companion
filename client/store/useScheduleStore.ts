@@ -8,7 +8,6 @@ import {
 import { create } from "zustand";
 import { toast } from "react-toastify";
 import { useAuthStore } from "./useAuthStore";
-import { persist } from "zustand/middleware";
 
 const handleApiError = (error: unknown): string => {
   let errorMessage = "Unknown error occurred";
@@ -20,110 +19,99 @@ const handleApiError = (error: unknown): string => {
 };
 
 // Zustand store for schedules
-export const useScheduleStore = create<ScheduleStore>()(
-  persist(
-    (set, get) => ({
-      schedules: [],
-      loading: false,
-      retrieved: false,
-      error: null,
-      newSchedule: {
-        title: "",
-        startDate: "",
-        startTime: "",
-        duration: 0,
-        isRecurring: false,
-        recurringDays: [],
-      },
-      editingSchedule: null,
+export const useScheduleStore = create<ScheduleStore>((set) => ({
+  schedules: [],
+  loading: false,
+  retrieved: false,
+  error: null,
+  newSchedule: {
+    title: "",
+    startDate: "",
+    startTime: "",
+    duration: 0,
+    isRecurring: false,
+    recurringDays: [],
+  },
+  editingSchedule: null,
 
-      setNewSchedule: (schedule) => set({ newSchedule: schedule }),
-      setEditingSchedule: (schedule) => set({ editingSchedule: schedule }),
+  setNewSchedule: (schedule) => set({ newSchedule: schedule }),
+  setEditingSchedule: (schedule) => set({ editingSchedule: schedule }),
 
-      // CRUD Operations
-      createSchedule: async (scheduleData) => {
-        set({ loading: true, error: null });
-        try {
-          const response = await createSchedule(scheduleData);
-          set((state) => ({
-            schedules: [...state.schedules, response.data],
-            loading: false,
-          }));
-          toast.success("Schedule created successfully!");
-        } catch (error: unknown) {
-          const errorMessage = handleApiError(error);
-          set({ error: errorMessage, loading: false });
-        }
-      },
-
-      retrieveSchedules: async () => {
-        set({ loading: true, error: null });
-        try {
-          const response = await retrieveSchedules();
-          set({ schedules: response.data, loading: false, retrieved: true });
-          toast.success("Schedule retrieved successfully!");
-        } catch (error: any) {
-          const errorMessage = handleApiError(error);
-          set({ error: errorMessage, loading: false, retrieved: false });
-          if (
-            error?.response?.status === 401 ||
-            errorMessage.includes("Unauthorized")
-          ) {
-            useAuthStore.getState().logoutUser();
-          }
-        }
-      },
-
-      updateSchedule: async (id, payload) => {
-        set({ loading: true, error: null });
-        try {
-          const response = await updateSchedule(id, payload);
-          set((state) => {
-            const updatedSchedules = [...state.schedules];
-            const index = updatedSchedules.findIndex(
-              (schedule) => schedule.id === id
-            );
-            if (index !== -1) {
-              updatedSchedules[index] = response.data;
-            }
-            return { schedules: updatedSchedules, loading: false };
-          });
-          toast.success("Schedule updated successfully!");
-        } catch (error: unknown) {
-          const errorMessage = handleApiError(error);
-          set({ error: errorMessage, loading: false });
-        }
-      },
-
-      deleteSchedule: async (id) => {
-        set({ loading: true, error: null });
-        try {
-          await deleteSchedule(id);
-          set((state) => ({
-            schedules: state.schedules.filter((schedule) => schedule.id !== id),
-            loading: false,
-          }));
-          toast.success("Schedule deleted successfully!");
-        } catch (error: unknown) {
-          const errorMessage = handleApiError(error);
-          set({ error: errorMessage, loading: false });
-        }
-      },
-
-      modalState: {
-        isOpen: false,
-        action: null,
-        schedule: null,
-      },
-      setModalState: (newState) => set({ modalState: newState }),
-      closeModal: () =>
-        set({ modalState: { isOpen: false, action: null, schedule: null } }),
-    }),
-    {
-      name: "schedule-store",
-      partialize: (state) => ({
-        schedules: state.schedules,
-      }),
+  // CRUD Operations
+  createSchedule: async (scheduleData) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await createSchedule(scheduleData);
+      set((state) => ({
+        schedules: [...state.schedules, response.data],
+        loading: false,
+      }));
+      toast.success("Schedule created successfully!");
+    } catch (error: unknown) {
+      const errorMessage = handleApiError(error);
+      set({ error: errorMessage, loading: false });
     }
-  )
-);
+  },
+
+  retrieveSchedules: async () => {
+    set({ loading: true, error: null });
+    try {
+      const response = await retrieveSchedules();
+      set({ schedules: response.data, loading: false, retrieved: true });
+    } catch (error: any) {
+      const errorMessage = handleApiError(error);
+      set({ error: errorMessage, loading: false, retrieved: false });
+      if (
+        error?.response?.status === 401 ||
+        errorMessage.includes("Unauthorized")
+      ) {
+        useAuthStore.getState().logoutUser();
+      }
+    }
+  },
+
+  updateSchedule: async (id, payload) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await updateSchedule(id, payload);
+      set((state) => {
+        const updatedSchedules = [...state.schedules];
+        const index = updatedSchedules.findIndex(
+          (schedule) => schedule.id === id
+        );
+        if (index !== -1) {
+          updatedSchedules[index] = response.data;
+        }
+        return { schedules: updatedSchedules, loading: false };
+      });
+      toast.success("Schedule updated successfully!");
+    } catch (error: unknown) {
+      const errorMessage = handleApiError(error);
+      set({ error: errorMessage, loading: false });
+    }
+  },
+
+  deleteSchedule: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      await deleteSchedule(id);
+      set((state) => ({
+        schedules: state.schedules.filter((schedule) => schedule.id !== id),
+        loading: false,
+      }));
+      toast.success("Schedule deleted successfully!");
+    } catch (error: unknown) {
+      const errorMessage = handleApiError(error);
+      set({ error: errorMessage, loading: false });
+    }
+  },
+
+  modalState: {
+    isOpen: false,
+    action: null,
+    schedule: null,
+  },
+  setModalState: (newState) => set({ modalState: newState }),
+  closeModal: () =>
+    set({ modalState: { isOpen: false, action: null, schedule: null } }),
+}));
