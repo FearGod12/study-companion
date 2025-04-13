@@ -1,35 +1,9 @@
 // store/useSessionStore.ts
 import { create } from "zustand";
-import { io, Socket } from "socket.io-client";
+import { io } from "socket.io-client";
+import { SocketSessionStore } from "@/interfaces/interface";
 
-type SessionData = {
-  sessionId: string;
-  duration: number;
-  remainingCheckins: number;
-  lastCheckIn?: Date | null;
-};
-
-type Notification = {
-  id: string;
-  message: string;
-  timestamp: string;
-};
-
-interface SessionStore {
-  socket: Socket | null;
-  isConnected: boolean;
-  activeSession: SessionData | null;
-  notification: Notification | null;
-  lastCheckIn: Date | null;
-
-  connectSocket: (userId: string) => void;
-  disconnectSocket: () => void;
-  startSession: (duration: number) => void;
-  endSession: () => void;
-  sendCheckInResponse: (id: string, response: boolean) => void;
-}
-
-export const useSocketSessionStore = create<SessionStore>((set, get) => ({
+export const useSocketSessionStore = create<SocketSessionStore>((set, get) => ({
   socket: null,
   isConnected: false,
   activeSession: null,

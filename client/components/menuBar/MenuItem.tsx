@@ -1,15 +1,8 @@
-// components/common/menuBar/MenuItem.tsx
 "use client";
 
+import { MenuItemProps } from "@/interfaces/interface";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ReactNode } from "react";
-
-interface MenuItemProps {
-  to: string;
-  icon: ReactNode;
-  label: string;
-}
 
 const MenuItem = ({ to, icon, label }: MenuItemProps) => {
   const pathname = usePathname();
@@ -23,10 +16,10 @@ const MenuItem = ({ to, icon, label }: MenuItemProps) => {
         } hover:bg-gray-200 hover:text-accent relative group`}
       >
         {icon}
-        <span className="absolute left-1/2 transform -translate-x-1/4 bottom-full mb-2 w-max px-2 py-1 text-sm text-gray-100 bg-gray-900 rounded opacity-0 group-hover:opacity-100">
+        <span className="tooltip">
           {label}
         </span>
-        <span className="hidden md:block">{label}</span>
+        <span className="hidden lg:block">{label}</span>
       </li>
     </Link>
   );

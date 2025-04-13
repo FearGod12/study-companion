@@ -16,16 +16,16 @@ const Custom404 = () => {
         <ul className="space-y-4">
           <li>
             <Link href="/">
-              <a className="text-blue-500 hover:text-blue-700 font-semibold">
+              <p className="text-blue-500 hover:text-blue-700 font-semibold">
                 Home
-              </a>
+              </p>
             </Link>
           </li>
           <li>
             <Link href="/memberRegistration">
-              <a className="text-blue-500 hover:text-blue-700 font-semibold">
-                About
-              </a>
+              <p className="text-blue-500 hover:text-blue-700 font-semibold">
+                Register
+              </p>
             </Link>
           </li>
         </ul>

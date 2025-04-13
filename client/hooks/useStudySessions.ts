@@ -1,13 +1,15 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useSessionStore } from "@/store/useSessionStore";
+import { Schedule } from "@/interfaces/interface";
 
 const useStudySessions = () => {
   const router = useRouter();
-  const { loading, endSession, startSession, currentSession } = useSessionStore();
+  const { loading, endSession, startSession, currentSession } =
+    useSessionStore();
 
   const [hasMounted, setHasMounted] = useState(false); // Hydration guard
   const [timeLeft, setTimeLeft] = useState(0);
@@ -46,7 +48,10 @@ const useStudySessions = () => {
   // Countdown logic
   useEffect(() => {
     if (!timeLeft) return;
-    const interval = setInterval(() => setTimeLeft((prev) => Math.max(prev - 1, 0)), 1000);
+    const interval = setInterval(
+      () => setTimeLeft((prev) => Math.max(prev - 1, 0)),
+      1000
+    );
     return () => clearInterval(interval);
   }, [timeLeft]);
 
@@ -69,7 +74,7 @@ const useStudySessions = () => {
   };
 
   // Start session (manual start from schedule card)
-  const handleStartSession = async (schedule) => {
+  const handleStartSession = async (schedule: Schedule) => {
     const { id } = schedule;
     try {
       await startSession(id);
@@ -109,11 +114,11 @@ const useStudySessions = () => {
     notes,
     saveNotes,
     changeBackground,
-    handleStartSession, 
+    handleStartSession,
     handleEndSession,
     loading,
     hasMounted,
-    showMenu, 
+    showMenu,
     toggleMenu,
   };
 };

@@ -1,5 +1,4 @@
 import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
-import Button from "./Button";
 import {
   AiOutlineUser,
   AiOutlineMail,
@@ -13,6 +12,7 @@ import { signUpSchema } from "@/validations/signUpSchema";
 import { withZodSchema } from "formik-validator-zod";
 import Link from "next/link";
 import { useEffect } from "react";
+import Button from "./common/Button";
 
 
 const ScrollToErrorOnSubmit = () => {

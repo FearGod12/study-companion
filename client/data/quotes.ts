@@ -24,12 +24,12 @@ export const quotes = [
     author: "Robert Collier",
   },
   {
-    text: "The harder you work for something, the greater you’ll feel when you achieve it.",
-    author: "Unknown",
+    text: "The harder the struggle, the more glorious the triumph.",
+    author: "Swami Sivananda",
   },
   {
-    text: "Your only limit is your mind.",
-    author: "Unknown",
+    text: "Believe you can and you're halfway there.",
+    author: "Theodore Roosevelt",
   },
   {
     text: "Don’t watch the clock; do what it does. Keep going.",

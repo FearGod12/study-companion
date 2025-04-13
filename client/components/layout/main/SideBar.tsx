@@ -10,7 +10,7 @@ const SideBar = () => {
   return (
     <section className="h-full bg-accent">
       {/* Logo */}
-      <div className="px-4 pt-4 flex w-20 md:w-32 lg:w-32 mx-auto">
+      <div className="px-4 pt-4 flex w-20 lg:w-32 mx-auto">
         <LightLogo />
       </div>
 
@@ -34,7 +34,7 @@ const SideBar = () => {
       </ul>
 
       {/* Pro Feature */}
-      <div className="mt-4">
+      <div className="mt-10">
         <Pro />
       </div>
     </section>

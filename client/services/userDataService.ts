@@ -1,6 +1,6 @@
 import { UpdateFormValues } from "@/interfaces/interface";
 import apiClient from "./apiClient";
-import { AxiosError } from "axios";
+import { handleApiError } from "@/utils/ErrorUtils";
 
 export const uploadAvatar = async (file: File) => {
   if (!file) throw new Error("No file provided for upload.");
@@ -14,14 +14,9 @@ export const uploadAvatar = async (file: File) => {
     });
     return response.data;
   } catch (error) {
-    if (error instanceof AxiosError) {
-      console.error("Failed to update avatar", error);
-      throw new Error(
-        error.response?.data?.message || "Failed to update avatar"
-      );
-    }
-    throw error;
-  }
+    handleApiError(error);
+       throw error;
+     }
 };
 
 export const updateUserDetails = async (userData: UpdateFormValues) => {
@@ -29,12 +24,7 @@ export const updateUserDetails = async (userData: UpdateFormValues) => {
     const response = await apiClient.patch("/users/me", userData);
     return response.data;
   } catch (error) {
-    if (error instanceof AxiosError) {
-      console.error("Failed to update user data", error);
-      throw new Error(
-        error.response?.data?.message || "Failed to update user data"
-      );
-    }
+    handleApiError(error);
     throw error;
   }
 };

@@ -1,6 +1,7 @@
+import { Quote } from "@/interfaces/interface";
 import { useState, useEffect } from "react";
 
-const useQuotes = (initialQuotes, intervalTime = 30000) => {
+const useQuotes = (initialQuotes: Quote[], intervalTime = 30000) => {
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
 
   useEffect(() => {

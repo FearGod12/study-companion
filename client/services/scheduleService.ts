@@ -1,14 +1,6 @@
 import { NewSchedule, Schedule } from "@/interfaces/interface";
 import apiClient from "./apiClient";
-import { AxiosError } from "axios";
-
-// Utility function to handle error messages
-const getMessage = (error: unknown): string => {
-  if (error instanceof AxiosError) {
-    return error.response?.data?.message || error.message || "An unknown error occurred.";
-  }
-  return "An unexpected error occurred.";
-};
+import { handleApiError } from "@/utils/ErrorUtils";
 
 // Create Schedule
 export const createSchedule = async (scheduleData: NewSchedule) => {
@@ -16,13 +8,7 @@ export const createSchedule = async (scheduleData: NewSchedule) => {
     const response = await apiClient.post("/schedules", scheduleData);
     return response.data;
   } catch (error) {
-    if (error instanceof AxiosError) {
-      console.error("Error creating schedule:", error);
-      throw new Error(
-        error.response?.data?.message ||
-          "Schedule creation failed."
-      );
-    }
+    handleApiError(error);
     throw error;
   }
 };
@@ -34,13 +20,7 @@ export const retrieveSchedules = async () => {
     const schedules = response.data?.data || response.data;
     return { success: true, data: schedules };
   } catch (error) {
-    if (error instanceof AxiosError) {
-      console.error("Error retrieving schedule:", error);
-      throw new Error(
-        error.response?.data?.message ||
-          "Failed to fetch schedules."
-      );
-    }
+    handleApiError(error);
     throw error;
   }
 };
@@ -51,10 +31,8 @@ export const updateSchedule = async (id: string, payload: Schedule) => {
     const response = await apiClient.put(`/schedules/${id}`, payload);
     return { success: true, data: response.data };
   } catch (error) {
-    console.error("Error in updateSchedule:", getMessage(error));
-    throw new Error(
-      `Update failed. Error: ${getMessage(error)}`
-    );
+    handleApiError(error);
+    throw error;
   }
 };
 
@@ -64,10 +42,10 @@ export const deleteSchedule = async (id: string) => {
     const response = await apiClient.delete(`/schedules/${id}`);
     return { success: true, data: response.data };
   } catch (error) {
-    console.error("Error deleting schedule:", getMessage(error));
-    throw new Error(
-      `Error deleting schedule. Error: ${getMessage(error)}`
-    );
+    handleApiError(error);
+    throw error;
   }
 };
+
+export { handleApiError };
 

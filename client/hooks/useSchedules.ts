@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
-import { Schedule, NewSchedule } from "@/interfaces/interface";
+import { Schedule } from "@/interfaces/interface";
 import { useScheduleStore } from "@/store/useScheduleStore";
 import { formatTitle, formatDate, formatTime } from "@/utils/formatting";
-import { prepareScheduleData } from "@/utils/scheduleUtils";
+import { createScheduleData, updateScheduleData } from "@/utils/scheduleUtils";
 import useStudySessions from "./useStudySessions";
 import { useAuthStore } from "@/store/useAuthStore";
 
@@ -28,7 +28,6 @@ const useSchedules = () => {
   } = useScheduleStore();
 
   const { handleStartSession } = useStudySessions();
-
   const { isAuthenticated, hasHydrated } = useAuthStore();
 
   const daysOfWeek = useMemo(
@@ -57,8 +56,8 @@ const useSchedules = () => {
   // Handlers
   const handleCreateSchedule = async () => {
     try {
-      const data = prepareScheduleData(newSchedule);
-      await createSchedule(data);
+      const scheduleData = createScheduleData(newSchedule);
+      await createSchedule(scheduleData);
       setNewSchedule({
         title: "",
         startDate: "",
@@ -68,28 +67,24 @@ const useSchedules = () => {
         recurringDays: [],
       });
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Unknown error";
-      toast.error(`Failed to create schedule: ${message}`);
+      if (error instanceof Error) {
+        toast.error(`Failed to create schedule: ${error.message}`);
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
     }
   };
 
-  const handleUpdateSchedule = async (
-    id: string,
-    payload: Partial<Schedule>
-  ) => {
+  const handleUpdateSchedule = async (id: string, payload: Schedule) => {
     try {
-      const data = prepareScheduleData(payload as Schedule);
-  
-      const response = await updateSchedule(id, data);
-      console.log("Update response data:", response.data);
-      toast.success("Schedule updated successfully!");
+      const data = updateScheduleData(payload);
+      await updateSchedule(id, data);
+      retrieveSchedules();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Unknown error";
       toast.error(`Failed to update schedule: ${message}`);
     }
   };
-  
-  
 
   const handleDeleteSchedule = async (id: string) => {
     try {
@@ -100,23 +95,32 @@ const useSchedules = () => {
     }
   };
 
+  // Modified to correctly handle recurring days
   const toggleRecurringDay = (dayId: number, isEditing: boolean) => {
-    const schedule = isEditing ? editingSchedule : newSchedule;
-    if (!schedule) return;
- 
-    const isSelected = schedule.recurringDays.includes(dayId);
-    const updatedDays = isSelected
-      ? schedule.recurringDays.filter((id) => id !== dayId)
-      : [...schedule.recurringDays, dayId];
- 
-    const updatedSchedule = { ...schedule, recurringDays: updatedDays };
- 
     if (isEditing) {
-      setEditingSchedule(updatedSchedule as Schedule);
+      if (!editingSchedule) return;
+
+      const updatedDays = isEditing
+        ? [...(editingSchedule?.recurringDays || [])]
+        : [...(newSchedule.recurringDays || [])];
+      const index = updatedDays.indexOf(dayId);
+      if (index !== -1) {
+        updatedDays.splice(index, 1);
+      } else {
+        updatedDays.push(dayId);
+      }
+      setEditingSchedule({ ...editingSchedule, recurringDays: updatedDays });
     } else {
-      setNewSchedule(updatedSchedule as NewSchedule);
+      const updatedDays = [...newSchedule.recurringDays];
+      const index = updatedDays.indexOf(dayId);
+      if (index !== -1) {
+        updatedDays.splice(index, 1);
+      } else {
+        updatedDays.push(dayId);
+      }
+      setNewSchedule({ ...newSchedule, recurringDays: updatedDays });
     }
- };
+  };
 
   const openModal = (
     schedule: Schedule,
@@ -138,15 +142,13 @@ const useSchedules = () => {
       } else if (action === "start") {
         await handleStartSession(schedule);
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
+    } catch {
       toast.error("An error occurred during the action.");
     }
     closeModal();
   };
 
   return {
-    // State
     schedules,
     newSchedule,
     editingSchedule,
@@ -156,24 +158,19 @@ const useSchedules = () => {
     locale,
     timeZone,
 
-    // Formatters
     formatTitle,
     formatDate,
     formatTime,
 
-    // Setters
     setNewSchedule,
     setEditingSchedule,
 
-    // CRUD Handlers
     handleCreateSchedule,
     handleUpdateSchedule,
     handleDeleteSchedule,
 
-    // Recurrence
     toggleRecurringDay,
 
-    // Modal
     isModalOpen: modalState.isOpen,
     openModal,
     closeModal,

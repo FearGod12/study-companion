@@ -12,15 +12,6 @@ import { toast } from "react-toastify";
 import { AuthStore } from "@/interfaces/interface";
 import Router from "next/router";
 
-const handleApiError = (error: unknown): string => {
-  let errorMessage = "Unknown error occurred";
-  if (error instanceof Error) {
-    errorMessage = error.message;
-  }
-  toast.error(errorMessage);
-  return errorMessage;
-};
-
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
@@ -46,9 +37,8 @@ export const useAuthStore = create<AuthStore>()(
           });
           localStorage.setItem("emailForVerification", userData.email);
           toast.success("Registration successful! Please verify your email.");
-        } catch (error: unknown) {
-          const errorMessage = handleApiError(error);
-          set({ error: errorMessage, loading: false });
+        } catch {
+          set({ error: 'registration failed', loading: false });
         }
       },
 
@@ -79,9 +69,8 @@ export const useAuthStore = create<AuthStore>()(
           set({ emailForVerification: null, error: null, loading: false });
           localStorage.removeItem("emailForVerification");
           toast.success("Email verified successfully!");
-        } catch (error: unknown) {
-          const errorMessage = handleApiError(error);
-          set({ error: errorMessage, loading: false });
+        } catch {
+          set({ error: 'Email verification failed', loading: false });
         }
       },
 
@@ -94,11 +83,11 @@ export const useAuthStore = create<AuthStore>()(
             isAuthenticated: true,
             loading: false,
           });
-        } catch (error: unknown) {
-          const errorMessage = handleApiError(error);
-          set({ error: errorMessage, loading: false });
-          if (errorMessage.includes("Unauthorized")) {
-            get().logoutUser();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+          set({ error: "error fetching data.", loading: false });
+          if (error?.response?.status === 401 || (error instanceof Error && error.message.includes("Unauthorized"))) {
+            useAuthStore.getState().logoutUser();
           }
         }
       },
@@ -118,12 +107,14 @@ export const useAuthStore = create<AuthStore>()(
               loading: false,
             });
             toast.success("Logged in successfully!");
+            if (get().isAuthenticated) {
+              Router.push("/main");
+            }
           } else {
             throw new Error("Invalid response data");
           }
-        } catch (error: unknown) {
-          const errorMessage = handleApiError(error);
-          set({ error: errorMessage, loading: false });
+        } catch {
+          set({ error: 'login failed', loading: false });
         }
       },
 
@@ -145,10 +136,8 @@ export const useAuthStore = create<AuthStore>()(
           await requestPasswordReset(email);
           set({ loading: false });
           toast.success("Password reset email sent!");
-        } catch (error: unknown) {
-          const errorMessage = handleApiError(error);
-          set({ error: errorMessage, loading: false });
-          toast.error("Failed to send password reset email.");
+        } catch {
+          set({ error: 'password reset failed', loading: false });
         }
       },
 
@@ -158,10 +147,8 @@ export const useAuthStore = create<AuthStore>()(
           await resetPassword(token, password, confirmPassword, email);
           set({ loading: false });
           toast.success("Password reset successfully!");
-        } catch (error: unknown) {
-          const errorMessage = handleApiError(error);
-          set({ error: errorMessage, loading: false });
-          toast.error("Failed to reset password.");
+        } catch {
+          set({ error: 'password reset failed', loading: false });
         }
       },
 
@@ -172,12 +159,11 @@ export const useAuthStore = create<AuthStore>()(
           try {
             await get().fetchUserData();
             set({ isAuthenticated: true, loading: false });
-          } catch (error: unknown) {
-            const errorMessage = handleApiError(error);
+          } catch {
             set({
               isAuthenticated: false,
               loading: false,
-              error: errorMessage,
+              error: 'Initialization failed',
             });
             localStorage.removeItem("access_Token");
             toast.error("Session expired. Please log in again.");

@@ -5,15 +5,7 @@ import {
   ReactNode,
   SetStateAction,
 } from "react";
-
-export type HttpMethod = "get" | "post" | "put" | "delete" | "patch";
-
-export interface ApiResponse<T = unknown> {
-  access_Token?: string;
-  success: boolean;
-  data: T;
-  message?: string;
-}
+import { Socket } from "socket.io-client";
 
 export interface UserData {
   id?: string;
@@ -30,7 +22,6 @@ export interface UserData {
   avatar?: string;
 }
 
-// Define the store shape
 export interface AuthStore {
   user: UserData | null;
   isAuthenticated: boolean;
@@ -58,6 +49,7 @@ export interface AuthStore {
 
   initializeAuth: () => Promise<void>;
   hasHydrated: boolean;
+  setHasHydrated: (value: boolean) => void;
 }
 
 export interface PasswordState {
@@ -97,6 +89,11 @@ export interface UserStore {
 
   uploadAvatar: (file: File) => Promise<void>;
   updateUserDetails: (userData: UpdateFormValues) => Promise<void>;
+}
+
+export interface OtpInputProps {
+  name: string;
+  length?: number;
 }
 
 export interface LoginFormValues {
@@ -146,6 +143,7 @@ export interface Schedule extends NewSchedule {
 export interface ScheduleStore {
   schedules: Schedule[];
   loading: boolean;
+  error: string | null;
   retrieved: boolean;
   newSchedule: NewSchedule;
   editingSchedule: Schedule | null;
@@ -158,8 +156,9 @@ export interface ScheduleStore {
   retrieveSchedules: () => Promise<void>;
   updateSchedule: (id: string, schedule: Schedule) => Promise<void>;
   deleteSchedule: (id: string) => Promise<void>;
-  setNewSchedule: (schedule: NewSchedule) => void;
-  setEditingSchedule: (schedule: Partial<Schedule>) => void;
+  setSchedules: (schedules: Schedule[]) => void;
+  setNewSchedule: (newSchedule: NewSchedule) => void;
+  setEditingSchedule: (editingSchedule: Schedule | null) => void;
   setModalState: (newState: ScheduleStore["modalState"]) => void;
   closeModal: () => void;
 }
@@ -186,7 +185,7 @@ export interface SessionStore {
   error: string | null;
   studySessions: StudySession[];
   statistics: StudyStatistics | null;
-  currentSession: StudySessionData;
+  currentSession: StudySessionData | null;
 
   // Actions
   startSession: (id: string) => Promise<void>;
@@ -205,16 +204,6 @@ export interface HeaderProps {
   loading: boolean;
 }
 
-export interface MusicControlProps {
-  isMusicPlaying: boolean;
-  toggleMusic: () => void;
-}
-
-export interface NotesSectionProps {
-  notes: string;
-  saveNotes: (newNotes: string) => void;
-}
-
 export interface BackgroundSectionProps {
   bgImage: string;
   timeLeft: number;
@@ -223,6 +212,13 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   text: string | JSX.Element;
   className?: string;
   loading?: boolean;
+}
+
+export interface ConfirmationModalProps {
+  isOpen: boolean;
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
 }
 
 export interface ProgressBarProps {
@@ -254,6 +250,17 @@ export interface ScheduleItemProps {
 // Define the `ScheduleWithId` type
 export type ScheduleWithId = Schedule & {
   id: string;
+};
+
+export interface MenuItemProps {
+  to: string;
+  icon: ReactNode;
+  label: string;
+}
+
+export interface Quote {
+  text: string;
+  author: string;
 };
 
 export interface StudySession {
@@ -288,9 +295,44 @@ export interface StudySessionData {
   status: "active" | "completed" | "paused";
 }
 
+interface PremiumResponse {
+  success: boolean;
+}
+
+interface PremiumResponse {
+  success: boolean;
+}
+
 export interface PremiumStore {
   isSubscribed: boolean;
   loading: boolean;
   error: string | null;
-  subscribeToPremium: () => Promise<any>; 
+  goPremium: () => Promise<PremiumResponse>;
+}
+
+export interface SessionData {
+  sessionId: string;
+  duration: number;
+  remainingCheckins: number;
+  lastCheckIn?: Date | null;
+};
+
+export interface Notification {
+  id: string;
+  message: string;
+  timestamp: string;
+};
+
+export interface SocketSessionStore {
+  socket: Socket | null;
+  isConnected: boolean;
+  activeSession: SessionData | null;
+  notification: Notification | null;
+  lastCheckIn: Date | null;
+
+  connectSocket: (userId: string) => void;
+  disconnectSocket: () => void;
+  startSession: (duration: number) => void;
+  endSession: () => void;
+  sendCheckInResponse: (id: string, response: boolean) => void;
 }

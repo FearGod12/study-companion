@@ -16,7 +16,7 @@ const Sessions = () => {
   } = useSessionStore();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const totalPages = 5; 
+  const totalPages = 5;
 
   useEffect(() => {
     fetchSessions(currentPage);

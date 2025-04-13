@@ -2,7 +2,6 @@ import { FaSpinner } from "react-icons/fa6";
 import { FaTimes, FaUserCircle } from "react-icons/fa";
 import Image from "next/image";
 import useUser from "@/hooks/useUser";
-import Spinner from "../common/Spinner";
 import { FocusTrap } from "focus-trap-react";
 
 const Profile = () => {
@@ -57,7 +56,7 @@ const Profile = () => {
             )}
             <button
               onClick={toggleModal}
-              className="mt-4 p-2 rounded-md bg-accent text-white hover:bg-pink-800 w-32"
+              className="mt-4 p-2 rounded-md bg-accent text-gray-100 hover:bg-pink-800 w-32"
               aria-label="Open avatar update modal"
             >
               Update Avatar
@@ -72,37 +71,25 @@ const Profile = () => {
       {isModalOpen && (
         <FocusTrap>
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/75 flex items-center justify-center z-50"
             onClick={toggleModal}
           >
             <div
-              className="bg-white rounded-lg p-6 w-80 relative"
+              className="bg-gray-100 rounded-lg p-6 w-80 relative"
               onClick={(e) => e.stopPropagation()}
             >
               <input
                 type="file"
                 accept="image/*"
                 onChange={onFileUpload}
-                className="mb-4 w-full text-sm"
+                className="mb-4 p-2 rounded-lg mt-4 text-sm bg-pink-200"
               />
-              <button
-                onClick={() => {}} // handled via onChange
-                disabled={uploading}
-                className={`p-2 rounded-md w-full ${uploading ? "bg-gray-400 text-gray-600" : "bg-accent text-white hover:bg-pink-800"}`}
-              >
-                {uploading ? <Spinner /> : "Update"}
-              </button>
+              
               <button
                 onClick={uploading ? undefined : toggleModal}
-                className={`mt-4 p-2 rounded-md bg-red-500 hover:bg-red-400 text-gray-100 absolute top-0 right-4 ${uploading ? "opacity-50 cursor-not-allowed" : ""}`}
+                className={`mt-2 p-1.5 rounded-md bg-red-500 hover:bg-red-400 text-gray-100 absolute top-0 right-2 ${uploading ? "opacity-50 cursor-not-allowed" : ""}`}
               >
-                <FaTimes />
-              </button>
-              <button
-                onClick={toggleModal}
-                className="p-2 rounded-md bg-gray-300 text-gray-700 hover:bg-gray-400 mt-4"
-              >
-                Close
+                <FaTimes size={15}/>
               </button>
             </div>
           </div>

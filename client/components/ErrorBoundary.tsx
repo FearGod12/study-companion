@@ -28,14 +28,14 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   render() {
     if (this.state.hasError) {
       return (
-        <div>
+        <div className="h-screen w-screen flex justify-center items-center flex-col">
           <h1>Something went wrong.</h1>
           <p>{this.state.error?.message}</p>
         </div>
       );
     }
 
-    return this.props.children;  // Safely return children
+    return this.props.children;  
   }
 }
 

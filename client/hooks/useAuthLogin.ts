@@ -27,7 +27,6 @@ export const useAuthLogin = () => {
     setSubmitting(true);
     try {
       await login(values.email ?? "", values.password ?? "");
-      router.push("/main");
     } catch (error: unknown) {
       let userMessage = "An unexpected error occurred.";
       if (error instanceof Error && error.message) {

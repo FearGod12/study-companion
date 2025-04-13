@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
+import { ConfirmationModalProps } from '@/interfaces/interface';
 
-const ConfirmationModal = ({ isOpen, message, onConfirm, onCancel }) => {
+const ConfirmationModal = ({ isOpen, message, onConfirm, onCancel }: ConfirmationModalProps) => {
   if (!isOpen) return null;
 
   return (
@@ -24,14 +24,6 @@ const ConfirmationModal = ({ isOpen, message, onConfirm, onCancel }) => {
       </div>
     </div>
   );
-};
-
-// Prop validation
-ConfirmationModal.propTypes = {
-  isOpen: PropTypes.bool.isRequired,     
-  message: PropTypes.string.isRequired,   
-  onConfirm: PropTypes.func.isRequired,   
-  onCancel: PropTypes.func.isRequired,    
 };
 
 export default ConfirmationModal;

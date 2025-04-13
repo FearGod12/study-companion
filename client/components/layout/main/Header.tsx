@@ -51,7 +51,7 @@ const MainHeader = () => {
           aria-label="Logout button"
         >
           <FaArrowRightFromBracket color="white" className="lg:size-4 size-3" />
-          <span className="tooltip absolute left-1/2 transform -translate-x-1/2 bottom-10 text-xs bg-gray-700 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100">
+          <span className="tooltip">
             Logout
           </span>
         </button>

@@ -1,6 +1,7 @@
 import React from "react";
 import ScheduleItem from "./ScheduleItem";
 import useSchedules from "@/hooks/useSchedules";
+import "@/styles/scrollbar.css";
 
 const ScheduleList = () => {
   const { schedules, loading } = useSchedules();

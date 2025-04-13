@@ -9,16 +9,6 @@ import { create } from "zustand";
 import { toast } from "react-toastify";
 import { useAuthStore } from "./useAuthStore";
 
-const handleApiError = (error: unknown): string => {
-  let errorMessage = "Unknown error occurred";
-  if (error instanceof Error) {
-    errorMessage = error.message;
-  }
-  toast.error(errorMessage);
-  return errorMessage;
-};
-
-// Zustand store for schedules
 export const useScheduleStore = create<ScheduleStore>((set) => ({
   schedules: [],
   loading: false,
@@ -34,22 +24,29 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
   },
   editingSchedule: null,
 
-  setNewSchedule: (schedule) => set({ newSchedule: schedule }),
-  setEditingSchedule: (schedule) => set({ editingSchedule: schedule }),
-
+  setSchedules: (schedules) => set({ schedules }),
+  setNewSchedule: (newSchedule) => set({ newSchedule }),
+  setEditingSchedule: (editingSchedule) => set({ editingSchedule }),
   // CRUD Operations
   createSchedule: async (scheduleData) => {
     set({ loading: true, error: null });
     try {
       const response = await createSchedule(scheduleData);
+      const createdSchedule = response.data;
+      const formatted = {
+        ...createdSchedule,
+        startDate: createdSchedule.startDate.split("T")[0],
+        startTime: createdSchedule.startTime.split("T")[1]?.split(".")[0],
+      };
+      
       set((state) => ({
-        schedules: [...state.schedules, response.data],
+        schedules: [...state.schedules, formatted],
         loading: false,
       }));
       toast.success("Schedule created successfully!");
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      set({ error: errorMessage, loading: false });
+      console.log("created Schedules: ", response.data);
+    } catch {
+      set({ error: 'Schedule creation error', loading: false });
     }
   },
 
@@ -58,13 +55,10 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
     try {
       const response = await retrieveSchedules();
       set({ schedules: response.data, loading: false, retrieved: true });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      const errorMessage = handleApiError(error);
-      set({ error: errorMessage, loading: false, retrieved: false });
-      if (
-        error?.response?.status === 401 ||
-        errorMessage.includes("Unauthorized")
-      ) {
+      set({ error: 'error retrieving schedule', loading: false, retrieved: false });
+      if (error?.response?.status === 401 || (error instanceof Error && error.message.includes("Unauthorized"))) {
         useAuthStore.getState().logoutUser();
       }
     }
@@ -85,9 +79,9 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
         return { schedules: updatedSchedules, loading: false };
       });
       toast.success("Schedule updated successfully!");
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      set({ error: errorMessage, loading: false });
+      console.log("Updated Schedules: ", response.data);
+    } catch {
+      set({ error: 'Schedule update error', loading: false });
     }
   },
 
@@ -100,9 +94,8 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
         loading: false,
       }));
       toast.success("Schedule deleted successfully!");
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      set({ error: errorMessage, loading: false });
+    } catch {
+      set({ error: 'Schedule deletion error', loading: false });
     }
   },
 

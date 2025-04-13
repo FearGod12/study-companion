@@ -15,18 +15,13 @@ const withAuth = <P extends object>(WrappedComponent: React.FC<P>) => {
 
     if (loading) return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-accent"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-accent" aria-label="Loading..."></div>
       </div>
     );
     
 
     return isAuthenticated ? <WrappedComponent {...props} /> : null;
   };
-
-  // Set the display name for debugging
-  AuthComponent.displayName = `withAuth(${
-    WrappedComponent.displayName || WrappedComponent.name || "Component"
-  })`;
 
   return AuthComponent;
 };

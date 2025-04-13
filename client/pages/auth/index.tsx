@@ -1,4 +1,4 @@
-import SignUp from "@/components/common/SignUp";
+import SignUp from "@/components/SignUp";
 import Image from "next/image";
 
 export default function SignUpPage() {

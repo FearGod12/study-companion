@@ -4,7 +4,7 @@ const LoginRight = () => {
   return (
     <div className="flex-1 lg:flex lg:flex-col hidden bg-accent shadow-lg shadow-accent h-screen justify-center items-center relative">
       <div className="py-4 mt-6 text-center mx-4">
-        <h2 className="text-4xl font-inria-sans font-bold text-gray-100">
+        <h2 className="text-4xl font-bold text-gray-100">
           Welcome to <span className="font-light">Study Companion</span>
         </h2>
         <p className="text-sm text-gray-100 mt-2">

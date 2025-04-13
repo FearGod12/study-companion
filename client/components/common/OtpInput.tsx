@@ -1,55 +1,47 @@
-// OtpInput.tsx
-import React from "react";
+import { OtpInputProps } from "@/interfaces/interface";
 import { useField } from "formik";
 
-type OtpInputProps = {
-  name: string;         // The name of the form field storing the OTP (e.g., "otp")
-  length?: number;      // Number of digits in the OTP (default is 6)
-};
 
 const OtpInput: React.FC<OtpInputProps> = ({ name, length = 6 }) => {
-  // Use Formik’s useField to connect to the form state
   const [field, meta, helpers] = useField<string[]>(name);
   const { value } = field;
   const { setValue } = helpers;
 
-  // Handler for changes in individual OTP inputs
-  const handleChange = (index: number, newDigit: string) => {
-    const cleaned = newDigit.replace(/\D/g, ""); // Only keep numeric characters
-    const otpArray = Array.isArray(value) ? [...value] : Array(length).fill("");
-    otpArray[index] = cleaned;
-    setValue(otpArray);
+  const getDigit = (index: number) => (Array.isArray(value) ? value[index] || "" : "");
 
-    // Automatically move the focus to the next input if a digit was entered
+  const handleChange = (index: number, digit: string) => {
+    const cleaned = digit.replace(/\D/g, "");
+    const updated = Array.from({ length }, (_, i) => getDigit(i));
+    updated[index] = cleaned;
+    setValue(updated);
+
     if (cleaned && index < length - 1) {
-      const nextInput = document.getElementById(`otp-${index + 1}`);
-      if (nextInput) {
-        (nextInput as HTMLInputElement).focus();
-      }
+      const next = document.getElementById(`otp-${index + 1}`) as HTMLInputElement | null;
+      next?.focus();
     }
   };
 
-  // Handle key down events for navigation between inputs
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    if (e.key === "Backspace" && !otpDigitAt(index) && index > 0) {
-      // If the current field is empty, focus the previous input
-      const prevInput = document.getElementById(`otp-${index - 1}`);
-      if (prevInput) (prevInput as HTMLInputElement).focus();
-    } else if (e.key === "ArrowLeft" && index > 0) {
-      const prevInput = document.getElementById(`otp-${index - 1}`);
-      if (prevInput) (prevInput as HTMLInputElement).focus();
-    } else if (e.key === "ArrowRight" && index < length - 1) {
-      const nextInput = document.getElementById(`otp-${index + 1}`);
-      if (nextInput) (nextInput as HTMLInputElement).focus();
-    } else if (e.key === "Enter") {
-      // Submit the form when Enter is pressed
+    const current = getDigit(index);
+
+    if (e.key === "Backspace" && !current && index > 0) {
+      const prev = document.getElementById(`otp-${index - 1}`) as HTMLInputElement | null;
+      prev?.focus();
+    }
+
+    if (e.key === "ArrowLeft" && index > 0) {
+      const prev = document.getElementById(`otp-${index - 1}`) as HTMLInputElement | null;
+      prev?.focus();
+    }
+
+    if (e.key === "ArrowRight" && index < length - 1) {
+      const next = document.getElementById(`otp-${index + 1}`) as HTMLInputElement | null;
+      next?.focus();
+    }
+
+    if (e.key === "Enter") {
       e.currentTarget.form?.requestSubmit();
     }
-  };
-
-  // Helper to get the digit at a specific index (ensuring a string is returned)
-  const otpDigitAt = (index: number) => {
-    return Array.isArray(value) ? value[index] || "" : "";
   };
 
   return (
@@ -59,11 +51,12 @@ const OtpInput: React.FC<OtpInputProps> = ({ name, length = 6 }) => {
           key={index}
           id={`otp-${index}`}
           type="text"
-          value={otpDigitAt(index)}
+          inputMode="numeric"
+          value={getDigit(index)}
           onChange={(e) => handleChange(index, e.target.value)}
           onKeyDown={(e) => handleKeyDown(e, index)}
           maxLength={1}
-          className={`border rounded-xl w-10 h-12 text-center ${
+          className={`border rounded-xl w-10 h-12 text-center focus:outline-none ${
             meta.touched && meta.error ? "border-red-500" : "border-accent"
           }`}
           aria-label={`OTP digit ${index + 1}`}

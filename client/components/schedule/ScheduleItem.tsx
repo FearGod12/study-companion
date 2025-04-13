@@ -1,4 +1,4 @@
-import React  from "react";
+import React from "react";
 import { FaRegEdit } from "react-icons/fa";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import Button from "@/components/common/Button";
@@ -23,10 +23,10 @@ const ScheduleItem: React.FC<{ schedule: Schedule }> = ({ schedule }) => {
         <Button
           onClick={() => openModal(schedule, "start")}
           disabled={loading}
-           className={`text-gray-100 border mt-2 px-2 py-2 
+          className={`text-gray-100 border mt-2 px-2 py-2 
        
           `}
-          text="Start Session" 
+          text="Start Session"
         />
       </div>
       <div className="flex gap-2 items-center bg-gray-100 rounded p-2">
