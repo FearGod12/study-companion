@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <section className="container max-w-none overflow-x-hidden w-screen flex flex-col">
+    <section className="container max-w-none overflow-x-hidden flex flex-col bg-accent">
       {/* Header */}
       <div className="z-10">
         <Header />
@@ -40,8 +40,12 @@ export default function Home() {
       {/* Carousel Section */}
       <section
         id="feature"
-        className="flex items-center justify-center h-screen bg-gradient-to-r from-accent to-pink-600"
+        className="flex items-center justify-center h-screen bg-gray-100 flex-col"
       >
+        <div className="border-b-2 border-accent mb-9">
+          <h2 className="lg:text-2xl md:text:1xl text-xl mb-6 text-accent font-semibold">Features</h2>
+        </div>
+        
         <Carousel />
       </section>
       <Footer />

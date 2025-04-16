@@ -14,7 +14,7 @@ const TaskList = () => {
   );
 
   return (
-    <div className="lg:max-w-4xl md:max-w-md max-w-md px-2">
+    <div className="grid lg:gap-6 gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
       {loading ? (
         <p className="text-center">Loading...</p>
       ) : currentSchedules.length > 0 ? (

@@ -3,7 +3,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import Button from "@/components/common/Button";
 import useSchedules from "@/hooks/useSchedules";
-import { Schedule } from "@/interfaces/interface";
+import { Schedule } from "@/interfaces";
 
 const ScheduleItem: React.FC<{ schedule: Schedule }> = ({ schedule }) => {
   const { openModal, formatTitle, formatDate, formatTime, loading } =

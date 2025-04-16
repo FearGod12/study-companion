@@ -6,6 +6,8 @@ import CompletedSession from "@/components/study/CompletedSession";
 import ProgressBar from "@/components/study/ProgressBar";
 import { NotificationPopup } from "@/components/notifications/NotificationPopup";
 import { useSocketSessionStore } from "@/store/useSocketSessionStore";
+import SessionEnded from "@/components/study/SessionEnded";
+import { useState } from "react";
 
 const Study = () => {
   const {
@@ -21,6 +23,12 @@ const Study = () => {
 
   const { currentSession } = useSessionStore();
   const { notification, sendCheckInResponse } = useSocketSessionStore();
+  const [sessionEnded, setSessionEnded] = useState(false);
+
+  const handleEndSessionWithMessage = (scheduleId: string) => {
+    handleEndSession(scheduleId);
+    setSessionEnded(true);
+  };
 
   if (!hasMounted) return null;
   if (loading)
@@ -29,17 +37,26 @@ const Study = () => {
     );
   if (!currentSession)
     return <p className="text-center p-4">No active session found.</p>;
-  if (timeLeft === 0) return <CompletedSession />;
+  const hasSessionStarted =
+    currentSession?.startTime &&
+    new Date() >= new Date(currentSession.startTime);
 
+  if (timeLeft === 0 && hasSessionStarted) {
+    return <CompletedSession />;
+  }
+
+  if (sessionEnded) {
+    return <SessionEnded />;
+  }
   const handleNotificationResponse = (response: boolean) => {
     sendCheckInResponse(notification?.id || "", response);
   };
 
   return (
-    <div className="container max-w-none flex flex-col items-end h-screen w-screen font-inria-sans">
+    <div className="container max-w-none flex flex-col items-end max-h-screen">
       <Header
         currentSession={currentSession}
-        handleEndSession={handleEndSession}
+        handleEndSession={handleEndSessionWithMessage}
         showMenu={showMenu}
         setShowMenu={toggleMenu}
         changeBackground={changeBackground}

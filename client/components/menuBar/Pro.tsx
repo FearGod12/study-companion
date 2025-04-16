@@ -36,13 +36,15 @@ const Pro = () => {
                   : "Upgrade to PRO for more features"}
               </h1>
             </div>
-            <Button
-              text={loading ? "Processing..." : "Upgrade"}
-              className="lg:mt-4 lg:mb-4 bg-gray-100 text-accent transition ease-in-out duration-500 hover:scale-105 transform rotate-90 lg:rotate-0 -translate-x-6 lg:translate-x-0 md:-translate-x-8 mt-42 p-2"
-              onClick={handleGoPremium}
-              disabled={loading}
-              aria-label="Subscribe to Premium Plan"
-            />
+            <div className="lg:flex lg:justify-center">
+              <Button
+                text={loading ? "Processing..." : "Upgrade"}
+                className="lg:mt-4 lg:mb-4 bg-gray-100 text-accent transition ease-in-out duration-500 hover:scale-105 transform rotate-90 lg:rotate-0 -translate-x-6 lg:translate-x-0 md:-translate-x-8 mt-42 p-2"
+                onClick={handleGoPremium}
+                disabled={loading}
+                aria-label="Subscribe to Premium Plan"
+              />
+            </div>
           </div>
         </div>
       )}

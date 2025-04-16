@@ -54,17 +54,17 @@ const Navbar = () => {
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute shadow w-32 -left-20 bg-white">
-          <ul className="flex flex-col px-4 gap-5 pb-6 divide-y transition ease-in-out duration-500 lg:text-lg md:text-base text-sm">
+        <div className="md:hidden absolute shadow w-32 -left-20 bg-gray-100 border border-accent">
+          <ul className="flex flex-col px-4 pb-6 transition ease-in-out duration-500 lg:text-lg md:text-base text-sm">
             <li
               onClick={() => scrollToSection("home")}
-              className="hover:text-secondary cursor-pointer divider pt-3"
+              className="hover:text-secondary cursor-pointer pt-3 border-b pb-3 border-accent"
             >
               Home
             </li>
             <li
               onClick={() => scrollToSection("feature")}
-              className="hover:text-secondary cursor-pointer divider pt-3"
+              className="hover:text-secondary cursor-pointer pt-3"
             >
               Feature
             </li>

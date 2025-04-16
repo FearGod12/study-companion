@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { uploadAvatar, updateUserDetails } from "@/services/userDataService";
-import { UserStore } from "@/interfaces/interface";
+import { UserStore } from "@/interfaces";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 

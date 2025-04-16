@@ -1,4 +1,4 @@
-import { ProgressBarProps } from "@/interfaces/interface";
+import { ProgressBarProps } from "@/interfaces";
 
 const ProgressBar = ({ timeLeft, currentSession }: ProgressBarProps) => {
   if (!currentSession || !currentSession.duration) return null;
@@ -12,7 +12,7 @@ const ProgressBar = ({ timeLeft, currentSession }: ProgressBarProps) => {
             <div className="flex justify-between">
               <div className="ml-4 font-semibold lg:text-lg">Study Progress</div>
             </div>
-            <div className="mx-4 mb-1 mt-3 h-2 bg-gray-700 rounded">
+            <div className="mx-4 mb-1 mt-3 h-1 bg-gray-700 rounded">
               <div
                 className="h-full bg-accent rounded transition-all"
                 style={{ width: `${progressPercentage}%` }}

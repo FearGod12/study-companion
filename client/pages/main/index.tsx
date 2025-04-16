@@ -4,7 +4,6 @@ import MainHeader from "@/components/layout/main/Header";
 import React, { ReactElement } from "react";
 import Layout from "@/components/layout/main/layout";
 import StudyStatistics from "@/components/dashboard/StatisticsData";
-import withAuth from "@/hoc/withAuth";
 
 function Dashboard() {
   return (
@@ -35,4 +34,4 @@ Dashboard.getLayout = function getLayout(page: ReactElement) {
   return <Layout>{page}</Layout>;
 };
 
-export default withAuth(Dashboard);
+export default Dashboard;

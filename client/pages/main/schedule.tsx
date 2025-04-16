@@ -1,18 +1,22 @@
 import React, { ReactElement } from "react";
-import useSchedules from "@/hooks/useSchedules"; 
+import useSchedules from "@/hooks/useSchedules";
 import ConfirmationModal from "@/components/common/ConfirmModal";
 import ScheduleForm from "@/components/schedule/ScheduleForm";
 import ScheduleList from "@/components/schedule/ScheduleList";
 import Layout from "@/components/layout/main/layout";
-import withAuth from "@/hoc/withAuth";
 
 const Schedule = () => {
-  const { isModalOpen, modalState, handleConfirmAction, closeModal } =
-    useSchedules();
+  const {
+    isModalOpen,
+    modalState,
+    handleConfirmAction,
+    closeModal,
+    loadingAction,
+  } = useSchedules();
 
   return (
-    <div className="container max-w-none bg-gray-200 lg:h-screen md:h-screen h-full">
-      <div className="flex flex-col lg:flex-row md:flex-row gap-4 h-screen">
+    <div className="container max-w-none bg-gray-200 lg:h-screen md:h-screen ">
+      <div className="flex flex-col lg:flex-row md:flex-row gap-4 lg:h-screen md:h-screen h-full">
         <ScheduleForm />
         <section className="flex-1 bg-pink-100 py-8 px-6 rounded">
           <ScheduleList />
@@ -32,6 +36,7 @@ const Schedule = () => {
         })()}
         onConfirm={handleConfirmAction}
         onCancel={closeModal}
+        isLoading={loadingAction === modalState?.action}
       />
     </div>
   );
@@ -41,4 +46,4 @@ Schedule.getLayout = function getLayout(page: ReactElement) {
   return <Layout>{page}</Layout>;
 };
 
-export default withAuth(Schedule);
+export default Schedule;

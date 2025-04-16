@@ -1,6 +1,6 @@
 "use client";
 
-import { LoginFormValues } from "@/interfaces/interface";
+import { LoginFormValues } from "@/interfaces";
 import { useAuthStore } from "@/store/useAuthStore";
 import { usePasswordStore } from "@/store/usePasswordStore";
 import { FormikHelpers } from "formik";

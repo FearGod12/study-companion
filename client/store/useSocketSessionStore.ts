@@ -1,7 +1,6 @@
-// store/useSessionStore.ts
 import { create } from "zustand";
 import { io } from "socket.io-client";
-import { SocketSessionStore } from "@/interfaces/interface";
+import { SocketSessionStore } from "@/interfaces";
 
 export const useSocketSessionStore = create<SocketSessionStore>((set, get) => ({
   socket: null,
@@ -14,32 +13,31 @@ export const useSocketSessionStore = create<SocketSessionStore>((set, get) => ({
     const existingSocket = get().socket;
 
     if (existingSocket && existingSocket.connected) {
-      console.log("Socket already connected. Skipping reconnection.");
       return;
     }
-    
-    const socket = io(process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3000", {
-      auth: { userId },
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      timeout: 20000,
-      transports: ["websocket", "polling"],
-    });
+
+    const socket = io(
+      process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3000",
+      {
+        auth: { userId },
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        timeout: 20000,
+        transports: ["websocket", "polling"],
+      }
+    );
 
     socket.on("connect", () => {
       set({ isConnected: true });
-      console.log("Socket connected");
     });
 
-    socket.on("disconnect", (reason) => {
+    socket.on("disconnect", () => {
       set({ isConnected: false });
-      console.log("Socket disconnected:", reason);
     });
 
     socket.on("session_started", (data) => {
-      console.log("Session started:", data);
       set({
         activeSession: data,
         lastCheckIn: new Date(),
@@ -48,7 +46,6 @@ export const useSocketSessionStore = create<SocketSessionStore>((set, get) => ({
     });
 
     socket.on("session_resumed", (data) => {
-      console.log("Session resumed:", data);
       set({
         activeSession: {
           sessionId: data.sessionId,
@@ -60,7 +57,6 @@ export const useSocketSessionStore = create<SocketSessionStore>((set, get) => ({
     });
 
     socket.on("session_ended", () => {
-      console.log("Session ended");
       set({
         activeSession: null,
         lastCheckIn: null,
@@ -69,7 +65,6 @@ export const useSocketSessionStore = create<SocketSessionStore>((set, get) => ({
     });
 
     socket.on("check_in_request", (data) => {
-      console.log("Check-in request:", data);
       set({ notification: null });
       setTimeout(() => {
         set({

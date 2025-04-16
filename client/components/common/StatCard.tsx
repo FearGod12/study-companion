@@ -1,4 +1,4 @@
-import { StatCardProps } from "@/interfaces/interface";
+import { StatCardProps } from "@/interfaces";
 
 const StatCard: React.FC<StatCardProps> = ({
   icon,

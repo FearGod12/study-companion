@@ -1,6 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import { isTokenExpired } from "@/utils/utils";
+import { isTokenExpired } from "@/utils/tokenUtils";
 import { useAuthStore } from "@/store/useAuthStore";
 import Router from "next/router";
 

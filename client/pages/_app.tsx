@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import 'nprogress/nprogress.css';
 import type { AppProps } from "next/app";
 import type { ReactElement, ReactNode } from "react";
 import type { NextPage } from "next";
@@ -23,8 +24,6 @@ type AppPropsWithLayout = AppProps & {
 
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const initializeAuth = useAuthStore((state) => state.initializeAuth);
-  const hasHydrated = useAuthStore((state) => state.hasHydrated);  
-  const fetchUserData = useAuthStore((state) => state.fetchUserData); 
 
   // Initializes authentication when the app first loads
   useEffect(() => {
@@ -42,13 +41,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     };
   }, [initializeAuth]); 
 
-  // Fetch user data after hydration is complete
-  useEffect(() => {
-    if (!hasHydrated) {
-      return;  
-    }
-    fetchUserData();  
-  }, [hasHydrated, fetchUserData]); 
 
   // Layout wrapper for pages that want a custom layout
   const getLayout = Component.getLayout ?? ((page) => page);

@@ -1,4 +1,4 @@
-import { PasswordState } from "@/interfaces/interface";
+import { PasswordState } from "@/interfaces";
 import { create } from "zustand";
 
 export const usePasswordStore = create<PasswordState>((set) => ({
@@ -8,6 +8,9 @@ export const usePasswordStore = create<PasswordState>((set) => ({
   },
   togglePassword: (field) =>
     set((state) => ({
-      showPassword: { ...state.showPassword, [field]: !state.showPassword[field] },
+      showPassword: {
+        ...state.showPassword,
+        [field]: !state.showPassword[field],
+      },
     })),
 }));

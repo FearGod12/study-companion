@@ -3,7 +3,6 @@ import { useSessionStore } from "@/store/useSessionStore";
 import Loading from "@/components/common/Loading";
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 import Layout from "@/components/layout/main/layout";
-import withAuth from "@/hoc/withAuth";
 
 const Sessions = () => {
   const {
@@ -105,7 +104,7 @@ const Sessions = () => {
           ))}
         </div>
       ) : (
-        <p>No study sessions found.</p>
+        <p>No study sessions available.</p>
       )}
 
       {/* Pagination */}
@@ -142,4 +141,4 @@ Sessions.getLayout = function getLayout(page: ReactElement) {
   return <Layout>{page}</Layout>;
 };
 
-export default withAuth(Sessions);
+export default Sessions;

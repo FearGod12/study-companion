@@ -4,19 +4,19 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useSessionStore } from "@/store/useSessionStore";
-import { Schedule } from "@/interfaces/interface";
+import { Schedule } from "@/interfaces";
+import { useScheduleStore } from "@/store/useScheduleStore";
 
 const useStudySessions = () => {
   const router = useRouter();
   const { loading, endSession, startSession, currentSession } =
     useSessionStore();
-
-  const [hasMounted, setHasMounted] = useState(false); // Hydration guard
+  const { retrieveSchedules } = useScheduleStore();
+  const [hasMounted, setHasMounted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
-  const [notes, setNotes] = useState("");
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [bgImage, setBgImage] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState(false);
+  const [loadingStart, setLoadingStart] = useState(false);
 
   // Hydration-safe mount check
   useEffect(() => {
@@ -38,7 +38,7 @@ const useStudySessions = () => {
     if (!hasMounted || !currentSession) return;
 
     const start = new Date(currentSession.startTime).getTime();
-    const duration = currentSession.duration * 60; // in seconds
+    const duration = currentSession.duration * 60;
     const elapsed = Math.floor((Date.now() - start) / 1000);
     const remaining = duration - elapsed;
 
@@ -47,26 +47,20 @@ const useStudySessions = () => {
 
   // Countdown logic
   useEffect(() => {
-    if (!timeLeft) return;
-    const interval = setInterval(
-      () => setTimeLeft((prev) => Math.max(prev - 1, 0)),
-      1000
-    );
+    if (timeLeft <= 0 || !currentSession) return;
+
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
     return () => clearInterval(interval);
-  }, [timeLeft]);
-
-  // Music toggle
-  const toggleMusic = () => {
-    setIsMusicPlaying((prev) => !prev);
-    const audio = new Audio("/ambient-music.mp3");
-    audio.loop = true;
-
-    if (!isMusicPlaying) {
-      audio.play();
-    } else {
-      audio.pause();
-    }
-  };
+  }, [timeLeft, currentSession]);
 
   // Toggle show/hide progress bar
   const toggleMenu = () => {
@@ -75,6 +69,7 @@ const useStudySessions = () => {
 
   // Start session (manual start from schedule card)
   const handleStartSession = async (schedule: Schedule) => {
+    setLoadingStart(true);
     const { id } = schedule;
     try {
       await startSession(id);
@@ -82,6 +77,8 @@ const useStudySessions = () => {
     } catch (error) {
       console.error("Failed to start session:", error);
       toast.error("Failed to start session");
+    } finally {
+      setLoadingStart(false);
     }
   };
 
@@ -90,7 +87,8 @@ const useStudySessions = () => {
     try {
       await endSession(scheduleId);
       toast.success("Session ended successfully!");
-      router.push("/main");
+      router.push("/main/schedule");
+      retrieveSchedules();
     } catch (error) {
       console.error("Failed to end session:", error);
       toast.error("Failed to end session.");
@@ -102,17 +100,9 @@ const useStudySessions = () => {
     setBgImage(bgImage);
   };
 
-  const saveNotes = (newNotes: string) => {
-    setNotes(newNotes);
-  };
-
   return {
     timeLeft,
     bgImage,
-    isMusicPlaying,
-    toggleMusic,
-    notes,
-    saveNotes,
     changeBackground,
     handleStartSession,
     handleEndSession,
@@ -120,6 +110,7 @@ const useStudySessions = () => {
     hasMounted,
     showMenu,
     toggleMenu,
+    loadingStart,
   };
 };
 

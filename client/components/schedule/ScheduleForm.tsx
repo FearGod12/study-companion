@@ -1,8 +1,12 @@
-import React, { useState } from "react";
 import Spinner from "@/components/common/Spinner";
 import useSchedules from "@/hooks/useSchedules";
-import { Schedule } from "@/interfaces/interface";
-import { formatToHHMM } from "@/utils/formatting";
+import { Schedule } from "@/interfaces";
+import {
+  formatToHHMM,
+  getCurrentTimeHHMM,
+  isToday,
+} from "@/utils/scheduleFormatting";
+import { useState } from "react";
 
 const ScheduleForm: React.FC = () => {
   const {
@@ -32,9 +36,9 @@ const ScheduleForm: React.FC = () => {
           startTime: newSchedule.startTime || editingSchedule.startTime,
           duration: newSchedule.duration || editingSchedule.duration,
           isRecurring:
-                    newSchedule.isRecurring !== undefined
-                      ? newSchedule.isRecurring
-                      : editingSchedule.isRecurring,
+            newSchedule.isRecurring !== undefined
+              ? newSchedule.isRecurring
+              : editingSchedule.isRecurring,
           recurringDays: newSchedule.recurringDays.length
             ? newSchedule.recurringDays
             : editingSchedule.recurringDays,
@@ -42,7 +46,7 @@ const ScheduleForm: React.FC = () => {
         handleUpdateSchedule(updatedSchedule.id, updatedSchedule);
         setEditingSchedule(null);
       } else {
-        await handleCreateSchedule();      
+        await handleCreateSchedule();
       }
       setNewSchedule({
         title: "",
@@ -60,7 +64,10 @@ const ScheduleForm: React.FC = () => {
   };
 
   // Handle field changes
-  const handleChange = (field: keyof Schedule, value: string | number | boolean) => {
+  const handleChange = (
+    field: keyof Schedule,
+    value: string | number | boolean
+  ) => {
     if (editingSchedule) {
       setEditingSchedule({ ...editingSchedule, [field]: value });
     } else {
@@ -74,61 +81,114 @@ const ScheduleForm: React.FC = () => {
         {editingSchedule ? "Edit Schedule" : "Add New Schedule"}
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4 lg:max-w-lg md:max-w-md max-w-md">
-        {/* Title */}
-        <input
-          type="text"
-          placeholder="Title"
-          value={editingSchedule ? editingSchedule.title : newSchedule.title}
-          onChange={(e) => handleChange("title", e.target.value)}
-          className="p-2 rounded-lg w-full outline-2 outline-accent focus:ring ring-accent"
-        />
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 lg:max-w-lg md:max-w-md max-w-md"
+      >
+        <div className="flex flex-col gap-2">
+          <label htmlFor="title">Title</label>
+          {/* Title */}
+          <input
+            type="text"
+            id="title"
+            placeholder="Title"
+            value={editingSchedule ? editingSchedule.title : newSchedule.title}
+            onChange={(e) => handleChange("title", e.target.value)}
+            className="p-2 rounded-lg w-full outline-2 outline-accent focus:ring ring-accent"
+          />
+        </div>
 
         {/* Start Date */}
-        <input
-          type="date"
-          value={editingSchedule ? editingSchedule.startDate : newSchedule.startDate}
-          onChange={(e) => handleChange("startDate", e.target.value)}
-          className="p-2 rounded-lg w-full outline-2 outline-accent focus:ring ring-accent"
-        />
+        <div className="flex flex-col gap-2">
+          <label htmlFor="startDate">Start Date</label>
+          <input
+            type="date"
+            id="startDate"
+            min={new Date().toISOString().split("T")[0]}
+            value={
+              editingSchedule
+                ? editingSchedule.startDate
+                : newSchedule.startDate
+            }
+            onChange={(e) => handleChange("startDate", e.target.value)}
+            className="p-2 rounded-lg w-full outline-2 outline-accent focus:ring ring-accent"
+          />
+        </div>
 
         {/* Start Time */}
-        <input
-          type="time"
-          value={editingSchedule ? formatToHHMM(editingSchedule.startTime) : newSchedule.startTime}
-          onChange={(e) => handleChange("startTime", e.target.value)}
-          className="p-2 rounded-lg w-full outline-2 outline-accent focus:ring ring-accent"
-        />
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="startTime">Start Time</label>
+          <input
+            type="time"
+            id="startTime"
+            min={
+              isToday(
+                editingSchedule
+                  ? editingSchedule.startDate
+                  : newSchedule.startDate
+              )
+                ? getCurrentTimeHHMM()
+                : undefined
+            }
+            value={
+              editingSchedule
+                ? formatToHHMM(editingSchedule.startTime)
+                : newSchedule.startTime
+            }
+            onChange={(e) => handleChange("startTime", e.target.value)}
+            className="p-2 rounded-lg w-full outline-2 outline-accent focus:ring ring-accent"
+          />
+        </div>
 
         {/* Duration */}
-        <input
-          type="number"
-          value={editingSchedule ? editingSchedule.duration : newSchedule.duration}
-          onChange={(e) => handleChange("duration", Number(e.target.value))}
-          className="p-2 rounded-lg w-full outline-2 outline-accent focus:ring ring-accent"
-        />
+        <div className="flex flex-col gap-2">
+          <label htmlFor="duration">Duration (in minutes)</label>
+          <input
+            type="number"
+            id="duration"
+            min={1}
+            value={
+              editingSchedule
+                ? editingSchedule.duration.toString().replace(/^0+/, "")
+                : newSchedule.duration.toString().replace(/^0+/, "")
+            }
+            onChange={(e) => handleChange("duration", Number(e.target.value))}
+            className="p-2 rounded-lg w-full outline-2 outline-accent focus:ring ring-accent"
+          />
+        </div>
 
         {/* Recurring Days */}
         <div className="flex gap-4 flex-col">
           <label className="flex gap-2 ml-2">
             <input
               type="checkbox"
-              checked={editingSchedule ? editingSchedule.isRecurring : newSchedule.isRecurring}
+              checked={
+                editingSchedule
+                  ? editingSchedule.isRecurring
+                  : newSchedule.isRecurring
+              }
               onChange={(e) => handleChange("isRecurring", e.target.checked)}
             />
             Recurring
           </label>
 
-          {(editingSchedule ? editingSchedule.isRecurring : newSchedule.isRecurring) && (
+          {(editingSchedule
+            ? editingSchedule.isRecurring
+            : newSchedule.isRecurring) && (
             <div className="space-x-4">
               {daysOfWeek.map((day) => (
                 <label key={day.id}>
                   <input
                     type="checkbox"
-                    checked={editingSchedule
-                      ? editingSchedule.recurringDays.includes(day.id)
-                      : newSchedule.recurringDays.includes(day.id)}
-                    onChange={() => toggleRecurringDay(day.id, !!editingSchedule)}
+                    checked={
+                      editingSchedule
+                        ? editingSchedule?.recurringDays?.includes(day.id)
+                        : newSchedule?.recurringDays?.includes(day.id)
+                    }
+                    onChange={() =>
+                      toggleRecurringDay(day.id, !!editingSchedule)
+                    }
                   />
                   {day.label}
                 </label>
@@ -137,8 +197,18 @@ const ScheduleForm: React.FC = () => {
           )}
         </div>
 
-        <button type="submit" className="px-4 py-2 bg-accent text-white rounded flex items-center justify-center" disabled={loading}>
-          {loading ? <Spinner /> : editingSchedule ? "Update Schedule" : "Add Schedule"}
+        <button
+          type="submit"
+          className="px-4 py-2 bg-accent text-white rounded flex items-center justify-center"
+          disabled={loading}
+        >
+          {loading ? (
+            <Spinner />
+          ) : editingSchedule ? (
+            "Update Schedule"
+          ) : (
+            "Add Schedule"
+          )}
         </button>
       </form>
     </section>

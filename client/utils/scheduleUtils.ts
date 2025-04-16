@@ -1,13 +1,19 @@
-import { NewSchedule, Schedule } from "@/interfaces/interface";
-import { formatTimeToHHMMSS } from "./formatting";
+import { NewSchedule, Schedule } from "@/interfaces";
+import { formatTimeToHHMMSS } from "./scheduleFormatting";
 
-export const updateScheduleData = (schedule: Schedule) => {
-  const data: Schedule = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const updateScheduleData = (schedule: any) => {
+  const data = {
     ...schedule,
-    startTime: formatTimeToHHMMSS(extractTimeFromISOString(schedule.startTime)),
+    startTime: formatTimeToHHMMSS(schedule.startTime),
     startDate: schedule.startDate.split("T")[0],
-    recurringDays: schedule.isRecurring ? schedule.recurringDays : [],
   };
+
+  if (schedule.isRecurring) {
+    data.recurringDays = schedule.recurringDays;
+  } else {
+    delete data.recurringDays;
+  }
 
   return data;
 };
@@ -17,16 +23,7 @@ export const createScheduleData = (schedule: NewSchedule | Schedule) => {
     ...schedule,
     startTime: formatTimeToHHMMSS(schedule.startTime),
     startDate: schedule.startDate.split("T")[0],
-    recurringDays: schedule.isRecurring ? schedule.recurringDays : [],
+    recurringDays: schedule.isRecurring ? schedule.recurringDays ?? [] : [],
   };
-  return data; // You missed this return statement
-};
-
-// Helper function to extract time in HH:MM:SS from ISO string
-const extractTimeFromISOString = (isoString: string): string => {
-  const date = new Date(isoString);
-  const hours = date.getHours().toString().padStart(2, "0");
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-  const seconds = date.getSeconds().toString().padStart(2, "0");
-  return `${hours}:${minutes}:${seconds}`;
+  return data;
 };

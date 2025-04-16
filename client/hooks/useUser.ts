@@ -1,4 +1,4 @@
-import { UpdateFormValues } from "@/interfaces/interface";
+import { UpdateFormValues } from "@/interfaces";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useUserStore } from "@/store/useUserStore";
 import router from "next/router";
@@ -51,7 +51,7 @@ const useUser = () => {
   const handleFileUpload = async (file: File) => {
     try {
       await uploadAvatar(file);
-      await fetchUserData();  // Refresh user data after avatar upload
+      await fetchUserData(); // Refresh user data after avatar upload
       toast.success("Avatar upload successfully!");
     } catch (error: unknown) {
       toast.error("Failed to upload avatar.");

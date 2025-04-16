@@ -1,6 +1,6 @@
-import { NewSchedule, Schedule } from "@/interfaces/interface";
+import { NewSchedule, Schedule } from "@/interfaces";
 import apiClient from "./apiClient";
-import { handleApiError } from "@/utils/ErrorUtils";
+import { handleApiError } from "@/utils/errorUtils";
 
 // Create Schedule
 export const createSchedule = async (scheduleData: NewSchedule) => {
@@ -48,4 +48,3 @@ export const deleteSchedule = async (id: string) => {
 };
 
 export { handleApiError };
-

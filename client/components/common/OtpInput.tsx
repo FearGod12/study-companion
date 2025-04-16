@@ -1,4 +1,4 @@
-import { OtpInputProps } from "@/interfaces/interface";
+import { OtpInputProps } from "@/interfaces";
 import { useField } from "formik";
 
 

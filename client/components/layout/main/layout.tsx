@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import SideBar from "./SideBar";
+import withAuth from "@/hoc/withAuth";
 
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
@@ -14,4 +15,4 @@ const Layout = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default Layout;
+export default withAuth(Layout);

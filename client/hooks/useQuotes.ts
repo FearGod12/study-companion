@@ -1,4 +1,4 @@
-import { Quote } from "@/interfaces/interface";
+import { Quote } from "@/interfaces";
 import { useState, useEffect } from "react";
 
 const useQuotes = (initialQuotes: Quote[], intervalTime = 30000) => {
@@ -6,7 +6,9 @@ const useQuotes = (initialQuotes: Quote[], intervalTime = 30000) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentQuoteIndex((prevIndex) => (prevIndex + 1) % initialQuotes.length);
+      setCurrentQuoteIndex(
+        (prevIndex) => (prevIndex + 1) % initialQuotes.length
+      );
     }, intervalTime);
 
     return () => clearInterval(interval);
@@ -14,7 +16,7 @@ const useQuotes = (initialQuotes: Quote[], intervalTime = 30000) => {
 
   const currentQuote = initialQuotes[currentQuoteIndex];
 
-  return { currentQuote }; 
+  return { currentQuote };
 };
 
 export default useQuotes;

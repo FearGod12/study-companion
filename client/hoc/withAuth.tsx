@@ -4,22 +4,28 @@ import { useEffect } from "react";
 
 const withAuth = <P extends object>(WrappedComponent: React.FC<P>) => {
   const AuthComponent: React.FC<P> = (props) => {
-    const { isAuthenticated, loading } = useAuthStore();
+    const { isAuthenticated, loading,  hasHydrated  } = useAuthStore();
     const router = useRouter();
 
+
+    // Redirect to login if not authenticated
     useEffect(() => {
-      if (!loading && !isAuthenticated) {
+      if (hasHydrated && !loading && !isAuthenticated) {
         router.push("/auth/login");
       }
-    }, [isAuthenticated, loading, router]);
+    }, [hasHydrated, isAuthenticated, loading, router]);
 
-    if (loading) return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-accent" aria-label="Loading..."></div>
-      </div>
-    );
-    
 
+    // Show loading spinner
+    if (loading || !hasHydrated) {
+      return (
+        <div className="flex items-center justify-center h-screen">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-accent" aria-label="Loading..."></div>
+        </div>
+      );
+    }
+
+    // Show protected content only if authenticated
     return isAuthenticated ? <WrappedComponent {...props} /> : null;
   };
 

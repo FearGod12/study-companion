@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
-import { Schedule } from "@/interfaces/interface";
+import { Schedule, ScheduleUtils } from "@/interfaces";
 import { useScheduleStore } from "@/store/useScheduleStore";
-import { formatTitle, formatDate, formatTime } from "@/utils/formatting";
+import {
+  formatTitle,
+  formatDate,
+  formatTime,
+} from "@/utils/scheduleFormatting";
 import { createScheduleData, updateScheduleData } from "@/utils/scheduleUtils";
 import useStudySessions from "./useStudySessions";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -29,7 +33,7 @@ const useSchedules = () => {
 
   const { handleStartSession } = useStudySessions();
   const { isAuthenticated, hasHydrated } = useAuthStore();
-
+  const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const daysOfWeek = useMemo(
     () => [
       { id: 0, label: "Sunday" },
@@ -55,6 +59,7 @@ const useSchedules = () => {
 
   // Handlers
   const handleCreateSchedule = async () => {
+    setLoadingAction("create");
     try {
       const scheduleData = createScheduleData(newSchedule);
       await createSchedule(scheduleData);
@@ -72,10 +77,13 @@ const useSchedules = () => {
       } else {
         toast.error("An unexpected error occurred.");
       }
+    } finally {
+      setLoadingAction(null);
     }
   };
 
-  const handleUpdateSchedule = async (id: string, payload: Schedule) => {
+  const handleUpdateSchedule = async (id: string, payload: ScheduleUtils) => {
+    setLoadingAction("update");
     try {
       const data = updateScheduleData(payload);
       await updateSchedule(id, data);
@@ -83,15 +91,20 @@ const useSchedules = () => {
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Unknown error";
       toast.error(`Failed to update schedule: ${message}`);
+    } finally {
+      setLoadingAction(null);
     }
   };
 
   const handleDeleteSchedule = async (id: string) => {
+    setLoadingAction("delete");
     try {
       await deleteSchedule(id);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Unknown error";
       toast.error(`Failed to delete schedule: ${message}`);
+    } finally {
+      setLoadingAction(null);
     }
   };
 
@@ -171,6 +184,7 @@ const useSchedules = () => {
 
     toggleRecurringDay,
 
+    loadingAction,
     isModalOpen: modalState.isOpen,
     openModal,
     closeModal,

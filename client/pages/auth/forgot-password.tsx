@@ -30,7 +30,7 @@ const ForgotPassword = () => {
             <Form className="flex flex-col gap-4">
               {/* Email Field */}
               <div className="relative lg:text-lg md:text-base text-sm">
-                <AiOutlineMail className="absolute top-4.5 left-3 text-gray-400" />
+                <AiOutlineMail className="absolute top-4 left-3 text-gray-400" />
                 <Field
                   type="email"
                   id="email"
@@ -61,7 +61,7 @@ const ForgotPassword = () => {
               />
 
               {/* Instructions */}
-              <div className="lg:text-base md:text-base text-sm text-center text-gray-600 mt-2">
+              <div className="lg:text-base md:text-base text-sm text-center text-gray-600 mt-2 font-semibold">
                 <p>
                   Didn’t receive the email? Check your spam folder or try again.
                   If the issue persists, contact support.

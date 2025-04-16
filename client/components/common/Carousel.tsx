@@ -5,6 +5,7 @@ import Image from "next/image";
 import Autoplay from "embla-carousel-autoplay";
 import Button from "./Button";
 import Link from "next/link";
+import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 
 const Carousel = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay()]);
@@ -45,7 +46,7 @@ const Carousel = () => {
               key={i}
               className="embla__slide lg:flex-[0_0_33.3333%] md:flex-[0_0_80%] flex-[0_0_100%] px-4"
             >
-              <div className="flex flex-col items-center bg-gray-50 rounded-lg shadow h-full">
+              <div className="flex flex-col items-center bg-gray-50 rounded-lg h-full border border-accent shadow shadow-accent">
                 <Image
                   src={card.src}
                   alt={`Slide ${i + 1}`}
@@ -61,15 +62,15 @@ const Carousel = () => {
       </div>
 
       {/* Dots */}
-      <div className="flex justify-center mt-4 gap-2">
+      <div className="flex justify-center mt-6 gap-2">
         {scrollSnaps.map((_, index) => (
           <button
             key={index}
             onClick={() => scrollTo(index)}
             className={`w-3 h-1 rounded-full transition-colors ${
               index === selectedIndex
-                ? "bg-accent border border-gray-100"
-                : "bg-gray-100"
+                ? "bg-accent"
+                : "bg-gray-300"
             }`}
           />
         ))}
@@ -79,22 +80,22 @@ const Carousel = () => {
       <div className="text-center flex justify-center gap-4 mt-6">
         <button
           onClick={scrollPrev}
-          className="px-4 py-2 text-accent font-bold hover:bg-accent bg-gray-100 hover:text-gray-100 rounded-lg"
+          className="px-6 py-1 text-gray-50 font-bold hover:bg-gray-50 bg-accent hover:text-accent rounded-lg"
         >
-          Prev
+          <FaArrowLeftLong/>
         </button>
         <button
           onClick={scrollNext}
-          className="px-4 py-2 text-accent font-bold hover:bg-accent bg-gray-100 hover:text-gray-100 rounded-lg"
+          className="px-6 py-1 text-gray-50 font-bold hover:bg-gray-50 bg-accent hover:text-accent rounded-lg"
         >
-          Next
+          <FaArrowRightLong/>
         </button>
       </div>
-      <div className="flex justify-center mt-12 ">
+      <div className="flex justify-center mt-10 ">
         <Link href="/memberRegistration">
           <Button
             text="Join the Study Club"
-            className="px-4 py-2 bg-accent text-gray-100 hover:bg-gray-100 hover:text-accent rounded-lg border border-gray-100"
+            className="px-4 py-2 bg-gray-100 text-accent hover:bg-accent hover:text-gray-100 rounded-lg border border-accent"
           />
         </Link>
       </div>

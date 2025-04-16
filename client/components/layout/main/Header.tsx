@@ -38,7 +38,7 @@ const MainHeader = () => {
             />
           ) : (
             <span
-              className="bg-purple-400 text-white text-center rounded-full flex items-center justify-center font-bold text-xs"
+              className="bg-purple-400 text-white text-center rounded-full flex items-center justify-center font-bold text-xs p-1.5"
               aria-label={`User initials: ${initials}`}
             >
               {initials}

@@ -1,6 +1,6 @@
-import { UpdateFormValues } from "@/interfaces/interface";
+import { UpdateFormValues } from "@/interfaces";
 import apiClient from "./apiClient";
-import { handleApiError } from "@/utils/ErrorUtils";
+import { handleApiError } from "@/utils/errorUtils";
 
 export const uploadAvatar = async (file: File) => {
   if (!file) throw new Error("No file provided for upload.");
@@ -15,8 +15,8 @@ export const uploadAvatar = async (file: File) => {
     return response.data;
   } catch (error) {
     handleApiError(error);
-       throw error;
-     }
+    throw error;
+  }
 };
 
 export const updateUserDetails = async (userData: UpdateFormValues) => {

@@ -1,6 +1,6 @@
-import { FormValues } from "@/interfaces/interface";
+import { FormValues } from "@/interfaces";
 import apiClient from "./apiClient";
-import { handleApiError } from "@/utils/ErrorUtils";
+import { handleApiError } from "@/utils/errorUtils";
 
 // Register User
 export const registerUser = async (userData: FormValues) => {
@@ -76,7 +76,7 @@ export const resetPassword = async (
       confirmPassword,
       email,
     });
-    return response.data;
+    return { success: true, data: response.data };
   } catch (error) {
     handleApiError(error);
     throw error;

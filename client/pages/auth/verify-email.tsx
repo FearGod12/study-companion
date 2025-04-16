@@ -4,7 +4,7 @@ import DarkLogo from "@/components/common/logo/DarkLogo";
 import { useAuthEmailVerify } from "@/hooks/useAuthEmailVerify";
 import { emailVerifySchema } from "@/validations/emailVerifySchema";
 import { withZodSchema } from "formik-validator-zod";
-import { EmailVerifyValues } from "@/interfaces/interface";
+import { EmailVerifyValues } from "@/interfaces";
 import OtpInput from "../../components/common/OtpInput";
 import Spinner from "@/components/common/Spinner";
 

@@ -1,4 +1,4 @@
-import { handleApiError } from "@/utils/ErrorUtils";
+import { handleApiError } from "@/utils/errorUtils";
 import apiClient from "./apiClient";
 
 // Start Study Session
@@ -49,3 +49,4 @@ export const fetchStudyStatistics = async () => {
     throw error;
   }
 };
+

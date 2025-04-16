@@ -1,4 +1,4 @@
-import { ScheduleStore } from "@/interfaces/interface";
+import { ScheduleStore } from "@/interfaces";
 import {
   createSchedule,
   deleteSchedule,
@@ -33,20 +33,14 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
     try {
       const response = await createSchedule(scheduleData);
       const createdSchedule = response.data;
-      const formatted = {
-        ...createdSchedule,
-        startDate: createdSchedule.startDate.split("T")[0],
-        startTime: createdSchedule.startTime.split("T")[1]?.split(".")[0],
-      };
-      
       set((state) => ({
-        schedules: [...state.schedules, formatted],
+        schedules: [...state.schedules, createdSchedule],
         loading: false,
       }));
       toast.success("Schedule created successfully!");
       console.log("created Schedules: ", response.data);
     } catch {
-      set({ error: 'Schedule creation error', loading: false });
+      set({ error: "Schedule creation error", loading: false });
     }
   },
 
@@ -54,11 +48,19 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await retrieveSchedules();
-      set({ schedules: response.data, loading: false, retrieved: true });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const updatedSchedule = response.data;
+      set({ schedules: updatedSchedule, loading: false, retrieved: true });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      set({ error: 'error retrieving schedule', loading: false, retrieved: false });
-      if (error?.response?.status === 401 || (error instanceof Error && error.message.includes("Unauthorized"))) {
+      set({
+        error: "error retrieving schedule",
+        loading: false,
+        retrieved: false,
+      });
+      if (
+        error?.response?.status === 401 ||
+        (error instanceof Error && error.message.includes("Unauthorized"))
+      ) {
         useAuthStore.getState().logoutUser();
       }
     }
@@ -81,7 +83,7 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
       toast.success("Schedule updated successfully!");
       console.log("Updated Schedules: ", response.data);
     } catch {
-      set({ error: 'Schedule update error', loading: false });
+      set({ error: "Schedule update error", loading: false });
     }
   },
 
@@ -95,7 +97,7 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
       }));
       toast.success("Schedule deleted successfully!");
     } catch {
-      set({ error: 'Schedule deletion error', loading: false });
+      set({ error: "Schedule deletion error", loading: false });
     }
   },
 

@@ -122,43 +122,8 @@ const SignUp = () => {
             />
           </div>
 
-          {/* Password and Confirm Password */}
-          {["password", "confirmPassword"].map((field) => (
-            <div key={field} className="flex flex-col w-full relative">
-              <label htmlFor={field} className="flex items-center mb-1">
-                <AiOutlineLock className="mr-2" />
-                {field === "password" ? "Password" : "Confirm Password"}
-              </label>
-              <div className="relative">
-                <Field
-                  type={showPassword[field] ? "text" : "password"}
-                  id={field}
-                  name={field}
-                  placeholder={
-                    field === "password"
-                      ? "Enter your password"
-                      : "Confirm your password"
-                  }
-                  className="border-2 border-accent py-2 px-4 rounded w-full text-sm focus:outline-none focus:ring focus:ring-accent"
-                />
-                <button
-                  type="button"
-                  onClick={() => togglePassword(field)}
-                  className="absolute top-1/2 right-4 transform -translate-y-1/2 text-gray-500"
-                >
-                  {showPassword[field] ? <HiEyeOff /> : <HiEye />}
-                </button>
-              </div>
-              <ErrorMessage
-                name={field}
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-          ))}
-
-          {/* Category */}
-          <div className="flex flex-col">
+            {/* Category */}
+            <div className="flex flex-col">
             <label htmlFor="category" className="flex items-center mb-1">
               <AiOutlineUser className="mr-2" /> Category
             </label>
@@ -204,6 +169,42 @@ const SignUp = () => {
               className="text-red-500 text-sm mt-1"
             />
           </div>
+
+
+          {/* Password and Confirm Password */}
+          {["password", "confirmPassword"].map((field) => (
+            <div key={field} className="flex flex-col w-full relative">
+              <label htmlFor={field} className="flex items-center mb-1">
+                <AiOutlineLock className="mr-2" />
+                {field === "password" ? "Password" : "Confirm Password"}
+              </label>
+              <div className="relative">
+                <Field
+                  type={showPassword[field] ? "text" : "password"}
+                  id={field}
+                  name={field}
+                  placeholder={
+                    field === "password"
+                      ? "Enter your password"
+                      : "Confirm your password"
+                  }
+                  className="border-2 border-accent py-2 px-4 rounded w-full text-sm focus:outline-none focus:ring focus:ring-accent"
+                />
+                <button
+                  type="button"
+                  onClick={() => togglePassword(field)}
+                  className="absolute top-1/2 right-4 transform -translate-y-1/2 text-gray-500"
+                >
+                  {showPassword[field] ? <HiEyeOff /> : <HiEye />}
+                </button>
+              </div>
+              <ErrorMessage
+                name={field}
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+          ))}
 
           {/* Submit Button */}
           <Button

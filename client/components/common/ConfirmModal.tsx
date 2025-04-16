@@ -1,6 +1,7 @@
-import { ConfirmationModalProps } from '@/interfaces/interface';
+import { ConfirmationModalProps } from '@/interfaces';
+import Spinner from './Spinner';
 
-const ConfirmationModal = ({ isOpen, message, onConfirm, onCancel }: ConfirmationModalProps) => {
+const ConfirmationModal = ({ isOpen, message, onConfirm, onCancel, isLoading}: ConfirmationModalProps) => {
   if (!isOpen) return null;
 
   return (
@@ -18,7 +19,7 @@ const ConfirmationModal = ({ isOpen, message, onConfirm, onCancel }: Confirmatio
             onClick={onConfirm}
             className="px-4 py-2 bg-green-500 text-gray-700 font-semibold rounded"
           >
-            Confirm
+             {isLoading ? <Spinner/> : "Confirm"}
           </button>
         </div>
       </div>
