@@ -1,11 +1,11 @@
 import { Category } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import prisma from '../config/prisma.js';
 import { CustomError } from '../utils/customError.js';
 import { generateToken } from '../utils/jwt.js';
 import { EmailSubject, sendMail } from '../utils/sendMail.js';
 import { cloudinayService } from './cloudinary.js';
 import { redisService } from './redis.js';
-import prisma from '../config/prisma.js';
 
 interface CreateUserData {
   firstName: string;
@@ -93,7 +93,6 @@ export class userService {
     if (!user) {
       throw new CustomError(400, 'Invalid email or password');
     }
-
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw new CustomError(400, 'Invalid email or password');

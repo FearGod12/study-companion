@@ -1,5 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import { NextFunction, Request, Response } from 'express';
 import { redisService } from '../services/redis.js';
 import { userService } from '../services/users.js';
 import { CustomError } from '../utils/customError.js';
@@ -58,8 +59,8 @@ export class UserController {
           makeResponse(
             true,
             'Account created successfully. Please use the code sent to your email to verify your account',
-            user
-          )
+            user,
+          ),
         );
     } catch (error) {
       next(error);
@@ -115,7 +116,7 @@ export class UserController {
       };
       // remove undefined values from updateData
       Object.keys(updateData).forEach(
-        key => updateData[key] === undefined && delete updateData[key]
+        key => updateData[key] === undefined && delete updateData[key],
       );
       const { error } = UpdateMeValidator.validate(updateData);
       if (error) {
@@ -178,7 +179,7 @@ export class UserController {
   static async requestPasswordReset(
     req: Request | any,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { email } = req.body;
@@ -201,8 +202,8 @@ export class UserController {
           makeResponse(
             true,
             'Reset Password Process Initiated Successfully! Please Use the code sent to your email to reset your password',
-            null
-          )
+            null,
+          ),
         );
     } catch (error) {
       next(error);
@@ -237,10 +238,13 @@ export class UserController {
         throw new CustomError(400, 'Passwords do not match');
       }
 
-      // Hash password will happen in the service layer
+      // Hash password
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
       await prisma.user.update({
         where: { id: user.id },
-        data: { password },
+        data: { password: hashedPassword },
       });
 
       redisService.deleteData(key);

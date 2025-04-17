@@ -4,11 +4,11 @@ CREATE DATABASE IF NOT EXISTS study_companion;
 -- Create the user with a password
 CREATE USER IF NOT EXISTS 'study_companion_user'@'localhost' IDENTIFIED BY 'study_companion_pwd';
 
--- Grant all privileges on the specific database to the user
+-- Grant necessary privileges for Prisma
 GRANT ALL PRIVILEGES ON study_companion.* TO 'study_companion_user'@'localhost';
-
--- Grant all privileges globally on all databases
-GRANT ALL PRIVILEGES ON *.* TO 'study_companion_user'@'localhost' WITH GRANT OPTION;
+GRANT CREATE, ALTER, DROP, REFERENCES ON *.* TO 'study_companion_user'@'localhost';
+GRANT INDEX ON study_companion.* TO 'study_companion_user'@'localhost';
+GRANT TRIGGER ON study_companion.* TO 'study_companion_user'@'localhost';
 
 -- Apply the changes
 FLUSH PRIVILEGES;
