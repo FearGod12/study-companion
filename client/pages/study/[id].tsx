@@ -22,7 +22,10 @@ const Study = () => {
   } = useStudySessions();
 
   const { currentSession } = useSessionStore();
-  const { notification, sendCheckInResponse } = useSocketSessionStore();
+  const notification = useSocketSessionStore((state) => state.notification);
+  const sendCheckInResponse = useSocketSessionStore(
+    (state) => state.sendCheckInResponse
+  );
   const [sessionEnded, setSessionEnded] = useState(false);
 
   const handleEndSessionWithMessage = (scheduleId: string) => {
@@ -48,9 +51,6 @@ const Study = () => {
   if (sessionEnded) {
     return <SessionEnded />;
   }
-  const handleNotificationResponse = (response: boolean) => {
-    sendCheckInResponse(notification?.id || "", response);
-  };
 
   return (
     <div className="container max-w-none flex flex-col items-end max-h-screen">
@@ -78,7 +78,9 @@ const Study = () => {
       {notification && (
         <NotificationPopup
           message={notification.message}
-          onRespond={handleNotificationResponse}
+          onRespond={(response) =>
+            sendCheckInResponse(notification.id, response)
+          }
           timeout={120}
         />
       )}

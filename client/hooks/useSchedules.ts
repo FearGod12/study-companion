@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { Schedule, ScheduleUtils } from "@/interfaces";
 import { useScheduleStore } from "@/store/useScheduleStore";
@@ -11,13 +11,11 @@ import {
 } from "@/utils/scheduleFormatting";
 import { createScheduleData, updateScheduleData } from "@/utils/scheduleUtils";
 import useStudySessions from "./useStudySessions";
-import { useAuthStore } from "@/store/useAuthStore";
 
 const useSchedules = () => {
   const {
     schedules,
     loading,
-    retrieved,
     newSchedule,
     editingSchedule,
     modalState,
@@ -32,7 +30,7 @@ const useSchedules = () => {
   } = useScheduleStore();
 
   const { handleStartSession } = useStudySessions();
-  const { isAuthenticated, hasHydrated } = useAuthStore();
+
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const daysOfWeek = useMemo(
     () => [
@@ -51,11 +49,6 @@ const useSchedules = () => {
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   // Fetch schedules when user is authenticated
-  useEffect(() => {
-    if (hasHydrated && isAuthenticated && !loading && !retrieved) {
-      retrieveSchedules();
-    }
-  }, [hasHydrated, isAuthenticated, loading, retrieved, retrieveSchedules]);
 
   // Handlers
   const handleCreateSchedule = async () => {

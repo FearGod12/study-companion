@@ -1,9 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ScheduleItem from "./ScheduleItem";
 import useSchedules from "@/hooks/useSchedules";
+import { useScheduleStore } from "@/store/useScheduleStore";
 
 const ScheduleList = () => {
   const { schedules, loading } = useSchedules();
+  const { retrieveSchedules } = useScheduleStore();
+
+  useEffect(() => {
+    retrieveSchedules();
+    console.log("retrieved");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading) return <p className="mt-10">Loading Schedules...</p>;
 

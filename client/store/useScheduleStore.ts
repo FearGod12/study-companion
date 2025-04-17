@@ -38,7 +38,6 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
         loading: false,
       }));
       toast.success("Schedule created successfully!");
-      console.log("created Schedules: ", response.data);
     } catch {
       set({ error: "Schedule creation error", loading: false });
     }
@@ -48,14 +47,12 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await retrieveSchedules();
-      const updatedSchedule = response.data;
-      set({ schedules: updatedSchedule, loading: false, retrieved: true });
+      set({ schedules: response.data, loading: false });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       set({
         error: "error retrieving schedule",
         loading: false,
-        retrieved: false,
       });
       if (
         error?.response?.status === 401 ||
@@ -81,7 +78,6 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
         return { schedules: updatedSchedules, loading: false };
       });
       toast.success("Schedule updated successfully!");
-      console.log("Updated Schedules: ", response.data);
     } catch {
       set({ error: "Schedule update error", loading: false });
     }
