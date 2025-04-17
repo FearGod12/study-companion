@@ -77,7 +77,7 @@ export class ScheduleController {
         throw new CustomError(400, error.details[0].message);
       }
 
-      console.log('updateData', updateData);
+      // console.log('updateData', updateData);
 
 
       const schedule = await ScheduleService.updateSchedule(req.user.id, req.params.id, updateData);

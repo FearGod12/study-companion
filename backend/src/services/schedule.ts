@@ -106,12 +106,14 @@ export class ScheduleService {
         updateData.endTime = endTime;
       }
 
+
       // Handle recurring days update
-      if (validatedData.recurringDays !== undefined) {
+      if (validatedData.recurringDays !== undefined && validatedData.recurringDays.length !== 0) {
         // Delete existing recurring days
         await tx.recurringDay.deleteMany({
           where: { scheduleId },
         });
+
 
         // Create new recurring days if schedule is recurring
         if (validatedData.isRecurring && validatedData.recurringDays?.length) {
@@ -166,13 +168,13 @@ export class ScheduleService {
 
   static async getSchedules(userId: string) {
     const now = new Date();
-    const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const NintyDaysFromNow = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
 
     const result = prisma.schedule.findMany({
       where: {
         userId,
         isActive: true,
-        startTime: { lte: thirtyDaysFromNow },
+        startTime: { lte: NintyDaysFromNow },
       },
       include: {
         recurringDays: {
