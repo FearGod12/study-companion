@@ -14,11 +14,22 @@ export interface PremiumResponse {
   success: boolean;
 }
 
+export interface Transaction {
+  id?: string;
+  amount: number;
+  currency: string;
+  reference: string;
+  createdAt: string;
+  invoiceCode: string;
+}
+
 export interface PremiumStore {
   isSubscribed: boolean;
+  transactions: Transaction[];
   loading: boolean;
   error: string | null;
   goPremium: () => Promise<PremiumResponse>;
+  fetchTransactions: () => Promise<void>;
 }
 
 export type ScheduleWithId = {

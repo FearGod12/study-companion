@@ -8,6 +8,7 @@ import {
   startStudySession,
 } from "@/services/sessionService";
 import { useAuthStore } from "./useAuthStore";
+import Router from "next/router";
 
 export const useSessionStore = create<SessionStore>((set) => ({
   studySessions: [],
@@ -42,10 +43,16 @@ export const useSessionStore = create<SessionStore>((set) => ({
   endSession: async (scheduleId: string) => {
     set({ loading: true, error: null });
     try {
-      await endStudySession(scheduleId);
-      set({ currentSession: null, loading: false });
-      toast.success("Session ended successfully!");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await endStudySession(scheduleId);
+      
+      if (response.success) {
+        set({ currentSession: null, loading: false });
+        toast.success("Session ended successfully!");
+        Router.push("/main/schedule"); 
+      } else {
+        set({ error: "An unexpected error occurred while ending the session.", loading: false });
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       set({
         error: "An error occurred while ending the session.",

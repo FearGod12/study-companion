@@ -28,3 +28,13 @@ export const updateUserDetails = async (userData: UpdateFormValues) => {
     throw error;
   }
 };
+
+export const userTransactions = async () => {
+  try {
+    const response = await apiClient.get("/users/transactions");
+    return response.data.data;
+  } catch (error) {
+    handleApiError(error);
+    throw error;
+  }
+};

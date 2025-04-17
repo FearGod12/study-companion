@@ -43,7 +43,7 @@ const Sessions = () => {
 
   return (
     <div className="p-6 mt-12 h-full min-h-screen">
-      <h2 className="text-lg font-bold text-accent text-pretty mb-4">
+      <h2 className="text-lg font-semibold text-accent mb-4">
         Study Statistics
       </h2>
 

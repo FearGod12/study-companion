@@ -13,6 +13,8 @@ export interface UserData {
   category?: string;
   address?: string;
   avatar?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AuthStore {

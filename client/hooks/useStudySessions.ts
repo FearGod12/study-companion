@@ -86,8 +86,6 @@ const useStudySessions = () => {
   const handleEndSession = async (scheduleId: string) => {
     try {
       await endSession(scheduleId);
-      toast.success("Session ended successfully!");
-      router.push("/main/schedule");
       retrieveSchedules();
     } catch (error) {
       console.error("Failed to end session:", error);
