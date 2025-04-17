@@ -10,12 +10,6 @@ export const useSocketSessionStore = create<SocketSessionStore>((set, get) => ({
   lastCheckIn: null,
 
   connectSocket: (userId) => {
-    const existingSocket = get().socket;
-
-    if (existingSocket && existingSocket.connected) {
-      return;
-    }
-
     const socket = io(
       process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3000",
       {
