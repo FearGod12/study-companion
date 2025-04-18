@@ -77,6 +77,7 @@ const useSchedules = () => {
 
   const handleUpdateSchedule = async (id: string, payload: ScheduleUtils) => {
     setLoadingAction("update");
+    console.log("prepared data payload", payload);
     try {
       const data = updateScheduleData(payload);
       await updateSchedule(id, data);
@@ -103,28 +104,23 @@ const useSchedules = () => {
 
   // Modified to correctly handle recurring days
   const toggleRecurringDay = (dayId: number, isEditing: boolean) => {
-    if (isEditing) {
-      if (!editingSchedule) return;
+    const toggle = (days: number[]) =>
+      days.includes(dayId)
+        ? days.filter((id) => id !== dayId)
+        : [...days, dayId];
 
-      const updatedDays = isEditing
-        ? [...(editingSchedule?.recurringDays || [])]
-        : [...(newSchedule.recurringDays || [])];
-      const index = updatedDays.indexOf(dayId);
-      if (index !== -1) {
-        updatedDays.splice(index, 1);
-      } else {
-        updatedDays.push(dayId);
-      }
-      setEditingSchedule({ ...editingSchedule, recurringDays: updatedDays });
-    } else {
-      const updatedDays = [...newSchedule.recurringDays];
-      const index = updatedDays.indexOf(dayId);
-      if (index !== -1) {
-        updatedDays.splice(index, 1);
-      } else {
-        updatedDays.push(dayId);
-      }
-      setNewSchedule({ ...newSchedule, recurringDays: updatedDays });
+    if (isEditing && editingSchedule?.isRecurring) {
+      const updatedSchedule = {
+        ...editingSchedule,
+        recurringDays: toggle(editingSchedule.recurringDays),
+      };
+      setEditingSchedule(updatedSchedule);
+    } else if (newSchedule.isRecurring) {
+      const updatedSchedule = {
+        ...newSchedule,
+        recurringDays: toggle(newSchedule.recurringDays),
+      };
+      setNewSchedule(updatedSchedule);
     }
   };
 
@@ -141,7 +137,15 @@ const useSchedules = () => {
       if (!schedule) return;
 
       if (action === "edit") {
-        setEditingSchedule(schedule);
+        const normalizedRecurringDays = (schedule.recurringDays ?? []).map(
+          (d: number | { dayOfWeek: number }) =>
+            typeof d === "number" ? d : d.dayOfWeek
+        );
+
+        setEditingSchedule({
+          ...schedule,
+          recurringDays: normalizedRecurringDays,
+        });
         toast.success("Editing mode enabled!");
       } else if (action === "delete") {
         await handleDeleteSchedule(schedule.id);

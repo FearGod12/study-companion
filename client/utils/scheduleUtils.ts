@@ -10,7 +10,7 @@ export const updateScheduleData = (schedule: any) => {
   };
 
   if (schedule.isRecurring) {
-    data.recurringDays = schedule.recurringDays;
+    data.recurringDays = schedule.recurringDays ?? [];
   } else {
     delete data.recurringDays;
   }

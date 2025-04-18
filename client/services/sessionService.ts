@@ -49,4 +49,3 @@ export const fetchStudyStatistics = async () => {
     throw error;
   }
 };
-

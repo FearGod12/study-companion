@@ -8,7 +8,6 @@ import {
 } from "@/utils/scheduleFormatting";
 import { useState } from "react";
 
-
 const ScheduleForm: React.FC = () => {
   const {
     newSchedule,
@@ -30,20 +29,7 @@ const ScheduleForm: React.FC = () => {
 
     try {
       if (editingSchedule) {
-        const updatedSchedule = {
-          ...editingSchedule,
-          title: newSchedule.title || editingSchedule.title,
-          startDate: newSchedule.startDate || editingSchedule.startDate,
-          startTime: newSchedule.startTime || editingSchedule.startTime,
-          duration: newSchedule.duration || editingSchedule.duration,
-          isRecurring:
-            newSchedule.isRecurring !== undefined
-              ? newSchedule.isRecurring
-              : editingSchedule.isRecurring,
-          recurringDays: newSchedule.recurringDays.length
-            ? newSchedule.recurringDays
-            : editingSchedule.recurringDays,
-        };
+        const updatedSchedule = editingSchedule;
         handleUpdateSchedule(updatedSchedule.id, updatedSchedule);
         setEditingSchedule(null);
       } else {
@@ -174,9 +160,8 @@ const ScheduleForm: React.FC = () => {
             Recurring
           </label>
 
-          {(editingSchedule
-            ? editingSchedule.isRecurring
-            : newSchedule.isRecurring) && (
+          {((editingSchedule && editingSchedule.isRecurring) ||
+            newSchedule.isRecurring) && (
             <div className="space-x-4">
               {daysOfWeek.map((day) => (
                 <label key={day.id}>
