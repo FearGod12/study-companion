@@ -5,8 +5,17 @@ export default function SignUpPage() {
   return (
     <section className="flex w-full min-h-screen">
       {/* Left Div */}
-      <div className="hidden lg:flex flex-1 bg-accent min-h-screen">
-        <div className="flex justify-center items-center w-full h-full">
+      <div className="flex-1 lg:flex lg:flex-col hidden bg-accent shadow-lg shadow-accent min-h-screen justify-center items-center relative">
+        <div className="mt-12 text-center mx-4">
+          <h2 className="text-4xl font-bold text-gray-100">
+            Welcome to <span className="font-light">Study Companion</span>
+          </h2>
+          <p className="lg:text-xl md:text-lg text-base text-gray-100 mt-2">
+            Create an account now
+          </p>
+        </div>
+        {/* Responsive image */}
+        <div className="w-full h-full flex justify-center items-center">
           <Image
             src="/Image/img-2.png"
             alt="SignUp Background"

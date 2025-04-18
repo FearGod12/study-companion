@@ -4,7 +4,7 @@ import { FaTwitter, FaInstagram, FaGithub } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="bg-accent py-10 px-6 flex flex-col justify-center items-center">
+    <footer className="bg-accent-dark py-10 px-6 flex flex-col justify-center items-center">
       <div className="max-w-6xl grid md:grid-cols-3 gap-10 lg:text-base md:text:base text-sm py-2 px-6 justify-items-center">
         {/* Brand Section */}
         <div>
@@ -66,7 +66,7 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="mt-10 text-center text-xs text-accent font-semibold opacity-70">
+      <div className="mt-10 text-center text-xs text-gray-100 font-semibold">
         &copy; {new Date().getFullYear()} StudyCompanion. All rights reserved.
       </div>
     </footer>

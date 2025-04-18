@@ -31,7 +31,6 @@ export interface ScheduleStore {
   schedules: Schedule[];
   loading: boolean;
   error: string | null;
-  retrieved: boolean;
   newSchedule: NewSchedule;
   editingSchedule: Schedule | null;
   modalState: {

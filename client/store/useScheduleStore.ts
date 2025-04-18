@@ -12,7 +12,6 @@ import { useAuthStore } from "./useAuthStore";
 export const useScheduleStore = create<ScheduleStore>((set) => ({
   schedules: [],
   loading: false,
-  retrieved: false,
   error: null,
   newSchedule: {
     title: "",

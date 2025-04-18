@@ -16,12 +16,13 @@ export const useAuthForgotPass = () => {
 
   const handleSubmit = async (
     values: ForgotPassValues,
-    { setSubmitting }: FormikHelpers<ForgotPassValues>
+    { setSubmitting, resetForm }: FormikHelpers<ForgotPassValues>
   ) => {
     setSubmitting(true);
     toast.dismiss();
     try {
       await requestPasswordReset(values.email);
+      resetForm();
       router.push("/auth/reset-password");
     } catch (error: unknown) {
       console.error("Password reset error:", error);

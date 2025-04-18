@@ -169,7 +169,7 @@ const Profile = () => {
                 <option value="">Select Category</option>
                 <option value="OLEVEL">O Level</option>
                 <option value="UNDERGRADUATE">Undergraduate</option>
-                <option value="POSTGRADUATE">Graduate</option>
+                <option value="GRADUATE">Graduate</option>
               </select>
             </div>
 

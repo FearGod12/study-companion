@@ -51,6 +51,7 @@ const ForgotPassword = () => {
               {/* Loader and button */}
               <Button
                 text={isSubmitting ? <Spinner /> : "Request Password Reset"}
+                type="submit"
                 className={`text-white hover:bg-white hover:text-accent hover:border-accent hover:border mt-4 px-12 py-3 ${
                   isSubmitting || !isValid
                     ? "opacity-50 cursor-not-allowed"

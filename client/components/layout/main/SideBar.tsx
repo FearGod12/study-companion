@@ -3,14 +3,17 @@
 import LightLogo from "@/components/common/logo/LightLogo";
 import MenuItem from "@/components/menuBar/MenuItem";
 import Pro from "@/components/menuBar/Pro";
-import usePremiumStore from "@/store/usePremiumStore";
 import { FaCalendar, FaBook } from "react-icons/fa";
 import { RiDashboardLine } from "react-icons/ri";
 import { MdOutlinePayment } from "react-icons/md";
 import { FaUser } from "react-icons/fa6";
+import useUser from "@/hooks/useUser";
 
 const SideBar = () => {
-  const { isSubscribed } = usePremiumStore();
+  const { user, isAuthenticated } = useUser();
+
+  if (!user || !isAuthenticated) return null;
+
   return (
     <section className="h-full bg-accent">
       {/* Logo */}
@@ -40,7 +43,7 @@ const SideBar = () => {
           icon={<FaBook size={20} />}
           label="Sessions"
         />
-        {isSubscribed && (
+        {user.isPremium && (
           <MenuItem
             to="/main/transactions"
             icon={<MdOutlinePayment size={22} />}
@@ -50,9 +53,11 @@ const SideBar = () => {
       </ul>
 
       {/* Pro Feature */}
-      <div className="mt-10">
-        <Pro />
-      </div>
+      {!user.isPremium && (
+        <div className="mt-10">
+          <Pro />
+        </div>
+      )}
     </section>
   );
 };

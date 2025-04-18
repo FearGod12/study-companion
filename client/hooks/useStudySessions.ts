@@ -31,7 +31,8 @@ const useStudySessions = () => {
     if (!id || typeof id !== "string" || currentSession) return;
 
     startSession(id);
-  }, [router.isReady, router.query, startSession, currentSession]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.isReady, router.query, startSession]);
 
   // Set initial timeLeft based on session info
   useEffect(() => {

@@ -13,7 +13,7 @@ export const useAuthEmailVerify = () => {
 
   const handleSubmit = async (
     values: EmailVerifyValues,
-    { setSubmitting }: FormikHelpers<EmailVerifyValues>
+    { setSubmitting, resetForm }: FormikHelpers<EmailVerifyValues>
   ) => {
     setSubmitting(true);
     const token = values.otp.join("");
@@ -25,6 +25,7 @@ export const useAuthEmailVerify = () => {
       }
 
       await verifyEmail(emailForVerification, token);
+      resetForm();
       router.push("/auth/login");
     } catch (err) {
       console.error("Email verification failed:", err);

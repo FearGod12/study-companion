@@ -31,7 +31,7 @@ const ScrollToErrorOnSubmit = () => {
           });
           (firstInvalidElement as HTMLElement).focus();
         }
-      }, 100); // Let the DOM settle
+      }, 100); 
   
       return () => clearTimeout(timeout);
     }
@@ -209,6 +209,7 @@ const SignUp = () => {
           {/* Submit Button */}
           <Button
             text={isSubmitting ? "Registering..." : "Register"}
+            type="submit"
             className="mt-6 group bg-accent text-white hover:bg-white hover:text-accent hover:border-accent hover:border px-12 py-3"
             disabled={!isValid || isSubmitting}
             loading={isSubmitting}

@@ -22,11 +22,12 @@ export const useAuthLogin = () => {
 
   const handleSubmit = async (
     values: LoginFormValues,
-    { setSubmitting }: FormikHelpers<LoginFormValues>
+    { setSubmitting, resetForm }: FormikHelpers<LoginFormValues>
   ) => {
     setSubmitting(true);
     try {
       await login(values.email ?? "", values.password ?? "");
+      resetForm();
     } catch (error: unknown) {
       let userMessage = "An unexpected error occurred.";
       if (error instanceof Error && error.message) {

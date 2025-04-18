@@ -2,10 +2,14 @@
 
 :root {
   --accent: #960057;
+  --accent-light: #FFCCE5;
+  --accent-dark: #720047;
 }
 
 @theme {
   --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-accent-dark: var(--accent-dark);
 }
 
 @font-face {

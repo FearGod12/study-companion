@@ -15,6 +15,7 @@ export interface UserData {
   avatar?: string;
   createdAt?: string;
   updatedAt?: string;
+  isPremium?: string;
 }
 
 export interface AuthStore {

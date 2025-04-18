@@ -20,7 +20,7 @@ export const useAuthResetPass = () => {
 
   const handleSubmit = async (
     values: resetPassValues,
-    { setSubmitting }: FormikHelpers<resetPassValues>
+    { setSubmitting, resetForm }: FormikHelpers<resetPassValues>
   ) => {
     setSubmitting(true);
     toast.dismiss();
@@ -31,6 +31,7 @@ export const useAuthResetPass = () => {
         values.confirmPassword,
         values.email
       );
+      resetForm();
     } catch (error: unknown) {
       console.error("Password reset error:", error);
     } finally {

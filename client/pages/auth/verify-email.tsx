@@ -34,6 +34,7 @@ const EmailVerification = () => {
 
               <Button
                 text={isSubmitting ? <Spinner /> : "Continue"}
+                type="submit"
                 className="bg-accent text-gray-100 hover:border hover:bg-gray-100 hover:text-accent hover:border-accent px-12 py-3"
                 disabled={!isValid || isSubmitting}
                 loading={isSubmitting}

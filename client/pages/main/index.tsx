@@ -14,7 +14,7 @@ function Dashboard() {
         <div className="bg-gray-100 p-6 rounded-lg shadow-md">
           <MainHeader />
         </div>
-        <div className=" bg-pink-100 rounded-lg p-4 shadow-md my-4">
+        <div className=" bg-accent-light rounded-lg p-4 shadow-md my-4">
           <Profile />
         </div>
         {/* Statistics Section */}

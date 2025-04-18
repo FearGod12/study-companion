@@ -24,11 +24,12 @@ export const useAuthSignup = () => {
 
   const handleSubmit = async (
     values: FormValues,
-    { setSubmitting }: FormikHelpers<FormValues>
+    { setSubmitting, resetForm }: FormikHelpers<FormValues>
   ) => {
     setSubmitting(true);
     toast.dismiss();
     await register(values);
+    resetForm();
     setSubmitting(false);
   };
 

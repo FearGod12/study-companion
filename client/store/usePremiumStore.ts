@@ -5,7 +5,6 @@ import { useAuthStore } from "./useAuthStore";
 import { userTransactions } from "@/services/userDataService";
 
 const usePremiumStore = create<PremiumStore>((set) => ({
-  isSubscribed: false,
   transactions: [],
   loading: false,
   error: null,
@@ -15,8 +14,8 @@ const usePremiumStore = create<PremiumStore>((set) => ({
 
     try {
       const url = await subscribeToPremium();
-      window.location.href = url;
-      set({ isSubscribed: false, loading: false });
+      window.open(url, "_blank");
+      set({ loading: false });
       return url;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -35,7 +34,7 @@ const usePremiumStore = create<PremiumStore>((set) => ({
 
     try {
       const response = await userTransactions();
-      set({ isSubscribed: true, transactions: response, loading: false });
+      set({ transactions: response, loading: false });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       set({ error: "Transaction fetch failed", loading: false });

@@ -7,7 +7,7 @@ const LoginRight = () => {
         <h2 className="text-4xl font-bold text-gray-100">
           Welcome to <span className="font-light">Study Companion</span>
         </h2>
-        <p className="text-sm text-gray-100 mt-2">
+        <p className="lg:text-xl md:text-lg text-base text-gray-100 mt-2">
           Login to access your account
         </p>
       </div>
@@ -15,7 +15,7 @@ const LoginRight = () => {
       <div className="mt-4 w-full h-full flex justify-center items-center">
         <Image
           src="/image/img-3.png"
-          alt="Study Companion"
+          alt="Login background image"
           className="w-full h-auto max-w-md"
           width={300}
           height={400}

@@ -46,7 +46,7 @@ const Carousel = () => {
               key={i}
               className="embla__slide lg:flex-[0_0_33.3333%] md:flex-[0_0_80%] flex-[0_0_100%] px-4"
             >
-              <div className="flex flex-col items-center bg-gray-50 rounded-lg h-full border border-accent shadow shadow-accent">
+              <div className="flex flex-col items-center bg-gray-50 rounded-lg h-full border border-accent shadow shadow- md:mx-0 lg:mx-0 mx-8">
                 <Image
                   src={card.src}
                   alt={`Slide ${i + 1}`}
@@ -70,7 +70,7 @@ const Carousel = () => {
             className={`w-3 h-1 rounded-full transition-colors ${
               index === selectedIndex
                 ? "bg-accent"
-                : "bg-gray-300"
+                : "bg-gray-100"
             }`}
           />
         ))}

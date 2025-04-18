@@ -24,7 +24,6 @@ export interface Transaction {
 }
 
 export interface PremiumStore {
-  isSubscribed: boolean;
   transactions: Transaction[];
   loading: boolean;
   error: string | null;

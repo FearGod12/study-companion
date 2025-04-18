@@ -21,7 +21,6 @@ const useUser = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
-    // Fetch user data only if the user is authenticated
     if (isAuthenticated && !user) {
       fetchUserData();
     }

@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const Header = () => {
   return (
-    <header className="flex justify-between items-center pl-4 pr-10 py-4 bg-accent fixed w-full shadow">
+    <header className="flex justify-between items-center pl-4 pr-10 py-4 bg-accent-dark fixed w-full shadow">
       <LightLogo />
       <div className="flex items-center gap-6 flex-row-reverse lg:flex-row md:flex-row">
         <Navbar />
