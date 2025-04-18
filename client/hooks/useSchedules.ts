@@ -77,7 +77,6 @@ const useSchedules = () => {
 
   const handleUpdateSchedule = async (id: string, payload: ScheduleUtils) => {
     setLoadingAction("update");
-    console.log("prepared data payload", payload);
     try {
       const data = updateScheduleData(payload);
       await updateSchedule(id, data);
@@ -102,7 +101,6 @@ const useSchedules = () => {
     }
   };
 
-  // Modified to correctly handle recurring days
   const toggleRecurringDay = (dayId: number, isEditing: boolean) => {
     const toggle = (days: number[]) =>
       days.includes(dayId)
