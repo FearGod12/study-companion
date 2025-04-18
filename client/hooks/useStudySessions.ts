@@ -5,13 +5,11 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useSessionStore } from "@/store/useSessionStore";
 import { Schedule } from "@/interfaces";
-import { useScheduleStore } from "@/store/useScheduleStore";
 
 const useStudySessions = () => {
   const router = useRouter();
   const { loading, endSession, startSession, currentSession } =
     useSessionStore();
-  const { retrieveSchedules } = useScheduleStore();
   const [hasMounted, setHasMounted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const [bgImage, setBgImage] = useState<string | null>(null);
@@ -31,7 +29,7 @@ const useStudySessions = () => {
     if (!id || typeof id !== "string" || currentSession) return;
 
     startSession(id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady, router.query, startSession]);
 
   // Set initial timeLeft based on session info
@@ -87,7 +85,6 @@ const useStudySessions = () => {
   const handleEndSession = async (scheduleId: string) => {
     try {
       await endSession(scheduleId);
-      retrieveSchedules();
     } catch (error) {
       console.error("Failed to end session:", error);
       toast.error("Failed to end session.");

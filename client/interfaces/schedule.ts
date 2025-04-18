@@ -33,11 +33,6 @@ export interface ScheduleStore {
   error: string | null;
   newSchedule: NewSchedule;
   editingSchedule: Schedule | null;
-  modalState: {
-    isOpen: boolean;
-    action: "edit" | "delete" | "start" | null;
-    schedule: Schedule | null;
-  };
   createSchedule: (schedule: NewSchedule) => Promise<void>;
   retrieveSchedules: () => Promise<void>;
   updateSchedule: (id: string, schedule: Schedule) => Promise<void>;
@@ -45,8 +40,6 @@ export interface ScheduleStore {
   setSchedules: (schedules: Schedule[]) => void;
   setNewSchedule: (newSchedule: NewSchedule) => void;
   setEditingSchedule: (editingSchedule: Schedule | null) => void;
-  setModalState: (newState: ScheduleStore["modalState"]) => void;
-  closeModal: () => void;
 }
 
 export interface Day {

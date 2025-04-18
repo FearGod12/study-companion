@@ -95,13 +95,4 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
       set({ error: "Schedule deletion error", loading: false });
     }
   },
-
-  modalState: {
-    isOpen: false,
-    action: null,
-    schedule: null,
-  },
-  setModalState: (newState) => set({ modalState: newState }),
-  closeModal: () =>
-    set({ modalState: { isOpen: false, action: null, schedule: null } }),
 }));

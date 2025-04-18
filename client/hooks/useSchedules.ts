@@ -11,6 +11,7 @@ import {
 } from "@/utils/scheduleFormatting";
 import { createScheduleData, updateScheduleData } from "@/utils/scheduleUtils";
 import useStudySessions from "./useStudySessions";
+import { useModalStore } from "@/store/useModalStore"; // Import the modal store
 
 const useSchedules = () => {
   const {
@@ -18,16 +19,15 @@ const useSchedules = () => {
     loading,
     newSchedule,
     editingSchedule,
-    modalState,
     createSchedule,
     retrieveSchedules,
     updateSchedule,
     deleteSchedule,
     setNewSchedule,
     setEditingSchedule,
-    setModalState,
-    closeModal,
   } = useScheduleStore();
+
+  const { openModal, closeModal, modalState } = useModalStore(); // Access the modal store
 
   const { handleStartSession } = useStudySessions();
 
@@ -47,8 +47,6 @@ const useSchedules = () => {
 
   const locale = Intl.DateTimeFormat().resolvedOptions().locale || "en-US";
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-  // Fetch schedules when user is authenticated
 
   // Handlers
   const handleCreateSchedule = async () => {
@@ -122,13 +120,15 @@ const useSchedules = () => {
     }
   };
 
-  const openModal = (
+  // Use the modal store's openModal function instead of setModalState
+  const openModalHandler = (
     schedule: Schedule,
     action: "edit" | "delete" | "start"
   ) => {
-    setModalState({ isOpen: true, action, schedule });
+    openModal(schedule, action); // Open modal through the modal store
   };
 
+  // Use modal state directly from the modal store
   const handleConfirmAction = async () => {
     try {
       const { action, schedule } = modalState;
@@ -153,7 +153,7 @@ const useSchedules = () => {
     } catch {
       toast.error("An error occurred during the action.");
     }
-    closeModal();
+    closeModal(); // Close modal after the action is complete
   };
 
   return {
@@ -180,8 +180,8 @@ const useSchedules = () => {
     toggleRecurringDay,
 
     loadingAction,
-    isModalOpen: modalState.isOpen,
-    openModal,
+    isModalOpen: modalState.isOpen, // Use modal state directly
+    openModal: openModalHandler, // Call the openModal handler instead of setModalState
     closeModal,
     handleConfirmAction,
   };
