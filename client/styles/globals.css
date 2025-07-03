@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --accent: #960057;
+  --accent-light: #FFCCE5;
+  --accent-dark: #720047;
+}
+
+@theme {
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-accent-dark: var(--accent-dark);
+}
+
+@font-face {
+  font-family: "Inria Sans";
+  src: url("/fonts/InriaSans-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Ink Free";
+  src: url("/fonts/InkFree.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Ink Free", cursive;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: "Inria Sans", sans-serif;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hidden {
+  scrollbar-width: none;
+}
+
+span {
+  font-family: "Inria Sans", sans-serif;
+}
+
+.tooltip {
+  @apply absolute transform -translate-x-1 bottom-6 mb-2 w-max px-2 py-1 text-sm text-gray-900 border border-blue-400 font-bold bg-gray-100 rounded opacity-0 group-hover:opacity-100;
+}
+
+
