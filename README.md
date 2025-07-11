@@ -16,11 +16,13 @@ Study Companion is a comprehensive study tracking and productivity application d
 ## 🚀 Technology Stack
 
 ### Frontend
+
+- Next.js
 - React
-- Vite
-- Javascript
+- TypeScript
 
 ### Backend
+
 - Node.js
 - Express
 - TypeScript
@@ -31,6 +33,7 @@ Study Companion is a comprehensive study tracking and productivity application d
 ## 📦 Prerequisites
 
 Before you begin, ensure you have the following installed:
+
 - Node.js (v20+ recommended)
 - npm or yarn
 - MongoDB
@@ -39,12 +42,14 @@ Before you begin, ensure you have the following installed:
 ## 🔧 Installation
 
 ### Clone the Repository
+
 ```bash
 git clone https://github.com/FearGod12/study-companion.git
 cd study-companion
 ```
 
 ### Frontend Setup
+
 ```bash
 cd frontend
 npm install
@@ -52,6 +57,7 @@ npm run dev
 ```
 
 ### Backend Setup
+
 ```bash
 cd backend
 npm install
@@ -66,25 +72,28 @@ npm run dev    # for development
 Create `.env` files in both frontend and backend directories with the following variables:
 
 ### Backend `.env`
-```
-MONGODB_URI=your_mongodb_connection_string
-REDIS_URI=your_redis_connection_string
-JWT_SECRET=your_jwt_secret
-PORT=3000
 
+```
+DATABASE_URL=mysql://your_mysql_connection_string
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=your_jwt_secret_key
+SOCKET_CLIENT_URL=your_socket_client_url
 ROOT_EMAIL=your_root_email
 GMAIL_USER=your_gmail_email
 GMAIL_PASSWORD=your_gmail_app_password
-
 CLOUD_NAME=your_cloudinary_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_SECRET_KEY=your_cloudinary_secret_key
 CLOUDINARY_URL=your_cloudinary_url
+PAYSTACK_SUBSCRIPTION_URL=your_paystack_subscription_url
+PAYSTACK_SECRET_KEY=your_paystack_secret_key
+PAYSTACK_PUBLIC_KEY=your_paystack_public_key
 ```
 
 ### Frontend `.env`
+
 ```
-VITE_BASE_URL=http://localhost:3000/api
+NEXT_PUBLIC_BASE_URL=http://localhost:3001
 ```
 
 ## 📡 API Documentation
@@ -95,12 +104,14 @@ The backend uses Swagger for API documentation. Once the server is running, acce
 ## 🧪 Testing
 
 ### Backend Tests
+
 ```bash
 cd backend
 npm run test
 ```
 
 ### Frontend Tests
+
 ```bash
 cd frontend
 npm run test
@@ -126,9 +137,9 @@ Project Link: [https://github.com/FearGod12/study-companion](https://github.com/
 
 ## 🙏 Acknowledgements
 
+- [Next.js](https://nextjs.org/)
 - [React](https://reactjs.org/)
 - [Express](https://expressjs.com/)
 - [Mongoose](https://mongoosejs.com/)
 - [Redis](https://redis.io/)
-- [Vite](https://vitejs.dev/)
 - [TypeScript](https://www.typescriptlang.org/)
