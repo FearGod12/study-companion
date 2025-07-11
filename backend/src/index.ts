@@ -11,7 +11,7 @@ const prisma = new PrismaClient();
 async function startServer() {
   try {
 
-    const PORT = process.env.PORT || 3000;
+    const PORT = process.env.PORT || 3001;
     const HOST = process.env.HOST || '0.0.0.0';
     const server = createServer(app);
 
