@@ -19,6 +19,8 @@ router.patch(
 router.post('/users/reset-password', UserController.resetPassword);
 
 router.post('/users/request-password-reset', UserController.requestPasswordReset);
+// fetch users transactions
+router.get('/users/transactions', isAuthenticated, UserController.getTransactions);
 
 export default router;
 
@@ -63,7 +65,7 @@ export default router;
  *                   format: password
  *                 category:
  *                   type: string
- *                   enum: [O level, undergraduate, graduate]
+ *                   enum: [GRADUATE, UNDERGRADUATE, OLEVEL]
  *                 address:
  *                   type: string
  *       responses:
@@ -192,7 +194,7 @@ export default router;
  *         data:
  *           type: object
  *           properties:
- *             _id:
+ *             id:
  *               type: string
  *             firstName:
  *               type: string
@@ -395,7 +397,7 @@ export default router;
  *               category:
  *                 type: string
  *                 description: User's educational category
- *                 enum: ['O level', 'undergraduate', 'graduate']
+ *                 enum: ['OLEVEL', 'UNDERGRADUATE', 'GRADUATE']
  *                 example: "undergraduate"
  *               address:
  *                 type: string
@@ -412,4 +414,45 @@ export default router;
  *         description: Invalid input or validation error
  *       401:
  *         description: Unauthorized - authentication required
+ */
+
+/**
+ * @swagger
+ * /users/transactions:
+ *   get:
+ *     summary: Get user's transactions
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Transactions retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       amount:
+ *                         type: number
+ *                       currency:
+ *                         type: string
+ *                       reference:
+ *                         type: string
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       invoiceCode:
+ *                         type: string
  */

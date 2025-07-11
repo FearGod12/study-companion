@@ -1,11 +1,16 @@
 import Joi from 'joi';
+import { isDateInPast } from '../timezone.js';
 
 export const createScheduleSchema = Joi.object({
   title: Joi.string().required(),
-  startDate: Joi.date().iso().required().messages({
-    'date.base': 'Invalid date format',
-    'any.required': 'Start date is required',
-  }),
+  startDate: Joi.string()
+    .pattern(/^\d{4}-\d{2}-\d{2}$/)
+    .required()
+    .messages({
+      'string.pattern.base': 'Start date must be in the format YYYY-MM-DD',
+      'date.past': 'Start date cannot be in the past',
+      'any.required': 'Start date is required',
+    }),
   startTime: Joi.string()
     .regex(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/)
     .required()
@@ -26,6 +31,7 @@ export const createScheduleSchema = Joi.object({
       'number.base': 'Each recurring day must be a number between 0 (Sunday) and 6 (Saturday)',
     }),
 });
+
 export const updateScheduleSchema = Joi.object({
   title: Joi.string(),
   startDate: Joi.date().iso().messages({

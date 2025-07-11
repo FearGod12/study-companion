@@ -56,7 +56,7 @@ const scheduleRouter = express.Router();
  *             schema:
  *               type: object
  *               properties:
- *                 _id:
+ *                 id:
  *                   type: string
  *                   description: ID of the created schedule
  *                   example: "61e8a7d8f6f6a76d88d9f8a2"
@@ -121,7 +121,7 @@ scheduleRouter.get('/', isAuthenticated, ScheduleController.getSchedules);
  *     summary: Update a schedule
  *     tags:
  *       - Schedules
- *     security: 
+ *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path

@@ -16,7 +16,7 @@ export class cloudinayService {
   static async uploadBuffer(
     buffer: Buffer,
     mimetype: string,
-    folder: string = 'Study Companion',
+    folder: string = 'Study Companion'
   ): Promise<CloudinaryUploadResult> {
     try {
       // Convert buffer to base64 string for Cloudinary
@@ -35,7 +35,7 @@ export class cloudinayService {
 
   static async uploadBase64Image(
     base64String: string,
-    folder: string = 'Study Companion',
+    folder: string = 'Study Companion'
   ): Promise<CloudinaryUploadResult> {
     try {
       const result = await cloudinary.uploader.upload(base64String, {
@@ -80,11 +80,9 @@ async function exampleUsage() {
 
     // Upload a base64 image
     const uploadResult = await cloudinayService.uploadBase64Image(base64Image);
-    console.log('Upload result:', uploadResult);
 
     // Get optimized URL
     const optimizedUrl = cloudinayService.getOptimizedUrl(uploadResult.public_id);
-    console.log('Optimized URL:', optimizedUrl);
 
     // Get transformed URL (auto-crop to square)
     const autoCropUrl = cloudinayService.getTransformedUrl(uploadResult.public_id, {
@@ -93,11 +91,9 @@ async function exampleUsage() {
       width: 500,
       height: 500,
     });
-    console.log('Auto-cropped URL:', autoCropUrl);
 
     // Delete the uploaded image
     await cloudinayService.deleteImage(uploadResult.public_id);
-    console.log('Image deleted successfully');
   } catch (error) {
     console.error('Error in example usage:', error);
   }

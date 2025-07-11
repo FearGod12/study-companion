@@ -1,0 +1,175 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  firstName     String
+  lastName      String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  phoneNumber   String?
+  address       String
+  category      Category
+  password      String
+  avatar        String?
+  isPremium       Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  schedules     Schedule[]
+  readingSessions ReadingSession[]
+  subscriptionEvents SubscriptionEvent[]
+
+  @@map("users")
+}
+enum Category {
+  OLEVEL
+  UNDERGRADUATE
+  GRADUATE
+
+  @@map("categories")
+}
+
+model Schedule {
+  id              String    @id @default(uuid())
+  userId          String
+  title           String
+  startDate       DateTime  @db.Date
+  startTime       DateTime
+  endTime         DateTime
+  duration        Int       // in minutes, min: 1, max: 1440
+  isRecurring     Boolean   @default(false)
+  isActive        Boolean   @default(true)
+  status          ScheduleStatus @default(SCHEDULED)
+  checkInInterval Int       @default(15)
+  reminderTimes   Json      @default("[30, 5]") // Store as JSON array of numbers
+  lastCompletedAt DateTime?
+  completionCount Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id])
+  readingSessions ReadingSession[]
+  recurringDays   RecurringDay[]
+
+  @@index([userId, startTime])
+  @@index([isActive, startTime])
+  @@index([status, startTime])
+  @@map("schedules")
+  ScheduledNotification ScheduledNotification[]
+}
+
+enum ScheduleStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  MISSED
+
+  @@map("schedule_statuses")
+}
+
+model ReadingSession {
+  id          String    @id @default(uuid())
+  userId      String
+  scheduleId  String
+  startTime   DateTime
+  endTime     DateTime?
+  lastCheckIn DateTime
+  duration    Int       @default(0) // actual duration in minutes
+  status      SessionStatus @default(ACTIVE)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id])
+  schedule    Schedule  @relation(fields: [scheduleId], references: [id])
+
+  @@index([userId])
+  @@index([scheduleId])
+  @@map("reading_sessions")
+}
+
+enum SessionStatus {
+  ACTIVE
+  COMPLETED
+  INTERRUPTED
+
+  @@map("session_statuses")
+}
+
+// Add this model to your schema.prisma file
+
+model ScheduledNotification {
+  id                 String    @id @default(uuid())
+  scheduleId         String
+  minutesBefore      Int
+  scheduledFor       DateTime
+  isExecuted         Boolean   @default(false)
+  cronJobId          String
+  isRecurring        Boolean   @default(false)
+  recurringDayOfWeek Int?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Relations
+  schedule           Schedule  @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@index([scheduleId])
+  @@index([isExecuted, scheduledFor])
+  @@map("scheduled_notifications")
+}
+
+// New model for recurring days
+model RecurringDay {
+  id          String   @id @default(uuid())
+  scheduleId  String
+  dayOfWeek   Int      // 0-6 (Sunday-Saturday)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  schedule    Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@index([scheduleId])
+  @@map("recurring_days")
+}
+
+model Transactions {
+  id String @id @default(uuid())
+  userId String
+  amount Decimal @db.Decimal(10, 2)
+  reference String?
+  invoiceCode String?
+  currency String
+  createdAt DateTime @default(now())
+}
+
+
+model SubscriptionEvent {
+  id             String   @id @default(uuid())
+  userId         String
+  eventType      String
+  status         String
+  amount         Float
+  currency       String
+  metadata       Json
+  createdAt      DateTime @default(now())
+
+  // Relations
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("subscription_events")
+}
+

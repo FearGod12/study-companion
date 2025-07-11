@@ -1,7 +1,7 @@
 import { Server as HttpServer } from 'http';
 import { Socket, Server as SocketIOServer } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
-import User from '../models/users.js';
+import { PrismaClient } from '@prisma/client';
 import { EmailSubject, sendMail } from '../utils/sendMail.js';
 
 interface CheckInEvent {
@@ -18,7 +18,7 @@ interface CheckInTimeout {
 
 interface ActiveSession {
   endTime: Date;
-  timeoutIds: NodeJS.Timeout[]; // Changed to array of timeouts
+  timeoutIds: NodeJS.Timeout[]; // Array of timeouts
   lastCheckIn: Date;
   userId: string;
   sessionId: string;
@@ -32,8 +32,10 @@ export class StudySessionWebSocketManager {
   private activeSessions: Map<string, ActiveSession> = new Map();
   private userSockets: Map<string, Set<string>> = new Map();
   private readonly CHECK_IN_TIMEOUT = 120000;
+  private prisma: PrismaClient;
 
-  constructor(server: HttpServer) {
+  constructor(server: HttpServer, prisma: PrismaClient) {
+    this.prisma = prisma;
     this.io = new SocketIOServer(server, {
       cors: {
         origin: process.env.SOCKET_CLIENT_URL || 'http://localhost:5173',
@@ -59,8 +61,6 @@ export class StudySessionWebSocketManager {
       }
 
       this.handleSocketConnection(socket, userId);
-
-      // socket.on('start_session', data => this.handleStartSession(socket, userId, data));
       socket.on('end_session', data => this.handleEndSession(socket, userId, data));
       socket.on('check_in_response', data => this.handleCheckInResponse(socket, userId, data));
       socket.on('disconnect', () => this.handleDisconnect(socket, userId));
@@ -121,7 +121,7 @@ export class StudySessionWebSocketManager {
   private handleCheckInResponse(
     socket: Socket,
     userId: string,
-    data: { checkInId: string; response: boolean },
+    data: { checkInId: string; response: boolean }
   ) {
     const session = this.activeSessions.get(userId);
     if (session) {
@@ -190,7 +190,10 @@ export class StudySessionWebSocketManager {
     session.checkInTimeouts.delete(checkInId);
 
     try {
-      const user = await User.findById(userId);
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+      });
+
       if (!user) return;
 
       // Send email using your existing utility
@@ -212,6 +215,7 @@ export class StudySessionWebSocketManager {
       console.error('Failed to handle missed check-in:', error);
     }
   }
+
   private scheduleRandomCheckins(userId: string, durationMinutes: number): NodeJS.Timeout[] {
     const durationMs = durationMinutes * 60000;
     const timeoutIds: NodeJS.Timeout[] = [];
